@@ -1,0 +1,52 @@
+[tool.poetry]
+name = "powergim"
+version = "0.1"
+description = "Power Grid Investment Module (PowerGIM)"
+authors = ["Harald G Svendsen <harald.svendsen@sintef.no>"]
+license = "MIT License (http://opensource.org/licenses/MIT)"
+readme = "README.md"
+homepage = "https://github.com/sintef/powergim"
+repository = "https://github.com/sintef/powergim"
+classifiers=[
+    "Development Status :: 4 - Beta",
+    "Topic :: Scientific/Engineering",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Natural Language :: English",
+    "License :: OSI Approved :: MIT License",
+]
+
+[tool.poetry.dependencies]
+python = ">=3.7.1,<3.11"
+networkx = "^2.6.3"
+numpy = "^1.21.4"
+pandas = "^1.3.4"
+pydot = "^1.4.2"
+PyYAML = "^6.0"
+Pyomo = "^6.1.2"
+scipy = "^1.7.2"
+tqdm = "^4.62.3"
+xlrd = "^2.0.1"
+pyarrow = "^6.0.1"
+matplotlib = {version = "^3.5.1", optional = true}
+plotly = {version = "^5.5.0", optional = true}
+seaborn = {version = "^0.11.2", optional = true}
+ipywidgets = {version = "^7", optional = true}
+ipython = {version = "^7", optional = true}
+pydantic = "^1.9.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6"
+mypy = "^.9"
+pylint = "^2"
+black = "^21.10b"
+nbmake = "^1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
