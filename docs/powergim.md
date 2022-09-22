@@ -2,16 +2,16 @@
 
 Contents:
 
-* [Modelling documentation](#markdown-header-modelling-documentation)
-* [Examples](#markdown-header-examples)
-* [What it does](#markdown-header-what-it-does)
-* [Running an optimisation](#markdown-header-running-an-optimisation)
-* [Input data](#markdown-header-input-data)
-    * [Grid data](#markdown-header-grid-data)
-    * [Time sample](#markdown-header-time-sample)
-    * [Parameters](#markdown-header-parameters)
-* [Analysis of results](#markdown-header-analysis-of-results)
-* [More about optimisation model](#markdown-header-more-about-the-powergim-optimisation-model)
+* [Modelling documentation](#modelling-documentation)
+* [Examples](#examples)
+* [What it does](#what-it-does)
+* [Running an optimisation](#mrunning-an-optimisation)
+* [Input data](#input-data)
+    * [Grid data](#grid-data)
+    * [Time sample](#time-sample)
+    * [Parameters](#parameters)
+* [Analysis of results](#analysis-of-results)
+* [More about optimisation model](#more-about-the-powergim-optimisation-model)
 
 
 ## Modelling documentation
@@ -75,7 +75,7 @@ their probabilities (P) is shown below:
 
 ## Running an optimisation
 
-See the [examples](#markdown-heading-examples).
+See the [examples](#examples).
 
 The general steps when using PowerGIM in a Python script/notebook
 to specify and solve optimisation problems are:
@@ -209,7 +209,7 @@ power and fuel costs at a given time as follows:
 
 
 ### Parameters
-Investment costs and other parameters are provided in an XML file with the
+Investment costs and other parameters are provided in an YAML file with the
 following structure:
 ```YAML
 nodetype:
@@ -257,9 +257,9 @@ parameters:
 ```
 
 Most of the parametes in the  ```nodetype```, ```branchtype``` and ```gentype```
-blocks are [cost parameters](#markdown-header-cost-model)
+blocks are [cost parameters](#cost-model)
 ```branchtype``` has the following additional parameters related to
-[power losses](#markdown-header-power-losses), and the maximum allowable
+[power losses](#power-losses), and the maximum allowable
 power rating per cable system (maxCap)
 
 Parameters specified in the ```parameters``` block are:
