@@ -24,8 +24,9 @@ specify input data and run a simulation case.
 Prerequisite: 
 - [Poetry](https://python-poetry.org/docs/#installation)
 - [Pre-commit](https://pre-commit.com/)
-- A MILP solver, e.g. the free [CBC solver](https://projects.coin-or.org/Cbc)
+- A MILP solver, e.g. the free [CBC solver](https://projects.coin-or.org/Cbc).
 Clone or download the code and install it as a python package. 
+- A working MPI implementation, preferably supporting MPI-3 and built with shared/dynamic libraries
 
 ### Install dependencies
 1. `git clone git@github.com:powergim/powergim.git`

@@ -195,6 +195,17 @@ css = ["tinycss2 (>=1.1.0,<1.2)"]
 dev = ["Sphinx (==4.3.2)", "black (==22.3.0)", "build (==0.8.0)", "flake8 (==4.0.1)", "hashin (==0.17.0)", "mypy (==0.961)", "pip-tools (==6.6.2)", "pytest (==7.1.2)", "tox (==3.25.0)", "twine (==4.0.1)", "wheel (==0.37.1)"]
 
 [[package]]
+name = "branca"
+version = "0.5.0"
+description = "Generate complex HTML+JS pages with Python"
+category = "main"
+optional = true
+python-versions = ">=3.5"
+
+[package.dependencies]
+jinja2 = "*"
+
+[[package]]
 name = "certifi"
 version = "2022.9.14"
 description = "Python package for providing Mozilla's CA Bundle."
@@ -345,6 +356,23 @@ pycodestyle = ">=2.9.0,<2.10.0"
 pyflakes = ">=2.5.0,<2.6.0"
 
 [[package]]
+name = "folium"
+version = "0.12.1.post1"
+description = "Make beautiful maps with Leaflet.js & Python"
+category = "main"
+optional = true
+python-versions = ">=3.5"
+
+[package.dependencies]
+branca = ">=0.3.0"
+jinja2 = ">=2.9"
+numpy = "*"
+requests = "*"
+
+[package.extras]
+testing = ["pytest"]
+
+[[package]]
 name = "fonttools"
 version = "4.37.3"
 description = "Tools to manipulate font files"
@@ -492,7 +520,7 @@ name = "ipywidgets"
 version = "8.0.2"
 description = "Jupyter interactive widgets"
 category = "main"
-optional = true
+optional = false
 python-versions = ">=3.7"
 
 [package.dependencies]
@@ -707,7 +735,7 @@ name = "jupyterlab-widgets"
 version = "3.0.3"
 description = "Jupyter interactive widgets for JupyterLab"
 category = "main"
-optional = true
+optional = false
 python-versions = ">=3.7"
 
 [[package]]
@@ -1721,7 +1749,7 @@ name = "widgetsnbextension"
 version = "4.0.3"
 description = "Jupyter interactive widgets for Jupyter Notebook"
 category = "main"
-optional = true
+optional = false
 python-versions = ">=3.7"
 
 [[package]]
@@ -1744,10 +1772,13 @@ python-versions = ">=3.7"
 docs = ["jaraco.packaging (>=9)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx"]
 testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=1.3)", "pytest-flake8", "pytest-mypy (>=0.9.1)"]
 
+[extras]
+plotting = ["matplotlib", "seaborn", "plotly", "folium", "branca", "jinja2"]
+
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9,<3.11"
-content-hash = "fd322e25e5f933839d5b8e3681a8a4542439ddbee341642f8b8616fd02d1f6eb"
+content-hash = "4fa8a0bec1ecfb192a92a43ffe3e0ff0d83f3aa65f0e4730cacbc76e29889a5d"
 
 [metadata.files]
 anyio = [
@@ -1844,6 +1875,10 @@ black = [
 bleach = [
     {file = "bleach-5.0.1-py3-none-any.whl", hash = "sha256:085f7f33c15bd408dd9b17a4ad77c577db66d76203e5984b1bd59baeee948b2a"},
     {file = "bleach-5.0.1.tar.gz", hash = "sha256:0d03255c47eb9bd2f26aa9bb7f2107732e7e8fe195ca2f64709fcf3b0a4a085c"},
+]
+branca = [
+    {file = "branca-0.5.0-py3-none-any.whl", hash = "sha256:781ff32bf82979584b0004bd84c254cfccda26bc31b2f7333346d03fb7b97741"},
+    {file = "branca-0.5.0.tar.gz", hash = "sha256:e6f2f7eba7dd368ceef8f63822b867f5e11d4d3abdd099a787db9ed2b7065ae1"},
 ]
 certifi = [
     {file = "certifi-2022.9.14-py3-none-any.whl", hash = "sha256:e232343de1ab72c2aa521b625c80f699e356830fd0e2c620b465b304b17b0516"},
@@ -2049,6 +2084,10 @@ fastjsonschema = [
 flake8 = [
     {file = "flake8-5.0.4-py2.py3-none-any.whl", hash = "sha256:7a1cf6b73744f5806ab95e526f6f0d8c01c66d7bbe349562d22dfca20610b248"},
     {file = "flake8-5.0.4.tar.gz", hash = "sha256:6fbe320aad8d6b95cec8b8e47bc933004678dc63095be98528b7bdd2a9f510db"},
+]
+folium = [
+    {file = "folium-0.12.1.post1-py2.py3-none-any.whl", hash = "sha256:e856ae1de0b322a719b01ceed64ea16f6f011bd28ed22e954a7f7884313da672"},
+    {file = "folium-0.12.1.post1.tar.gz", hash = "sha256:e91e57d8298f3ccf4cce3c5e065bea6eb17033e3c5432b8a22214009c266b2ab"},
 ]
 fonttools = [
     {file = "fonttools-4.37.3-py3-none-any.whl", hash = "sha256:a5bc5f5d48faa4085310b8ebd4c5d33bf27c6636c5f10a7de792510af2745a81"},
