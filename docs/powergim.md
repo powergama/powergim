@@ -211,36 +211,49 @@ power and fuel costs at a given time as follows:
 ### Parameters
 Investment costs and other parameters are provided in an XML file with the
 following structure:
-```XML
-<?xml version="1.0" encoding="utf-8"?>
-<powergim>
-<nodetype>
-  <item name="ac" L="1"	S="50e6" />
-  <item name="dc" L="1"	S="1" />
-</nodetype>
-<branchtype>
-  <item name="ac"	   B="5000e3" Bdp="1.15e3"  Bd="656e3"  CL="1562e3"  CLp="0"        CS="4813e3"  CSp="0"        maxCap="400"  lossFix="0"     lossSlope="5e-5" />
-  <item name="dcmesh"   B="5000e3" Bdp="0.47e3"  Bd="680e3"  CL="0"       CLp="0"        CS="0"       CSp="0"        maxCap="2000" lossFix="0"     lossSlope="3e-5" />
-  <item name="dcdirect" B="5000e3" Bdp="0.47e3"  Bd="680e3"  CL="20280e3" CLp="118.28e3" CS="129930e3" CSp="757.84e3" maxCap="2000" lossFix="0.032" lossSlope="3e-5" />
-  <item name="conv"     B="0"      Bdp="0"       Bd="0"      CL="10140e3" CLp="59.14e3"  CS="64965e3" CSp="378.92e3" maxCap="2000" lossFix="0.016" lossSlope="0" />
-  <item name="ac_ohl"   B="0"      Bdp="0.394e3" Bd="1187e3" CL="1562e3"  CLp="0"        CS="0"       CSp="0"        maxCap="4000" lossFix="0"     lossSlope="3e-5" />
-</branchtype>
-<gentype>
-  <item name="alt"  CX="10" CO2="0" />
-  <item name="wind" CX="0"  CO2="0" />
-</gentype>
-
-<parameters
-  financeInterestrate="0.05"
-  financeYears="30"
-  omRate="0.02"
-  curtailmentCost="0"
-  CO2price="0"
-  VOLL="0"
-  stage2TimeDelta="1"
-  stages="2"
-/>
-</powergim>
+```YAML
+nodetype:
+    ac: { L: 1, S: 50e6}
+    hvdc: { L: 1, S: 1 }
+branchtype:
+    <branchtype1>:
+        B: 5000e3
+        Bdp: 1.15e3
+        Bd: 656e3
+        CL: 1562e3
+        CLp: 0
+        CS: 4813e3
+        CSp: 0
+        maxCap: 400
+        lossFix: 0
+        lossSlope: 5e-5
+    <branchtype2>:
+        B: 5000e3
+        Bdp: 0.47e3
+        Bd: 680e3
+        CL: 0
+        CLp: 0
+        CS: 0
+        CSp: 0
+        maxCap: 2000
+        lossFix: 0
+        lossSlope: 3e-5
+gentype:
+    <gentype1>:
+       CX: 10
+       CO2: 0
+    <gentype2>:
+       CX: 0
+       CO2: 0
+parameters:
+    financeInterestrate: 0.05
+    financeYears: 40 # years
+    omRate: 0.05 # operation and maintenance
+    curtailmentCost: 0
+    CO2price: 0
+    VOLL: 10000 # very high value of lost load (loadshedding penalty)
+    stage2TimeDelta: 3 # years between investment stage 1 and 2
+    stages: 2
 ```
 
 Most of the parametes in the  ```nodetype```, ```branchtype``` and ```gentype```
