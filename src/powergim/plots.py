@@ -239,7 +239,7 @@ def plotWelfare(
             for c in model.LOAD:
                 welfare[typ][c] = (
                     sum([sip_model.computeAreaWelfare(model, c, t, s)[typ] * model.samplefactor[t] for t in model.TIME])
-                    / 10 ** 9
+                    / 10**9
                 )
         title = "Total welfare"
     else:
@@ -327,7 +327,7 @@ def plotInvestments(filename, variable, unit="capacity"):
             ax1.set_ylabel("New capacity [MW]", fontsize=12)
             ax2 = (
                 df_res[["cost_withOM", "congestion_rent"]][df_res["newCapacity"] > 0]
-                .divide(10 ** 9)
+                .divide(10**9)
                 .plot(
                     kind="bar",
                     title="costs and benefits",
@@ -389,3 +389,5 @@ def plotBranchData(sip_model, model, stage=2):
     df_branch.groupby("branch")["flow12"]
 
     return
+
+

@@ -8,8 +8,11 @@ import numpy as np
 import pyomo.environ as pyo
 import copy
 import mpisppy.scenario_tree as scenario_tree
-from powergama import constants as const
 from .utils import annuityfactor
+
+
+class const:
+    baseMVA = 100  # MVA
 
 
 def _slice_to_list(component_slice):
@@ -245,7 +248,6 @@ class SipModel:
         model.genNewCapMax = pyo.Param(model.GEN, within=pyo.Reals)
 
         # branches:
-        model.branchReactance = pyo.Param(model.BRANCH, within=pyo.NonNegativeReals)
         model.branchExistingCapacity = pyo.Param(model.BRANCH, within=pyo.NonNegativeReals)
         model.branchExistingCapacity2 = pyo.Param(model.BRANCH, within=pyo.NonNegativeReals)
         model.branchExpand = pyo.Param(model.BRANCH, within=pyo.Binary)
@@ -259,7 +261,6 @@ class SipModel:
         model.nodeExistingNumber = pyo.Param(model.NODE, within=pyo.NonNegativeIntegers)
         model.nodeOffshore = pyo.Param(model.NODE, within=pyo.Binary)
         model.nodeType = pyo.Param(model.NODE, within=model.NODETYPE)
-        model.refNodes = pyo.Param(model.NODE, within=pyo.Boolean)
 
         # generators
         model.genCostAvg = pyo.Param(model.GEN, within=pyo.Reals)
@@ -361,9 +362,6 @@ class SipModel:
             within=pyo.NonNegativeReals,
             bounds=branchFlow_bounds,
         )
-
-        # voltage angle
-        model.voltageAngle = pyo.Var(model.NODE, model.TIME, model.STAGE, within=pyo.Reals)
 
         # generator output (bounds set by constraint)
         model.generation = pyo.Var(model.GEN, model.TIME, model.STAGE, within=pyo.NonNegativeReals)
@@ -533,16 +531,7 @@ class SipModel:
                 if model.demNode[c] == n:
                     expr += -model.demandAvg[c] * model.demandProfile[c, t]
 
-            if not any([model.branchReactance[b] for b in model.BRANCH]) > 0:
-                expr = expr == 0
-            else:
-                expr = expr / const.baseMVA
-
-                rhs = 0
-                n2s = [k[1] for k in model.coeff_B.keys() if k[0] == n]
-                for n2 in n2s:
-                    rhs -= model.coeff_B[n, n2] * model.voltageAngle[n2, t, h]
-                expr = expr == rhs
+            expr = expr == 0
 
             if (type(expr) is bool) and (expr == True):
                 # Trivial constraint
@@ -550,39 +539,6 @@ class SipModel:
             return expr
 
         model.cPowerbalance = pyo.Constraint(model.NODE, model.TIME, model.STAGE, rule=powerbalance_rule)
-
-        # Power balance (power flow vs voltage angle)
-        def flowangle_rule(model, b, t, h):
-            if not any([model.branchReactance[b] for b in model.BRANCH]) > 0:
-                return pyo.Constraint.Skip
-            else:
-                lhs = model.branchFlow12[b, t, h] + model.branchFlow21[b, t, h]
-                lhs = lhs / const.baseMVA
-                rhs = 0
-                # TODO speed up- remove for loop
-                n2s = [k[1] for k in model.coeff_DA.keys() if k[0] == b]
-                for n2 in n2s:
-                    rhs += model.coeff_DA[b, n2] * model.voltageAngle[n2, t, h]
-                # for n2 in model.NODE:
-                #    if (b,n2) in model.coeff_DA.keys():
-                #        rhs += model.coeff_DA[b,n2]*model.varVoltageAngle[n2]
-                expr = lhs == rhs
-                return expr
-
-        model.cFlowAngle = pyo.Constraint(model.BRANCH, model.TIME, model.STAGE, rule=flowangle_rule)
-
-        # Reference voltag angle
-        def referenceNode_rule(model, n, t, h):
-            if not any([model.branchReactance[b] for b in model.BRANCH]) > 0:
-                return pyo.Constraint.Skip
-            else:
-                if n in model.refNodes.keys():
-                    expr = model.voltageAngle[n, t, h] == 0
-                else:
-                    expr = pyo.Constraint.Skip
-                return expr
-
-        model.cReferenceNode = pyo.Constraint(model.NODE, model.TIME, model.STAGE, rule=referenceNode_rule)
 
         # OBJECTIVE ##############################################################
         model.investmentCost = pyo.Var(model.STAGE, within=pyo.Reals)
@@ -662,7 +618,8 @@ class SipModel:
         dictionary with pyomo data (in pyomo format)
         """
 
-        branch_distances = grid_data.branchDistances()
+        branch_distances = grid_data.compute_branch_distances()
+        timerange = range(grid_data.profiles.shape[0])
 
         # to see how the data format is:
         # data = pyo.DataPortal(model=self.abstractmodel)
@@ -674,8 +631,8 @@ class SipModel:
         di["BRANCH"] = {None: grid_data.branch.index.tolist()}
         di["GEN"] = {None: grid_data.generator.index.tolist()}
         di["LOAD"] = {None: grid_data.consumer.index.tolist()}
-        di["AREA"] = {None: grid_data.getAllAreas()}
-        di["TIME"] = {None: grid_data.timerange}
+        di["AREA"] = {None: list(grid_data.node["area"].unique())}
+        di["TIME"] = {None: timerange}
         # di['STAGE'] = {None: grid_data.branch.expand[grid_data.branch['expand']>0].unique().tolist()}
 
         br_expand1 = grid_data.branch[grid_data.branch["expand"] == 1].index.tolist()
@@ -725,8 +682,8 @@ class SipModel:
         if hasattr(grid_data.profiles, "frequency"):
             di["samplefactor"] = grid_data.profiles["frequency"]
         else:
-            for t in grid_data.timerange:
-                di["samplefactor"][t] = self._HOURS_PER_YEAR / len(grid_data.timerange)
+            for t in timerange:
+                di["samplefactor"][t] = self._HOURS_PER_YEAR / len(timerange)
         di["nodeOffshore"] = {}
         di["nodeType"] = {}
         di["nodeExistingNumber"] = {}
@@ -753,7 +710,6 @@ class SipModel:
         di["branchNodeFrom"] = {}
         di["branchNodeTo"] = {}
         di["branchMaxNewCapacity"] = {}
-        di["branchReactance"] = {}
         offsh = self._offshoreBranch(grid_data)
         for k, row in grid_data.branch.iterrows():
             di["branchExistingCapacity"][k] = row["capacity"]
@@ -774,8 +730,7 @@ class SipModel:
             di["branchOffshoreTo"][k] = offsh["to"][k]
             di["branchNodeFrom"][k] = row["node_from"]
             di["branchNodeTo"][k] = row["node_to"]
-            di["branchReactance"][k] = row["reactance"]
-
+ 
         di["genCapacity"] = {}
         di["genCapacity2"] = {}
         di["genCapacityProfile"] = {}
@@ -801,7 +756,7 @@ class SipModel:
             di["genCostScale"][k] = row["cost_scaling"]
             ref = row["fuelcost_ref"]
             ref2 = row["inflow_ref"]
-            for i, t in enumerate(grid_data.timerange):
+            for i, t in enumerate(timerange):
                 di["genCostProfile"][(k, t)] = grid_data.profiles[ref][i]
                 di["genCapacityProfile"][(k, t)] = grid_data.profiles[ref2][i] * row["inflow_fac"]
 
@@ -815,7 +770,7 @@ class SipModel:
             di["demandAvg"][k] = row["demand_avg"]
             di["emissionCap"][k] = row["emission_cap"]
             ref = row["demand_ref"]
-            for i, t in enumerate(grid_data.timerange):
+            for i, t in enumerate(timerange):
                 di["demandProfile"][(k, t)] = grid_data.profiles[ref][i]
                 # if profile is negative, maxShed should be zero (not negative)
                 di["maxShed"][(k, t)] = max(0, grid_data.profiles[ref][i]) * row["demand_avg"]
@@ -860,42 +815,6 @@ class SipModel:
         di["VOLL"] = {None: float(item["VOLL"])}
         di["stage2TimeDelta"] = {None: float(item["stage2TimeDelta"])}
         di["STAGE"] = {None: list(range(1, int(item["stages"]) + 1))}
-
-        # Compute matrices used in power flow equaions
-        #        import scipy.sparse
-        #        import networkx as nx
-        print("Computing B and DA matrices...")
-        #        Bbus, DA = grid_data.computePowerFlowMatrices(const.baseZ)
-
-        n_i = di["NODE"][None]
-        b_i = di["BRANCH"][None]
-        di["coeff_B"] = dict()
-        di["coeff_DA"] = dict()
-
-        print("Creating B and DA coefficients...")
-        #        cx = scipy.sparse.coo_matrix(Bbus)
-        #        for i,j,v in zip(cx.row, cx.col, cx.data):
-        #            di['coeff_B'][(n_i[i],n_i[j])] = v
-        #
-        #        cx = scipy.sparse.coo_matrix(DA)
-        #        for i,j,v in zip(cx.row, cx.col, cx.data):
-        #            di['coeff_DA'][(b_i[i],n_i[j])] = v
-        #
-        #        # Find synchronous areas and specify reference node in each area
-        #        G = nx.Graph()
-        #        G.add_nodes_from(grid_data.node['id'])
-        #        G.add_edges_from(zip(grid_data.branch['node_from'],
-        #                             grid_data.branch['node_to']))
-        #
-        #        G_subs = nx.connected_component_subgraphs(G)
-        refnodes = []
-        #        for gr in G_subs:
-        #            refnode = gr.nodes()[0]
-        #            refnodes.append(refnode)
-        #            print("Found synchronous area (size = {}), using ref node = {}"
-        #                    .format(gr.order(),refnode))
-        # use first node as voltage angle reference
-        di["refNodes"] = {n: True for n in refnodes}
 
         return {"powergim": di}
 
