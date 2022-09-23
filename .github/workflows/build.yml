@@ -51,6 +51,10 @@ jobs:
       - name: Setup MPI
         uses: mpi4py/setup-mpi@v1
 
+      - name: Setup CBC on ubuntu
+        if: matrix.os == "ubuntu-latest"
+        run: sudo apt-get install coinor-cbc
+        
       - name: Install deps
         if: steps.cache-deps.cache-hit != 'true'
         run: |
