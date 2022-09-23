@@ -1526,7 +1526,7 @@ name = "setuptools"
 version = "65.3.0"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
 category = "main"
-optional = true
+optional = false
 python-versions = ">=3.7"
 
 [package.extras]
@@ -1780,7 +1780,7 @@ plotting = ["matplotlib", "seaborn", "plotly", "folium", "branca", "jinja2"]
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9,<3.11"
-content-hash = "abf04390e425e23fb6ca41352d64d7967a0202ec815113eb2654e6920052cdce"
+content-hash = "76826f103bcd8c5c04f3c6cc64b8c8b42b15e60e8f1d3b5401ca508735f40f8b"
 
 [metadata.files]
 anyio = [

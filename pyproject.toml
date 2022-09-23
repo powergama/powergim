@@ -48,10 +48,11 @@ black = "^22"
 nbmake = "^1"
 bandit = "^1.7.4"
 flake8 = "^5.0.4"
+setuptools = "^65.3.0"
 
 [tool.poetry.extras]
 plotting = ["matplotlib","seaborn", "plotly", "folium", "branca", "jinja2"]
 
 [build-system]
-requires = ["setuptools","poetry-core>=1.0.0"]
+requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
