@@ -1512,3 +1512,32 @@ class SipModel:
         grid_res.branch = grid_res.branch[grid_res.branch["capacity"] > self._NUMERICAL_THRESHOLD_ZERO]
         grid_res.node = grid_res.node[grid_res.node["existing"] > self._NUMERICAL_THRESHOLD_ZERO]
         return grid_res
+
+    def extract_all_variable_values(self, model):
+        """Extract variable values and return as a dictionary of pandas milti-index series"""
+        all_values = {}
+        all_obj = model.component_objects(ctype=pyo.Var)
+        for myvar in all_obj:
+            # extract the variable index names in the right order
+            if myvar._implicit_subsets is None:
+                index_names = None
+            else:
+                index_names = [index_set.name for index_set in myvar._implicit_subsets]
+            var_values = myvar.get_values()
+            if not var_values:
+                # empty dictionary, so no variables to store
+                all_values[myvar.name] = None
+                continue
+            # This creates a pandas.Series:
+            df = pd.DataFrame.from_dict(var_values, orient="index", columns=["value"])["value"]
+            if index_names is not None:
+                df.index = pd.MultiIndex.from_tuples(df.index, names=index_names)
+
+            # ignore NA values
+            df = df.dropna()
+            if df.empty:
+                all_values[myvar.name] = None
+                continue
+
+            all_values[myvar.name] = df
+        return all_values

@@ -10,10 +10,11 @@ def read_parameters(yaml_file):
     return data
 
 
-def read_profiles(filename, timerange):
+def read_profiles(filename, timerange=None):
     profiles = pd.read_csv(filename, sep=None, engine="python")
-    profiles = profiles.loc[timerange]
-    profiles.index = range(len(timerange))
+    if timerange is not None:
+        profiles = profiles.loc[timerange]
+        profiles.index = range(len(timerange))
     return profiles
 
 
