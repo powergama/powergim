@@ -15,7 +15,6 @@ classifiers=[
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
     "Natural Language :: English",
     "License :: OSI Approved :: MIT License",
 ]
@@ -39,6 +38,7 @@ seaborn = {version = "^0.12.0", optional = true}
 branca = {version = "^0.5", optional = true}
 folium = {version = "^0.12", optional = true}
 jinja2 = {version = "^3.1", optional = true}
+openpyxl = "^3.0.10"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6"
