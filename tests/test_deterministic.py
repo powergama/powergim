@@ -9,6 +9,7 @@ TEST_DATA_ROOT_PATH = Path(__file__).parent / "test_data"
 NUMERIC_THRESHOLD = 1e-3
 
 
+@pytest.mark.skipif(not pyo.SolverFactory("cbc").available(), reason="Skipping test because CBC is not available.")
 def test_deterministic():
 
     # Read input data
