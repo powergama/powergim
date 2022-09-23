@@ -53,5 +53,5 @@ flake8 = "^5.0.4"
 plotting = ["matplotlib","seaborn", "plotly", "folium", "branca", "jinja2"]
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["setuptools","poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
