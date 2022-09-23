@@ -50,8 +50,8 @@ jobs:
 
       - name: Setup MPI
         uses: mpi4py/setup-mpi@v1
-      - run: mpicc helloworld.c -o helloworld
-      - run: mpiexec -n 2 ./helloworld
+      #- run: mpicc helloworld.c -o helloworld
+      #- run: mpiexec -n 2 ./helloworld
       #- run: if ["$RUNNER_OS" == "Linux"]; then
       #          mpicc helloworld.c -o helloworld
       #          mpiexec -n 2 ./helloworld
