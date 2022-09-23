@@ -3,11 +3,13 @@ Module for power grid investment analyses
 
 """
 
-import pandas as pd
-import numpy as np
-import pyomo.environ as pyo
 import copy
+
 import mpisppy.scenario_tree as scenario_tree
+import numpy as np
+import pandas as pd
+import pyomo.environ as pyo
+
 from .utils import annuityfactor
 
 
@@ -365,6 +367,7 @@ class SipModel:
 
         # generator output (bounds set by constraint)
         model.generation = pyo.Var(model.GEN, model.TIME, model.STAGE, within=pyo.NonNegativeReals)
+
         # load shedding
         def loadShed_bounds(model, c, t, h):
             ub = model.maxShed[c, t]
@@ -424,7 +427,7 @@ class SipModel:
                 if model.branchNodeFrom[j] == n or model.branchNodeTo[j] == n:
                     expr += model.branchNewCables[j, h]
             expr = expr <= self.M_const * numnodes
-            if (type(expr) is bool) and (expr == True):
+            if (type(expr) is bool) and (expr is True):
                 expr = pyo.Constraint.Skip
             return expr
 
@@ -533,7 +536,7 @@ class SipModel:
 
             expr = expr == 0
 
-            if (type(expr) is bool) and (expr == True):
+            if (type(expr) is bool) and (expr is True):
                 # Trivial constraint
                 expr = pyo.Constraint.Skip
             return expr
@@ -1456,7 +1459,7 @@ class SipModel:
             ind_split = df_ph["var_indx"].str.split(":", expand=True)
             if ind_split.shape[1] != 3:
                 raise Exception("Was assuming different format" " - implementation error")
-            mask_only2 = ind_split[2] == None
+            mask_only2 = ind_split[2] is None
             ind_split.loc[mask_only2, 2] = ind_split.loc[mask_only2, 2]
             ind_split.loc[mask_only2, 1] = ind_split.loc[mask_only2, 2]
             df_ph[["ind_i", "ind_time", "ind_stage"]] = ind_split

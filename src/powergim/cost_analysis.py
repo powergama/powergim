@@ -1,5 +1,7 @@
 import math
+
 import pandas as pd
+
 from .utils import annuityfactor
 
 
@@ -32,9 +34,7 @@ def computeSTOcosts(grid_data, dict_data, generation=None, include_om=True):
         br_dist = distances[count]
         br_type = b["type"]
         br_cap = b["capacity"]
-        br_num = math.ceil(
-            br_cap / dict_data["powergim"]["branchtypeMaxCapacity"][br_type]
-        )
+        br_num = math.ceil(br_cap / dict_data["powergim"]["branchtypeMaxCapacity"][br_type])
         ar = 0
         salvagefactor = 0
         discount_t0 = 1
@@ -46,19 +46,13 @@ def computeSTOcosts(grid_data, dict_data, generation=None, include_om=True):
         elif b["expand2"] == 1:
             b_stage = 2
             ar = annuityfactor(f_rate, f_years) - annuityfactor(f_rate, stage2delta)
-            salvagefactor = (stage2delta / f_years) * (
-                1 / ((1 + f_rate) ** (f_years - stage2delta))
-            )
+            salvagefactor = (stage2delta / f_years) * (1 / ((1 + f_rate) ** (f_years - stage2delta)))
             discount_t0 = 1 / ((1 + f_rate) ** stage2delta)
 
         b_cost = 0
         b_cost += dict_data["powergim"]["branchtypeCost"][(br_type, "B")] * br_num
-        b_cost += (
-            dict_data["powergim"]["branchtypeCost"][(br_type, "Bd")] * br_dist * br_num
-        )
-        b_cost += (
-            dict_data["powergim"]["branchtypeCost"][(br_type, "Bdp")] * br_dist * br_cap
-        )
+        b_cost += dict_data["powergim"]["branchtypeCost"][(br_type, "Bd")] * br_dist * br_num
+        b_cost += dict_data["powergim"]["branchtypeCost"][(br_type, "Bdp")] * br_dist * br_cap
 
         # endpoints offshore (N=1) or onshore (N=0)
         N1 = dict_data["powergim"]["branchOffshoreFrom"][br_indx]
@@ -92,7 +86,7 @@ def computeSTOcosts(grid_data, dict_data, generation=None, include_om=True):
     # NODES (not yet)
 
     # GENERATION (op cost)
-    if not generation is None:
+    if generation is not None:
         df_gen1 = generation[0]
         df_gen2 = generation[1]
         ar1 = annuityfactor(f_rate, stage2delta)
@@ -101,18 +95,14 @@ def computeSTOcosts(grid_data, dict_data, generation=None, include_om=True):
         for count in range(grid_data.generator.shape[0]):
             g_indx = grid_data.generator.index[count]
             gen1 = sum(
-                df_gen1[(df_gen1["gen"] == g_indx) & (df_gen1["time"] == t)][
-                    "value"
-                ].iloc[0]
+                df_gen1[(df_gen1["gen"] == g_indx) & (df_gen1["time"] == t)]["value"].iloc[0]
                 * dict_data["powergim"]["genCostAvg"][g_indx]
                 * dict_data["powergim"]["genCostProfile"][(g_indx, t)]
                 * samplefactor[t]
                 for t in grid_data.timerange
             )
             gen2 = sum(
-                df_gen2[(df_gen2["gen"] == g_indx) & (df_gen2["time"] == t)][
-                    "value"
-                ].iloc[0]
+                df_gen2[(df_gen2["gen"] == g_indx) & (df_gen2["time"] == t)]["value"].iloc[0]
                 * dict_data["powergim"]["genCostAvg"][g_indx]
                 * dict_data["powergim"]["genCostProfile"][(g_indx, t)]
                 * samplefactor[t]

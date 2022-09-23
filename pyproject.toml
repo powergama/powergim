@@ -49,6 +49,7 @@ nbmake = "^1"
 bandit = "^1.7.4"
 flake8 = "^5.0.4"
 setuptools = "^65.3.0"
+pre-commit = "^2.20.0"
 
 [tool.poetry.extras]
 plotting = ["matplotlib","seaborn", "plotly", "folium", "branca", "jinja2"]

@@ -1,10 +1,11 @@
-import pandas as pd
+import itertools
 import math
+
+import branca
 import folium
 import folium.plugins
-import branca
-import itertools
 import jinja2
+import pandas as pd
 
 
 def plot_map(

@@ -69,16 +69,16 @@ class GridData(object):
         """Use default data where none is given"""
         # generators:
         for col, val in keys["generator"].items():
-            if val != None:
+            if val is not None:
                 self.generator[col] = self.generator[col].fillna(keys["generator"][col])
         # consumers:
         for col, val in keys["consumer"].items():
-            if val != None:
+            if val is not None:
                 self.consumer[col] = self.consumer[col].fillna(keys["consumer"][col])
 
         # branches:
         for col, val in keys["branch"].items():
-            if val != None:
+            if val is not None:
                 self.branch[col] = self.branch[col].fillna(keys["branch"][col])
 
     def _addDefaultColumns(self, keys, remove_extra_columns=False):
@@ -105,16 +105,16 @@ class GridData(object):
         """check if all required columns are present
         (ie. all columns with no default value)"""
         for k, v in keys["node"].items():
-            if v == None and not k in self.node:
+            if v is None and k not in self.node:
                 raise Exception("Node input file must contain %s" % k)
         for k, v in keys["branch"].items():
-            if v == None and not k in self.branch:
+            if v is None and k not in self.branch:
                 raise Exception("Branch input file must contain %s" % k)
         for k, v in keys["generator"].items():
-            if v == None and not k in self.generator:
+            if v is None and k not in self.generator:
                 raise Exception("Generator input file must contain %s" % k)
         for k, v in keys["consumer"].items():
-            if v == None and not k in self.consumer:
+            if v is None and k not in self.consumer:
                 raise Exception("Consumer input file must contain %s" % k)
 
     def _checkGridData(self):
@@ -122,19 +122,19 @@ class GridData(object):
 
         # generator nodes
         for g in self.generator["node"]:
-            if not g in self.node["id"].values:
+            if g not in self.node["id"].values:
                 raise Exception("Generator node does not exist: '%s'" % g)
         # consumer nodes
         for c in self.consumer["node"]:
-            if not c in self.node["id"].values:
+            if c not in self.node["id"].values:
                 raise Exception("Consumer node does not exist: '%s'" % c)
 
         # branch nodes
         for c in self.branch["node_from"]:
-            if not c in self.node["id"].values:
+            if c not in self.node["id"].values:
                 raise Exception("Branch from node does not exist: '%s'" % c)
         for c in self.branch["node_to"]:
-            if not c in self.node["id"].values:
+            if c not in self.node["id"].values:
                 raise Exception("Branch to node does not exist: '%s'" % c)
 
     def compute_branch_distances(self, R=6373.0):
@@ -152,10 +152,10 @@ class GridData(object):
         n_to = self.get_branch_to_node_index()
         distance = []
         # get endpoint coordinates and convert to radians
-        lats1 = self.node.loc[n_from,"lat"].apply(math.radians)
-        lons1 = self.node.loc[n_from,"lon"].apply(math.radians)
-        lats2 = self.node.loc[n_to,"lat"].apply(math.radians)
-        lons2 = self.node.loc[n_to,"lon"].apply(math.radians)
+        lats1 = self.node.loc[n_from, "lat"].apply(math.radians)
+        lons1 = self.node.loc[n_from, "lon"].apply(math.radians)
+        lats2 = self.node.loc[n_to, "lat"].apply(math.radians)
+        lons2 = self.node.loc[n_to, "lon"].apply(math.radians)
         lats1.index = self.branch.index
         lons1.index = self.branch.index
         lats2.index = self.branch.index

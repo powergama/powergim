@@ -1,10 +1,8 @@
-import pandas as pd
 import numpy as np
-from scipy.stats.distributions import norm
-from sklearn.cluster import KMeans
-from sklearn.neighbors import KernelDensity
+import pandas as pd
 import sklearn.cluster
 import sklearn.preprocessing
+from sklearn.cluster import KMeans
 
 
 def _TMPsample_kmeans(X, samplesize):
@@ -85,55 +83,6 @@ def _TMPsample_meanshift(X, samplesize):
     # print("number of estimated clusters : %d" % n_clusters_)
 
     return cluster_centers
-
-
-def _TMPsample_latinhypercube(X, samplesize):
-    """Latin hypercube sampling
-
-    Parameters
-    ==========
-    X : matrix
-        data matrix to sample from
-    samplesize : int
-        size of sample
-
-    This method relies on pyDOE.lhs(n, [samples, criterion, iterations])
-
-    """
-    """
-    lhs(n, [samples, criterion, iterations])
-
-    n:an integer that designates the number of factors (required)
-    samples: an integer that designates the number of sample points to generate
-        for each factor (default: n)
-    criterion: a string that tells lhs how to sample the points (default: None,
-        which simply randomizes the points within the intervals):
-        “center” or “c”: center the points within the sampling intervals
-        “maximin” or “m”: maximize the minimum distance between points, but place
-                          the point in a randomized location within its interval
-        “centermaximin” or “cm”: same as “maximin”, but centered within the intervals
-        “correlation” or “corr”: minimize the maximum correlation coefficient
-    """
-    from pyDOE import lhs
-
-    X_rows = X.shape[0]
-    X_cols = X.shape[1]
-    X_mean = X.mean()
-    X_std = X.std()
-    X_sample = lhs(X_cols, samples=samplesize, criterion="center")
-    kernel = False
-    if kernel:
-        # Fit data w kernel density
-        kde = KernelDensity(kernel="gaussian", bandwidth=0.2).fit(X)
-        kde.score_samples(X)
-        # random sampling (TODO: fit to latin hypercube sample):
-        kde_sample = kde.sample(samplesize)
-    else:
-        # Fit data w normal distribution
-        for i in range(X_cols):
-            X_sample[:, i] = norm(loc=X_mean[i], scale=X_std[i]).ppf(X_sample[:, i])
-
-    return X_sample
 
 
 def sampleProfileData(data, samplesize, sampling_method):
@@ -253,18 +202,9 @@ def sampleProfileData(data, samplesize, sampling_method):
         X_sample["const"] = 1
         return X_sample
 
-    elif sampling_method == "mmatching":
-        print("Using moment matching... -> NOT IMPLEMENTED")
     elif sampling_method == "meanshift":
         print("Using Mean-Shift... -> EXPERIMENTAL")
         X_sample = _TMPsample_meanshift(X, samplesize)
-        return X_sample
-    elif sampling_method == "lhs":
-        print("Using Latin-Hypercube... -> EXPERIMENTAL")
-        X_sample = _TMPsample_latinhypercube(X, samplesize)
-        X_sample = pd.DataFrame(data=X_sample, columns=X.columns)
-        X_sample["const"] = 1
-        X_sample[(X_sample < 0)] = 0
         return X_sample
     elif sampling_method == "uniform":
         print("Using uniform sampling (consider changing sampling method!)...")
