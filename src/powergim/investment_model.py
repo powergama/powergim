@@ -730,7 +730,7 @@ class SipModel:
             di["branchOffshoreTo"][k] = offsh["to"][k]
             di["branchNodeFrom"][k] = row["node_from"]
             di["branchNodeTo"][k] = row["node_to"]
- 
+
         di["genCapacity"] = {}
         di["genCapacity2"] = {}
         di["genCapacityProfile"] = {}
@@ -1230,8 +1230,9 @@ class SipModel:
                         [model.branchFlow21[(j, t, s)].value for t in model.TIME]
                     )
                     cap1 = model.branchExistingCapacity[j] + model.branchNewCapacity[j, s].value
-                    df_branches.loc[j, "flow12%_1"] = df_branches.loc[j, "flow12avg_1"] / cap1
-                    df_branches.loc[j, "flow21%_1"] = df_branches.loc[j, "flow21avg_1"] / cap1
+                    if cap1 > 0:
+                        df_branches.loc[j, "flow12%_1"] = df_branches.loc[j, "flow12avg_1"] / cap1
+                        df_branches.loc[j, "flow21%_1"] = df_branches.loc[j, "flow21avg_1"] / cap1
                 elif s == 2:
                     df_branches.loc[j, "newCables2"] = model.branchNewCables[j, s].value
                     df_branches.loc[j, "newCapacity2"] = model.branchNewCapacity[j, s].value
@@ -1243,8 +1244,9 @@ class SipModel:
                     )
                     cap1 = model.branchExistingCapacity[j] + model.branchNewCapacity[j, s - 1].value
                     cap2 = cap1 + model.branchExistingCapacity2[j] + model.branchNewCapacity[j, s].value
-                    df_branches.loc[j, "flow12%_2"] = df_branches.loc[j, "flow12avg_2"] / cap2
-                    df_branches.loc[j, "flow21%_2"] = df_branches.loc[j, "flow21avg_2"] / cap2
+                    if cap2 > 0:
+                        df_branches.loc[j, "flow12%_2"] = df_branches.loc[j, "flow12avg_2"] / cap2
+                        df_branches.loc[j, "flow21%_2"] = df_branches.loc[j, "flow21avg_2"] / cap2
             # branch costs
             df_branches.loc[j, "cost"] = sum(self.computeCostBranch(model, j, stage) for stage in model.STAGE)
             df_branches.loc[j, "cost_withOM"] = sum(
@@ -1369,13 +1371,12 @@ class SipModel:
         df_cost.loc["newGeneration", "unit"] = "10^9 EUR"
         df_cost.loc["newNodes", "unit"] = "10^9 EUR"
 
-        writer = pd.ExcelWriter(excel_file)
-        df_cost.to_excel(excel_writer=writer, sheet_name="cost")
-        df_branches.to_excel(excel_writer=writer, sheet_name="branches")
-        df_nodes.to_excel(excel_writer=writer, sheet_name="nodes")
-        df_gen.to_excel(excel_writer=writer, sheet_name="generation")
-        df_load.to_excel(excel_writer=writer, sheet_name="demand")
-        writer.save()
+        with pd.ExcelWriter(excel_file) as writer:
+            df_cost.to_excel(excel_writer=writer, sheet_name="cost")
+            df_branches.to_excel(excel_writer=writer, sheet_name="branches")
+            df_nodes.to_excel(excel_writer=writer, sheet_name="nodes")
+            df_gen.to_excel(excel_writer=writer, sheet_name="generation")
+            df_load.to_excel(excel_writer=writer, sheet_name="demand")
 
     def extractResultingGridData(self, grid_data, model=None, file_ph=None, stage=1, scenario=None, newData=False):
         """Extract resulting optimal grid layout from simulation results

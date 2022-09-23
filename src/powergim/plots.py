@@ -360,6 +360,7 @@ def plotInvestments(filename, variable, unit="capacity"):
     return
 
 
+# TODO: move this elsewhere - extract branch data from model
 def plotBranchData(sip_model, model, stage=2):
     """
     Plot branch data
@@ -378,16 +379,17 @@ def plotBranchData(sip_model, model, stage=2):
             df_branch.loc[i, "weight"] = model.samplefactor[t]
             df_branch.loc[i, "flow12"] = model.branchFlow12[b, t, s].value
             df_branch.loc[i, "flow21"] = model.branchFlow21[b, t, s].value
-            df_branch.loc[i, "utilization"] = (
-                model.branchFlow12[b, t, s].value + model.branchFlow21[b, t, s].value
-            ) / (
+            df_branch.loc[i, f"cap_{s}"] = (
                 model.branchExistingCapacity[b]
                 + model.branchExistingCapacity2[b]
                 + sum(model.branchNewCapacity[b, h + 1].value for h in range(s))
             )
+            cap = df_branch.loc[i, f"cap_{s}"]
+            util = np.nan
+            if cap > 0:
+                util = (model.branchFlow12[b, t, s].value + model.branchFlow21[b, t, s].value) / cap
+            df_branch.loc[i, "utilization"] = util
 
-    df_branch.groupby("branch")["flow12"]
+    df_branch.groupby("branch")["flow12"].plot.bar(stacked=True)
 
-    return
-
-
+    return df_branch
