@@ -1,4 +1,10 @@
 
+[![GitHub license](https://img.shields.io/github/license/powergama/powergim)](https://github.com/powergama/powergim/blob/main/LICENSE)
+[![Python](https://img.shields.io/badge/python-3.9%20%7C%203.10-blue.svg)](https://python.org)
+[![Code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/powergama/powergim)
+![GitHub Workflow Status](https://img.shields.io/github/workflow/status/powergama/powergim/CI%20Build)
+![GitHub branch checks state](https://img.shields.io/github/checks-status/powergama/powergim/main)
 
 # Power Grid Investment Module (PowerGIM)
 
@@ -40,8 +46,6 @@ Clone or download the code and install it as a python package.
 These pipelines are defined:
 
 1. Build: Building and testing on multiple OS and python versions. Triggered on any push to GitHub.
-3. Release: Create release based on tags starting on v*.
-4. Publish: Publish the package to PyPi when a release is marked as published.
 
 ## Contribute
 You are welcome to contribute to the improvement of the code.
