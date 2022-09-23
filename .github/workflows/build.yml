@@ -55,6 +55,12 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt-get install coinor-cbc
         
+      - name: Setup CBC on macos
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew tap coin-or-tools/coinor
+          brew install coin-or-tools/coinor/cbc
+        
       - name: Install deps
         if: steps.cache-deps.cache-hit != 'true'
         run: |
