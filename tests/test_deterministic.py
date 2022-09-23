@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pandas as pd
 import pyomo.environ as pyo
+import pytest
 
 import powergim as pgim
 
