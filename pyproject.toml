@@ -57,3 +57,6 @@ plotting = ["matplotlib","seaborn", "plotly", "folium", "branca", "jinja2"]
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[pytest]
+pythonpath = tests/stochastic
