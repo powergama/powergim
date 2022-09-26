@@ -1,0 +1,12 @@
+id,area,lat,lon,offshore,existing,cost_scaling,type
+UK_Teeside,UK,54.623032,-1.124417,0,1,1,ac
+DE_coast,DE,53.091499,7.69241,0,1,1,ac
+NO_coast,NO,58.111367,6.777425,0,1,1,ac
+DK_coast,DK,55.66017785,8.163513689,0,1,1,ac
+DK_main,DK,55.38441581,10.54809612,0,1,1,ac
+UK_main,UK,52.5,-1,0,1,1,ac
+DE_main,DE,51,9,0,1,1,ac
+NO_main,NO,60.5,11,0,1,1,ac
+UK_dog,UK,54.91893311,1.659903997,1,1,1,ac
+NO_SN,NO,56.9,5.2515,1,1,1,ac
+DK_hub,DK,56.0475,5.3174,1,1,1,ac

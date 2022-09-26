@@ -853,7 +853,6 @@ class SipModel:
             cond_prob=1.0,
             stage=1,
             cost_expression=model.opCost[1] + model.investmentCost[1],
-            scen_name_list=None,  # Deprecated?
             nonant_list=stage1vars,
             scen_model=model,
         )
