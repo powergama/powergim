@@ -63,6 +63,7 @@ def test_stochastic_ef():
     # assert all_var_values["scen2.opCost"][2] == pytest.approx(5.3318421e10)
 
 
+@pytest.mark.skipif(not pyo.SolverFactory("cbc").available(), reason="Skipping test because CBC is not available.")
 def test_stochastic_ph():
     ph = northsea.solve_ph("cbc")
 
@@ -71,6 +72,7 @@ def test_stochastic_ph():
     assert 1 == 1
 
 
+@pytest.mark.skipif(not pyo.SolverFactory("cbc").available(), reason="Skipping test because CBC is not available.")
 def test_stochastic_ph_mpi():
     mpiexec_arg = ""
     progname = "northsea.py"
