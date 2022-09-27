@@ -1,6 +1,8 @@
+import sys
 from pathlib import Path
 
 import mpi4py
+import mpisppy.opt.ph
 import mpisppy.utils.sputils
 import pandas as pd
 import pyomo.environ as pyo
@@ -12,6 +14,8 @@ NUMERIC_THRESHOLD = 1e-3
 
 NUM_SCENARIOS = 4
 
+TMP_PATH = Path()
+
 
 def my_scenario_creator(scenario_name, grid_data, parameter_data):
     """Create a scenario."""
@@ -19,7 +23,9 @@ def my_scenario_creator(scenario_name, grid_data, parameter_data):
 
     # Read input data
     sip = pgim.SipModel()
-    dict_data = sip.createModelData(grid_data, parameter_data, maxNewBranchNum=5, maxNewBranchCap=5000)
+    dict_data = sip.createModelData(
+        grid_data, parameter_data, maxNewBranchNum=5, maxNewBranchCap=5000, maxNewGenCap=5000
+    )
 
     # Adjust data according to scenario name
     num_scenarios = NUM_SCENARIOS
@@ -56,12 +62,13 @@ def my_scenario_denouement(rank, scenario_name, scenario):
     dfs = []
     for varname, data in all_var_values_dict.items():
         df = pd.DataFrame(data).reset_index()
-        df["variable"] = varname
+        df.loc[:, "variable"] = varname
         dfs.append(df)
-    pd.concat(dfs).to_csv(f"ph_res_ALL_{scenario_name}.csv")
+    pd.concat(dfs).to_csv(TMP_PATH / f"ph_res_ALL_{scenario_name}.csv")
 
 
 def solve_ph(solver_name):
+
     # Read input data
     grid_data = pgim.file_io.read_grid(
         nodes=TEST_DATA_ROOT_PATH / "nodes.csv",
@@ -95,8 +102,8 @@ def solve_ph(solver_name):
         "linearize_proximal_terms": True,  # True gives error (bug in mpisppy code)
         "proximal_linearization_tolerance ": 0.1,  # default =1e-1
         "initial_proximal_cut_count": 2,  # default = 2
-        "iter0_solver_options": {"mipgap": 0.01},  # dict(),
-        "iterk_solver_options": {"mipgap": 0.005},  # dict(),
+        "iter0_solver_options": dict(),  # {"mipgap": 0.01},  # dict(),
+        "iterk_solver_options": dict(),  # {"mipgap": 0.005},  # dict(),
     }
     ph = mpisppy.opt.ph.PH(
         options,
@@ -125,9 +132,13 @@ def solve_ph(solver_name):
             res_ph.append({"scen": scenario_name, "var": variable_name, "value": variable_value})
         df_res = pd.DataFrame(data=res_ph)
         print(f"{rank}: Saving to file...ph_res_rank0.csv")
-        df_res.to_csv("ph_res_rank0.csv")
-    return ph
+        df_res.to_csv(TMP_PATH / "ph_res_rank0.csv")
+    return ph, df_res
 
 
 if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        filepath = sys.argv[1]
+        TMP_PATH = Path(filepath)
+
     main_ph = solve_ph(solver_name="cbc")

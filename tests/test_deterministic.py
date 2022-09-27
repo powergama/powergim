@@ -26,7 +26,9 @@ def test_deterministic():
 
     # Prepare model
     sip = pgim.SipModel()
-    dict_data = sip.createModelData(grid_data, parameter_data, maxNewBranchNum=5, maxNewBranchCap=5000)
+    dict_data = sip.createModelData(
+        grid_data, parameter_data, maxNewBranchNum=5, maxNewBranchCap=5000, maxNewGenCap=5000
+    )
     model = sip.createConcreteModel(dict_data)
     grid_data.branch["dist_computed"] = grid_data.compute_branch_distances()
 

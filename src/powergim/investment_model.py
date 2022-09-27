@@ -295,26 +295,26 @@ class SipModel:
 
         # VARIABLES ##########################################################
 
+        # NOTE: bounds vs constraints
+        # In general, variable limits are given by constraints.
+        # But bounds are needed when linearising proximal terms in stochastic
+        # optimisation and are therefore included. Note also that Pyomo gives error if lb=ub (a bug),
+        # so instead of specifying bounds lb=ub, we do it as constraint.
+
         # investment: new branch capacity
         def branchNewCapacity_bounds(model, j, h):
-            if h > 1:
-                return (0, model.branchMaxNewCapacity[j] * model.branchExpand2[j])
-            else:
-                return (0, model.branchMaxNewCapacity[j] * model.branchExpand[j])
+            return (0, model.branchMaxNewCapacity[j])
 
         model.branchNewCapacity = pyo.Var(
             model.BRANCH,
             model.STAGE,
             within=pyo.NonNegativeReals,
-            bounds=branchNewCapacity_bounds,
+            bounds=branchNewCapacity_bounds,  # needed for proximal term linearisation in stochastic optimisation
         )
 
-        # investment: new branch cables
+        # investment: new branch cables (needed for linearisation, see also model.cMaxNumberCables)
         def branchNewCables_bounds(model, j, h):
-            if h > 1:
-                return (0, model.maxNewBranchNum * model.branchExpand2[j])
-            else:
-                return (0, model.maxNewBranchNum * model.branchExpand[j])
+            return (0, model.maxNewBranchNum)
 
         model.branchNewCables = pyo.Var(
             model.BRANCH,
@@ -328,15 +328,13 @@ class SipModel:
 
         # investment: generation capacity
         def genNewCapacity_bounds(model, g, h):
-            if h > 1:
-                return (0, model.genNewCapMax[g] * model.genExpand2[g])
-            else:
-                return (0, model.genNewCapMax[g] * model.genExpand[g])
+            return (0, model.genNewCapMax[g])
 
         model.genNewCapacity = pyo.Var(
             model.GEN, model.STAGE, within=pyo.NonNegativeReals, bounds=genNewCapacity_bounds, initialize=0
         )
 
+        # TODO: NOT NEEDED AS provided as constraint
         # branch power flow (also given by constraints??)
         def branchFlow_bounds(model, j, t, h):
             if h == 1:
@@ -355,14 +353,14 @@ class SipModel:
             model.TIME,
             model.STAGE,
             within=pyo.NonNegativeReals,
-            bounds=branchFlow_bounds,
+            # bounds=branchFlow_bounds,
         )
         model.branchFlow21 = pyo.Var(
             model.BRANCH,
             model.TIME,
             model.STAGE,
             within=pyo.NonNegativeReals,
-            bounds=branchFlow_bounds,
+            # bounds=branchFlow_bounds,
         )
 
         # generator output (bounds set by constraint)
@@ -409,6 +407,15 @@ class SipModel:
         model.cMaxFlow12 = pyo.Constraint(model.BRANCH, model.TIME, model.STAGE, rule=maxflow12_rule)
         model.cMaxFlow21 = pyo.Constraint(model.BRANCH, model.TIME, model.STAGE, rule=maxflow21_rule)
 
+        # number of cables is limited
+        def max_new_cables_rule(model, branch, stage):
+            if stage > 1:
+                return model.branchNewCables[branch, stage] <= model.maxNewBranchNum * model.branchExpand2[branch]
+            else:
+                return model.branchNewCables[branch, stage] <= model.maxNewBranchNum * model.branchExpand[branch]
+
+        model.cMaxNumberCables = pyo.Constraint(model.BRANCH, model.STAGE, rule=max_new_cables_rule)
+
         # No new branch capacity without new cables
         def maxNewCap_rule(model, j, h):
             typ = model.branchType[j]
@@ -432,6 +439,15 @@ class SipModel:
             return expr
 
         model.cNewNodes = pyo.Constraint(model.NODE, model.STAGE, rule=newNodes_rule)
+
+        # Limit new generator capacity
+        def genNewCapacity_rule(model, gen, stage):
+            if stage > 1:
+                return (0, model.genNewCapMax[gen] * model.genExpand2[gen])
+            else:
+                return (0, model.genNewCapMax[gen] * model.genExpand[gen])
+
+        model.cMaxNewGenCapacity = pyo.Constraint(model.GEN, model.STAGE, rule=genNewCapacity_rule)
 
         # Generator output limitations
         # TODO: add option to set minimum output = timeseries for renewable,
@@ -602,7 +618,7 @@ class SipModel:
         concretemodel = self.abstractmodel.create_instance(data=dict_data, name="PowerGIM Model", namespace="powergim")
         return concretemodel
 
-    def createModelData(self, grid_data, parameter_data, maxNewBranchNum, maxNewBranchCap):
+    def createModelData(self, grid_data, parameter_data, maxNewBranchNum, maxNewBranchCap, maxNewGenCap):
         """Create model data in dictionary format
 
         Parameters
@@ -614,7 +630,11 @@ class SipModel:
         maxNewBranchNum : int
             upper limit on parallel branches to consider (e.g. 10)
         maxNewBranchCap : float (MW)
-            upper limit on new capacity to consider (e.g. 10000)
+            upper limit on new capacity to consider (e.g. 10000).
+            Used as fallback if no value>0 is given for branch
+        maxNewGenCap : float (MW)
+            upper limit on new generator capacity to consider (e.g. 10000).
+            Used as fallback if no value>0 is given for generator
 
         Returns
         --------
@@ -754,7 +774,10 @@ class SipModel:
             di["genPAvg"][k] = row["pavg"]
             di["genExpand"][k] = row["expand"]
             di["genExpand2"][k] = row["expand2"]
-            di["genNewCapMax"][k] = row["p_maxNew"]
+            if row["p_maxNew"] > 0:
+                di["genNewCapMax"][k] = row["p_maxNew"]
+            else:
+                di["genNewCapMax"][k] = maxNewGenCap
             di["genType"][k] = row["type"]
             di["genCostScale"][k] = row["cost_scaling"]
             ref = row["fuelcost_ref"]

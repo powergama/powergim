@@ -64,20 +64,23 @@ def test_stochastic_ef():
 
 
 @pytest.mark.skipif(not pyo.SolverFactory("cbc").available(), reason="Skipping test because CBC is not available.")
-def test_stochastic_ph():
-    ph = northsea.solve_ph("cbc")
+def test_stochastic_ph(tmp_path):
+    # TODO: is this allowed?
+    northsea.TMP_PATH = tmp_path
+    print(f"PATH used for stochastic_ph = {tmp_path} / {northsea.TMP_PATH}")
+
+    ph, df_res = northsea.solve_ph("cbc")
 
     assert ph is not None
-
-    assert 1 == 1
+    assert isinstance(df_res, pd.DataFrame)
 
 
 @pytest.mark.skipif(not pyo.SolverFactory("cbc").available(), reason="Skipping test because CBC is not available.")
-def test_stochastic_ph_mpi():
+def test_stochastic_ph_mpi(tmp_path):
     mpiexec_arg = ""
-    progname = "northsea.py"
+    progname = Path(__file__).absolute().parent / "northsea.py"
     np = 4  # need a licence per progrm (only have 1 for gurobi)
-    argstring = "ph"
+    argstring = tmp_path
     runstring_ph = f"mpiexec {mpiexec_arg} -np {np} python -m mpi4py {progname} {argstring} --with-display-progress"
 
     print(runstring_ph)
@@ -85,11 +88,12 @@ def test_stochastic_ph_mpi():
     print("Exit code {}".format(exit_code_ph))
 
     for scenario_name in [f"scen{k}" for k in range(northsea.NUM_SCENARIOS)]:
-        df_scen = pd.read_csv(f"ph_res_ALL_{scenario_name}.csv")
-
+        df_scen = pd.read_csv(tmp_path / f"ph_res_ALL_{scenario_name}.csv")
         assert isinstance(df_scen, pd.DataFrame)
 
-    assert 1 == 1
+        # the result is not very stable with so few iterations, so skip this test
+        # mask_cable1 = (df_scen["variable"] == "branchNewCables") & (df_scen["STAGE"] == "1")
+        # assert df_scen.loc[mask_cable1, "value"].sum() == 4
 
 
 if __name__ == "__main__":
