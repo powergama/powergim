@@ -58,8 +58,8 @@ jobs:
       - name: Setup CBC on macos
         if: matrix.os == 'macos-latest'
         run: |
-          brew tap coin-or-tools/coinor
-          brew install coin-or-tools/coinor/cbc
+          sudo brew tap coin-or-tools/coinor
+          sudo brew install coin-or-tools/coinor/cbc
           echo "/usr/local/opt/cbc/bin" >> $GITHUB_PATH
         
       - name: Install deps
