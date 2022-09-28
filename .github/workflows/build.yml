@@ -60,6 +60,7 @@ jobs:
         run: |
           brew tap coin-or-tools/coinor
           brew install coin-or-tools/coinor/cbc
+          echo "/usr/local/opt/cbc/bin" >> $GITHUB_PATH
         
       - name: Install deps
         if: steps.cache-deps.cache-hit != 'true'
