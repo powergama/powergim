@@ -65,9 +65,7 @@ def test_stochastic_ef():
 
 @pytest.mark.skipif(not pyo.SolverFactory("cbc").available(), reason="Skipping test because CBC is not available.")
 def test_stochastic_ph(tmp_path):
-    # TODO: is this allowed?
     northsea.TMP_PATH = tmp_path
-    print(f"PATH used for stochastic_ph = {tmp_path} / {northsea.TMP_PATH}")
 
     ph, df_res = northsea.solve_ph("cbc")
 
@@ -94,9 +92,3 @@ def test_stochastic_ph_mpi(tmp_path):
         # the result is not very stable with so few iterations, so skip this test
         # mask_cable1 = (df_scen["variable"] == "branchNewCables") & (df_scen["STAGE"] == "1")
         # assert df_scen.loc[mask_cable1, "value"].sum() == 4
-
-
-if __name__ == "__main__":
-    test_stochastic_ef()
-    test_stochastic_ph()
-    test_stochastic_ph_mpi()

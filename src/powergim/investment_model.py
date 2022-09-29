@@ -1563,3 +1563,21 @@ class SipModel:
 
             all_values[myvar.name] = df
         return all_values
+
+    def model_info(self, model):
+        """Return info about model as dictionary"""
+        model_vars = model.component_data_objects(ctype=pyo.Var)
+        varlist = list(model_vars)
+        integers = [v.is_integer() for v in varlist]
+        continuous = [v.is_continuous() for v in varlist]
+        constraints = list(model.component_data_objects(ctype=pyo.Constraint))
+        objectives = list(model.component_data_objects(ctype=pyo.Objective))
+        info = dict()
+        info["number of variables"] = len(varlist)
+        info["number of integer variables"] = sum(integers)
+        info["number of continuous variables"] = sum(continuous)
+        info["number of constraints"] = len(constraints)
+        info["number of objectives"] = len(objectives)
+        var_overview = {data.name: len(list(data)) for data in model.component_map(pyo.Var, active=True).values()}
+        info["variables"] = var_overview
+        return info
