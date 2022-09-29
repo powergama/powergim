@@ -61,7 +61,7 @@ jobs:
 
       - name: Setup CBC on Windows
         if: matrix.os == 'windows-latest'
-        run: choco install graphviz
+        run: choco install cbc
         shell: bash
 
       - name: Install deps
