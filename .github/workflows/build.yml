@@ -18,12 +18,12 @@ jobs:
     strategy:
       matrix:
         os:
-          #      - "ubuntu-latest"
-          #      - "macos-latest"
+          - "ubuntu-latest"
+          - "macos-latest"
           - "windows-latest"
         python-version:
           - "3.9"
-    #      - "3.10"
+          - "3.10"
     steps:
       - name: Checkout code
         uses: actions/checkout@v3.0.2
@@ -59,10 +59,10 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: brew install cbc
 
-      - name: Setup CBC on Windows
-        if: matrix.os == 'windows-latest'
-        run: choco install cbc
-        shell: bash
+      # - name: Setup CBC on Windows
+      #   if: matrix.os == 'windows-latest'
+      #   run: choco install cbc # package not found
+      #   shell: bash
 
       - name: Install deps
         if: steps.cache-deps.cache-hit != 'true'
