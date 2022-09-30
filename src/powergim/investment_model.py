@@ -23,7 +23,7 @@ def _slice_to_list(component_slice):
     return mylist
 
 
-class SipModel:
+class SipModel(pyo.ConcreteModel):
     """
     Power Grid Investment Module - Stochastic Investment Problem
     """
@@ -31,7 +31,7 @@ class SipModel:
     _NUMERICAL_THRESHOLD_ZERO = 1e-6
     _HOURS_PER_YEAR = 8760
 
-    def __init__(self, M_const=1000):
+    def __init__(self, grid_data, parameter_data, M_const=1000):
         """Create Abstract Pyomo model for PowerGIM
 
         Parameters
@@ -39,8 +39,139 @@ class SipModel:
         M_const : int
             large constant
         """
-        self.abstractmodel = self._createAbstractModel()
         self.M_const = M_const
+        self.grid_data = grid_data
+        self.nodetypes = parameter_data["nodetype"]
+        self.branchtypes = parameter_data["branchtype"]
+        self.gentypes = parameter_data["gentype"]
+        self.parameters = parameter_data["parameters"]
+        self.MAX_BRANCH_NEW_NUM = 10  # Fixme: get from parameter input
+
+        self.create_sets()
+        self.create_variables()
+        self.create_objective()
+        # self.create_constraints()
+
+    def create_sets(self):
+        """Initialise Pyomo model sets"""
+        timerange = range(self.grid_data.profiles.shape[0])
+        self.s_node = pyo.Set(initialize=self.grid_data.node["id"].tolist())
+        self.s_branch = pyo.Set(initialize=self.grid_data.branch.index.tolist())
+        self.s_gen = pyo.Set(initialize=self.grid_data.generator.index.tolist())
+        self.s_load = pyo.Set(initialize=self.grid_data.consumer.index.tolist())
+        self.s_time = pyo.Set(initialize=timerange)
+        self.s_area = pyo.Set(initialize=list(self.grid_data.node["area"].unique()))
+        self.s_period = pyo.Set()  # TODO: initialise periods
+        self.s_branchtype = pyo.Set(initialize=self.branchtypes.keys())
+        self.s_branch_cost_element = pyo.Set(initialize=["B", "Bd", "Bdp", "CLp", "CL", "CSp", "CS"])
+        self.s_nodetype = pyo.Set()
+        self.s_gentype = pyo.Set()
+        self.s_node_cost_element = pyo.Set(initialize=["L", "S"])
+
+    def create_variables(self):
+        # NOTE: bounds vs constraints
+        # In general, variable limits are given by constraints.
+        # But bounds are needed when linearising proximal terms in stochastic
+        # optimisation and are therefore included. Note also that Pyomo gives error if lb=ub (a bug),
+        # so instead of specifying bounds lb=ub, we do it as constraint.
+
+        def branch_new_capacity_bounds(model, branch, period):
+            # default max capacity is given by branch type and max number of cables
+            branchtype = self.grid_data.branch.loc[branch, "type"]
+            cap_branchtype = self.branchtypes.loc[branchtype, "max_cap"]
+            maxcap = self.MAX_BRANCH_NEW_NUM * cap_branchtype
+            if self.grid_data.branch.loc[branch, "max_newCap"] > 0:
+                maxcap = self.grid_data.branch.loc[branch, "max_newCap"]
+            return (0, maxcap)
+
+        self.v_branch_new_capacity = pyo.Var(
+            self.s_branch,
+            self.s_period,
+            within=pyo.NonNegativeReals,
+            bounds=branch_new_capacity_bounds,  # needed for proximal term linearisation in stochastic optimisation
+        )
+
+        # investment: new branch cables (needed for linearisation, see also model.cMaxNumberCables)
+        def branch_new_cables_bounds(model, branch, period):
+            return (0, self.MAX_BRANCH_NEW_NUM)
+
+        self.v_branch_new_cables = pyo.Var(
+            self.s_branch,
+            self.s_period,
+            within=pyo.NonNegativeIntegers,
+            bounds=branch_new_cables_bounds,
+        )
+
+        # investment: new nodes
+        self.v_new_nodes = pyo.Var(self.s_node, self.s_period, within=pyo.Binary)
+
+        # investment: generation capacity
+        def gen_new_capacity_bounds(model, gen, period):
+            return (0, model.genNewCapMax[gen])
+
+        self.v_gen_new_capacity = pyo.Var(
+            self.s_gen, self.s_period, within=pyo.NonNegativeReals, bounds=gen_new_capacity_bounds, initialize=0
+        )
+
+        # branch flows in both directions
+        self.v_branch_flow12 = pyo.Var(
+            self.s_branch,
+            self.s_period,
+            self.s_time,
+            within=pyo.NonNegativeReals,
+        )
+        self.v_branch_flow21 = pyo.Var(
+            self.s_branch,
+            self.s_period,
+            self.s_time,
+            within=pyo.NonNegativeReals,
+        )
+
+        # generator output (bounds set by constraint)
+        self.v_generation = pyo.Var(self.s_gen, self.s_period, self.s_time, within=pyo.NonNegativeReals)
+
+        # load shedding
+        def load_shed_bounds(model, consumer, period, time):
+            ref = self.grid_data.consumer.loc[consumer, "demand_ref"]
+            profile = self.grid_data.profiles.loc[time, ref]
+            demand_avg = self.grid_data.consumer.loc[consumer, "demand_avg"]
+            ub = max(0, demand_avg * profile)
+            ub = model.maxShed[consumer, time]
+            return (0, ub)
+
+        self.v_load_shed = pyo.Var(
+            self.s_load,
+            self.s_period,
+            self.s_time,
+            domain=pyo.NonNegativeReals,
+            bounds=load_shed_bounds,
+        )
+
+    def create_objective(self):
+        # OBJECTIVE ##############################################################
+        self.v_investment_cost = pyo.Var(self.s_period, within=pyo.Reals)
+        self.v_operating_cost = pyo.Var(self.s_period, within=pyo.Reals)
+
+        def investment_cost_rule(model, stage):
+            """Investment cost, including lifetime O&M costs (NPV)"""
+            expr = self.costInvestments(model, stage)
+            return self.v_investment_cost[stage] == expr
+
+        self.c_investment_cost = pyo.Constraint(self.s_period, rule=investment_cost_rule)
+
+        def operating_cost_rule(model, stage):
+            """Operational costs: cost of gen, load shed (NPV)"""
+            opcost = self.costOperation(model, stage)
+            return self.v_operating_cost[stage] == opcost
+
+        self.c_operating_costs = pyo.Constraint(self.s_period, rule=operating_cost_rule)
+
+        def total_cost_objective_rule(model):
+            investment = pyo.summation(self.v_investment_cost)
+            operation = pyo.summation(self.v_operating_cost)
+            return investment + operation
+
+        self.OBJ = pyo.Objective(rule=total_cost_objective_rule, sense=pyo.minimize)
 
     def costNode(self, model, n, stage):
         """Expression for cost of node, investment cost no discounting"""
@@ -293,96 +424,6 @@ class SipModel:
         model.emissionCap = pyo.Param(model.LOAD, within=pyo.NonNegativeReals)
         model.maxShed = pyo.Param(model.LOAD, model.TIME, within=pyo.NonNegativeReals)
 
-        # VARIABLES ##########################################################
-
-        # NOTE: bounds vs constraints
-        # In general, variable limits are given by constraints.
-        # But bounds are needed when linearising proximal terms in stochastic
-        # optimisation and are therefore included. Note also that Pyomo gives error if lb=ub (a bug),
-        # so instead of specifying bounds lb=ub, we do it as constraint.
-
-        # investment: new branch capacity
-        def branchNewCapacity_bounds(model, j, h):
-            return (0, model.branchMaxNewCapacity[j])
-
-        model.branchNewCapacity = pyo.Var(
-            model.BRANCH,
-            model.STAGE,
-            within=pyo.NonNegativeReals,
-            bounds=branchNewCapacity_bounds,  # needed for proximal term linearisation in stochastic optimisation
-        )
-
-        # investment: new branch cables (needed for linearisation, see also model.cMaxNumberCables)
-        def branchNewCables_bounds(model, j, h):
-            return (0, model.maxNewBranchNum)
-
-        model.branchNewCables = pyo.Var(
-            model.BRANCH,
-            model.STAGE,
-            within=pyo.NonNegativeIntegers,
-            bounds=branchNewCables_bounds,
-        )
-
-        # investment: new nodes
-        model.newNodes = pyo.Var(model.NODE, model.STAGE, within=pyo.Binary)
-
-        # investment: generation capacity
-        def genNewCapacity_bounds(model, g, h):
-            return (0, model.genNewCapMax[g])
-
-        model.genNewCapacity = pyo.Var(
-            model.GEN, model.STAGE, within=pyo.NonNegativeReals, bounds=genNewCapacity_bounds, initialize=0
-        )
-
-        # TODO: NOT NEEDED AS provided as constraint
-        # branch power flow (also given by constraints??)
-        def branchFlow_bounds(model, j, t, h):
-            if h == 1:
-                ub = model.branchExistingCapacity[j] + branchNewCapacity_bounds(model, j, h)[1]
-            elif h == 2:
-                ub = (
-                    model.branchExistingCapacity[j]
-                    + model.branchExistingCapacity2[j]
-                    + branchNewCapacity_bounds(model, j, h - 1)[1]
-                    + branchNewCapacity_bounds(model, j, h)[1]
-                )
-            return (0, ub)
-
-        model.branchFlow12 = pyo.Var(
-            model.BRANCH,
-            model.TIME,
-            model.STAGE,
-            within=pyo.NonNegativeReals,
-            # bounds=branchFlow_bounds,
-        )
-        model.branchFlow21 = pyo.Var(
-            model.BRANCH,
-            model.TIME,
-            model.STAGE,
-            within=pyo.NonNegativeReals,
-            # bounds=branchFlow_bounds,
-        )
-
-        # generator output (bounds set by constraint)
-        model.generation = pyo.Var(model.GEN, model.TIME, model.STAGE, within=pyo.NonNegativeReals)
-
-        # load shedding
-        def loadShed_bounds(model, c, t, h):
-            ub = model.maxShed[c, t]
-            # ub = 0
-            # for c in model.LOAD:
-            #    if model.demNode[c]==n:
-            #        ub += model.demandAvg[c]*model.demandProfile[c,t]
-            return (0, ub)
-
-        model.loadShed = pyo.Var(
-            model.LOAD,
-            model.TIME,
-            model.STAGE,
-            domain=pyo.NonNegativeReals,
-            bounds=loadShed_bounds,
-        )
-
         # CONSTRAINTS ########################################################
 
         # Power flow limitations (in both directions)
@@ -559,31 +600,6 @@ class SipModel:
 
         model.cPowerbalance = pyo.Constraint(model.NODE, model.TIME, model.STAGE, rule=powerbalance_rule)
 
-        # OBJECTIVE ##############################################################
-        model.investmentCost = pyo.Var(model.STAGE, within=pyo.Reals)
-        model.opCost = pyo.Var(model.STAGE, within=pyo.Reals)
-
-        def investmentCost_rule(model, stage):
-            """Investment cost, including lifetime O&M costs (NPV)"""
-            expr = self.costInvestments(model, stage)
-            return model.investmentCost[stage] == expr
-
-        model.cInvestmentCost = pyo.Constraint(model.STAGE, rule=investmentCost_rule)
-
-        def opCost_rule(model, stage):
-            """Operational costs: cost of gen, load shed (NPV)"""
-            opcost = self.costOperation(model, stage)
-            return model.opCost[stage] == opcost
-
-        model.cOperationalCosts = pyo.Constraint(model.STAGE, rule=opCost_rule)
-
-        def total_Cost_Objective_rule(model):
-            investment = pyo.summation(model.investmentCost)
-            operation = pyo.summation(model.opCost)
-            return investment + operation
-
-        model.OBJ = pyo.Objective(rule=total_Cost_Objective_rule, sense=pyo.minimize)
-
         return model
 
     def _offshoreBranch(self, grid_data):
@@ -601,25 +617,8 @@ class SipModel:
         ]
         return d
 
-    def createConcreteModel(self, dict_data):
-        """Create Concrete Pyomo model for PowerGIM
-
-        Parameters
-        ----------
-        dict_data : dictionary
-            dictionary containing the model data. This can be created with
-            the createModelData(...) method
-
-        Returns
-        -------
-            Concrete pyomo model
-        """
-
-        concretemodel = self.abstractmodel.create_instance(data=dict_data, name="PowerGIM Model", namespace="powergim")
-        return concretemodel
-
     def createModelData(self, grid_data, parameter_data, maxNewBranchNum, maxNewBranchCap, maxNewGenCap):
-        """Create model data in dictionary format
+        """Create Pyomo model
 
         Parameters
         ----------
@@ -647,16 +646,6 @@ class SipModel:
         # to see how the data format is:
         # data = pyo.DataPortal(model=self.abstractmodel)
         # data.load(filename=datafile)
-
-        di = {}
-        # Sets:
-        di["NODE"] = {None: grid_data.node["id"].tolist()}
-        di["BRANCH"] = {None: grid_data.branch.index.tolist()}
-        di["GEN"] = {None: grid_data.generator.index.tolist()}
-        di["LOAD"] = {None: grid_data.consumer.index.tolist()}
-        di["AREA"] = {None: list(grid_data.node["area"].unique())}
-        di["TIME"] = {None: timerange}
-        # di['STAGE'] = {None: grid_data.branch.expand[grid_data.branch['expand']>0].unique().tolist()}
 
         br_expand1 = grid_data.branch[grid_data.branch["expand"] == 1].index.tolist()
         br_expand2 = grid_data.branch[grid_data.branch["expand"] == 2].index.tolist()
@@ -692,6 +681,7 @@ class SipModel:
         #        node_expand2 = grid_data.node[
         #                        grid_data.node['expand2']==2].index.tolist()
 
+        di = {}
         di["BRANCH_EXPAND1"] = {None: br_expand1}
         di["BRANCH_EXPAND2"] = {None: br_expand2}
         di["GEN_EXPAND1"] = {None: gen_expand1}
