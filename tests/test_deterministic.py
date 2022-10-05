@@ -56,20 +56,24 @@ def test_deterministic():
     assert all_var_values["v_investment_cost"][2025] == pytest.approx(18.541664000e9)
     assert all_var_values["v_investment_cost"][2028] == pytest.approx(25.829794000e9)
 
-    expected_branchNewCapacity = pd.read_csv(
-        TEST_DATA_ROOT_PATH / "expected_branchNewCapacity.csv", index_col=["BRANCH", "STAGE"]
+    expected_branch_new_capacity = pd.read_csv(
+        TEST_DATA_ROOT_PATH / "expected_branch_new_capacity.csv", index_col=["s_branch", "s_period"]
     ).squeeze("columns")
-    assert ((all_var_values["v_branch_new_capacity"] - expected_branchNewCapacity).abs() < NUMERIC_THRESHOLD).all()
+    assert ((all_var_values["v_branch_new_capacity"] - expected_branch_new_capacity).abs() < NUMERIC_THRESHOLD).all()
 
-    expected_branchNewCables = pd.read_csv(
-        TEST_DATA_ROOT_PATH / "expected_branchNewCables.csv", index_col=["BRANCH", "STAGE"]
+    expected_branch_new_cables = pd.read_csv(
+        TEST_DATA_ROOT_PATH / "expected_branch_new_cables.csv", index_col=["s_branch", "s_period"]
     ).squeeze("columns")
-    assert ((all_var_values["v_branch_new_cables"] - expected_branchNewCables).abs() < NUMERIC_THRESHOLD).all()
+    assert ((all_var_values["v_branch_new_cables"] - expected_branch_new_cables).abs() < NUMERIC_THRESHOLD).all()
 
-    expected_branchFlow12 = pd.read_csv(
-        TEST_DATA_ROOT_PATH / "expected_branchFlow12.csv", index_col=["BRANCH", "TIME", "STAGE"]
+    expected_branch_flow12 = pd.read_csv(
+        TEST_DATA_ROOT_PATH / "expected_branch_flow12.csv", index_col=["s_branch", "s_period", "s_time"]
     ).squeeze("columns")
-    assert ((all_var_values["v_branch_flow12"] - expected_branchFlow12).abs() < NUMERIC_THRESHOLD).all()
+    flowdiff = all_var_values["v_branch_flow12"] - expected_branch_flow12
+    print(flowdiff[(flowdiff > 1) | (flowdiff < -1)])
+    # all_var_values["v_branch_flow12"].to_csv("expected_flow_v2.csv")
+    pd.testing.assert_series_equal(all_var_values["v_branch_flow12"], expected_branch_flow12, atol=0.1)
+    assert ((all_var_values["v_branch_flow12"] - expected_branch_flow12).abs() < NUMERIC_THRESHOLD).all()
 
 
 if __name__ == "__main__":
