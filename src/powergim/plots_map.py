@@ -298,7 +298,7 @@ def plot_map(
     legend_generator_html = "{}</div>".format(legend_generator_html)
     m.get_root().html.add_child(folium.Element(legend_generator_html))
 
-    folium.LayerControl().add_to(m)
+    # folium.LayerControl().add_to(m)
 
     if filename:
         print("Saving map to file {}".format(filename))
