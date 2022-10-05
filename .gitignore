@@ -134,3 +134,4 @@ examples/results/
 
 # PyCharm
 .DS_Store
+tests/stochastic/tmp_*
