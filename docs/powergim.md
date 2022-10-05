@@ -35,13 +35,13 @@ PowerGIM works by finding the optimal investments amongst a set of specified
 candidates such that the net present value of total system costs (capex and
 opex) are minimised.
 
-It is built on top of the [Pyomo/PySP](http://www.pyomo.org/) package.
+It is built on top of the [Pyomo](http://www.pyomo.org/) package.
 
 ### Two-stage optimisation
 PowerGIM is formulated as a two-stage optimisation problem, and there may be
 a time delay between the two investment stages. First-stage variables represent
 the *here-and-now* investments that are of primary interest. Second-stage
-variables include operational decisions and second-stage investments.
+variables include operational decisions and future investments.
 
 
 ### Uncertainty - stochastic programming
@@ -82,7 +82,7 @@ to specify and solve optimisation problems are:
 
 Preparations:
 
-1. Create input data sets (csv and xml)
+1. Create input data sets (csv and yaml)
     * these specify existing infrastructure and candidate investments
 
 Script:
@@ -125,10 +125,8 @@ column | description | type | units
 -------|-------------|------|------
 node_from | Node identifier | string
 node to   | Node identifier | string
-capacity  | Existing capacity | float | MW
-capacity2 | Capacity added stage 2 (OPT) | float | MW
-expand    | Consider expansion in stage 1  | boolean   | 0,1
-expand2    | Consider expansion in stage 2  | boolean   | 0,1
+capacity_<year>  | Capacity installed before investment year <year>| float   | MW
+expand_<year>    | Consider expansion in investment year <year>   | boolean | 0,1
 distance  | Branch length (OPT) | float | km
 max_newCap    | Max new capacity (OPT) | float | km
 cost_scaling  | Cost scaling factor | float
@@ -136,12 +134,12 @@ type      | Branch (cost) type | string
 
 Branches have from and to references that must match a node identifier
 in the list of nodes.
-* expand/expand2 is 0 if no expansion should be considered (not part of
-  optimisaion)
 * distance may be left blank. Then distance is computed as the shortest
   distance between the associated nodes (based on lat/lon coordinates)
-* capacity2 is already decided additional branch capacity that will be added
-  at stage two (optional input).
+* expand_<year> is 0 if no expansion should be considered (not part of
+  optimisaion)
+* capacity_<year> is already decided (present or additional future) branch 
+  capacity, i.e. it does not depend on the optimisation output
 
 
 
@@ -154,11 +152,9 @@ column | description | type | units
 node  | Node identifier |string
 desc  | Description or name (OPT) |string
 type  | Generator type |string
-pmax  | Generator capacity |float |MW
-pmax2 | Generator capacity stage 2 (OPT) |float |MW
+capacity_<year>  | (Additional) capacity installed before investment year <year>  |float |MW
 pmin  | Minimum production |float |MW
-expand  | Consider capacity expansion |boolean |0,1
-expand2  | Consider capacity expansion in stage 2 |boolean |0,1
+expand_<year> | Consider expansion in investment year <year>   | boolean | 0,1
 fuelcost  | Cost of generation |float |€/MWh
 fuelcost_ref  | Cost profile |string
 inflow_fac  | Inflow factor |float
@@ -170,7 +166,8 @@ cost_scaling  | Cost scaling factor (OPT) |float
 * The average power constraint (pavg) is used to represent generators
   with large storage. pavg=0 means no constraint on average output is used
   (no storage constraint).
-* pmax2 is already decided increase in generator capacity in stage 2
+* * capacity_<year> is already decided (present or additional future) generator 
+  capacity, i.e. it does not depend on the optimisation output
 
 
 #### Consumers
@@ -224,9 +221,9 @@ branchtype:
         CLp: 0
         CS: 4813e3
         CSp: 0
-        maxCap: 400
-        lossFix: 0
-        lossSlope: 5e-5
+        max_cap: 400
+        loss_fix: 0
+        loss_slope: 5e-5
     <branchtype2>:
         B: 5000e3
         Bdp: 0.47e3
@@ -235,25 +232,25 @@ branchtype:
         CLp: 0
         CS: 0
         CSp: 0
-        maxCap: 2000
-        lossFix: 0
-        lossSlope: 3e-5
+        max_cap: 2000
+        loss_fix: 0
+        loss_slope: 3e-5
 gentype:
     <gentype1>:
        CX: 10
        CO2: 0
+       allow_curtailment: true
     <gentype2>:
        CX: 0
        CO2: 0
+       allow_curtailment: false
 parameters:
-    financeInterestrate: 0.05
-    financeYears: 40 # years
-    omRate: 0.05 # operation and maintenance
-    curtailmentCost: 0
-    CO2price: 0
-    VOLL: 10000 # very high value of lost load (loadshedding penalty)
-    stage2TimeDelta: 3 # years between investment stage 1 and 2
-    stages: 2
+    investment_years: [2025, 2028]
+    finance_interest_rate: 0.05
+    finance_years: 40
+    operation_maintenance_rate: 0.05
+    CO2_price: 0
+    load_shed_penalty: 10000 # very high value of lost load (loadshedding penalty)
 ```
 
 Most of the parametes in the  ```nodetype```, ```branchtype``` and ```gentype```
@@ -264,17 +261,14 @@ power rating per cable system (maxCap)
 
 Parameters specified in the ```parameters``` block are:
 
-* financeInterestrate = discount rate used in net present value calculation of
+* finance_interest_rate = discount rate used in net present value calculation of
   generation costs and operation and maintenance costs
-* financeYears = financial lifetime of investments - the period over which
-  the total costs are computed (years)
-* omRate = fraction specifying the annual operation and maintenance costs
+* finance_years = financial lifetime of investments - the period over which
+  the total costs are computed (years) starting from first investment year
+* operation_maintenance_rate = fraction specifying the annual operation and maintenance costs
   relative to the investment cost
-* curtailmentCost = penalty cost for curtailment of renewable energy (EUR/MWh)
-* CO2price = costs for CO2 emissions (EUR/kgCO2)
-* VOLL = penalty cost for load shedding (demand not supplied) (EUR/MWh)
-* stage2TimeDelta = time duration between investment stage 1 and 2 (years)
-* stages = number of investment stages (2 is the only choice at the moment)
+* CO2_price = costs for CO2 emissions (EUR/kgCO2)
+* load_shed_penalty = penalty cost for load shedding (demand not supplied) (EUR/MWh)
 
 ## Analysis of results
 
