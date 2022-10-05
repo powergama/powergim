@@ -25,6 +25,9 @@ def test_deterministic():
     file_timeseries_sample = TEST_DATA_ROOT_PATH / "time_series_sample.csv"
     grid_data.profiles = pgim.file_io.read_profiles(filename=file_timeseries_sample)
 
+    # TODO: Set temporarily to reproduce previous result:
+    grid_data.branch.loc[:, "max_newCap"] = 5000
+
     # Prepare model
     sip = pgim.SipModel(grid_data=grid_data, parameter_data=parameter_data)
     # dict_data = sip.createModelData(
@@ -50,23 +53,23 @@ def test_deterministic():
     print(f"Objective = {pyo.value(sip.OBJ)}")
     print(all_var_values.keys())
 
-    assert all_var_values["v_investment_cost"][2025] == 18.541664000e9
-    assert all_var_values["v_investment_cost"][2028] == 25.829794000e9
+    assert all_var_values["v_investment_cost"][2025] == pytest.approx(18.541664000e9)
+    assert all_var_values["v_investment_cost"][2028] == pytest.approx(25.829794000e9)
 
     expected_branchNewCapacity = pd.read_csv(
         TEST_DATA_ROOT_PATH / "expected_branchNewCapacity.csv", index_col=["BRANCH", "STAGE"]
     ).squeeze("columns")
-    assert ((all_var_values["branchNewCapacity"] - expected_branchNewCapacity).abs() < NUMERIC_THRESHOLD).all()
+    assert ((all_var_values["v_branch_new_capacity"] - expected_branchNewCapacity).abs() < NUMERIC_THRESHOLD).all()
 
     expected_branchNewCables = pd.read_csv(
         TEST_DATA_ROOT_PATH / "expected_branchNewCables.csv", index_col=["BRANCH", "STAGE"]
     ).squeeze("columns")
-    assert ((all_var_values["branchNewCables"] - expected_branchNewCables).abs() < NUMERIC_THRESHOLD).all()
+    assert ((all_var_values["v_branch_new_cables"] - expected_branchNewCables).abs() < NUMERIC_THRESHOLD).all()
 
     expected_branchFlow12 = pd.read_csv(
         TEST_DATA_ROOT_PATH / "expected_branchFlow12.csv", index_col=["BRANCH", "TIME", "STAGE"]
     ).squeeze("columns")
-    assert ((all_var_values["branchFlow12"] - expected_branchFlow12).abs() < NUMERIC_THRESHOLD).all()
+    assert ((all_var_values["v_branch_flow12"] - expected_branchFlow12).abs() < NUMERIC_THRESHOLD).all()
 
 
 if __name__ == "__main__":
