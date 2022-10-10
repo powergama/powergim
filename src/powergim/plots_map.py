@@ -60,6 +60,9 @@ def plot_map(
 
     branch["capacity"] = branch[[f"capacity_{p}" for p in years]].sum(axis=1)
     generator["capacity"] = generator[[f"capacity_{p}" for p in years]].sum(axis=1)
+    if f"flow_{years[0]}" in branch.columns:
+        branch["flow"] = branch[[f"flow_{p}" for p in years]].mean(axis=1)
+        branch["utilisation"] = branch["flow"].abs() / branch["capacity"]
 
     if spread_nodes_r is not None:
         # spread out nodes lying on top of each other
@@ -93,6 +96,9 @@ def plot_map(
     node["area_ind"] = 0.5 + node["area_ind"] % 10
 
     m = folium.Map(location=[node["lat"].median(), node["lon"].median()], **kwargs)
+    sw = [node["lat"].min(), node["lon"].max()]
+    ne = [node["lat"].max(), node["lon"].min()]
+    m.fit_bounds([sw, ne])
 
     callbackNode = """function (row,colour) {
                if (colour=='') {
@@ -211,10 +217,10 @@ def plot_map(
             data = [
                 [n["lat_x"], n["lon_x"]],
                 [n["lat_y"], n["lon_y"]],
-                "Branch={} ({}-{}), capacity={:g}".format(i, n["node_from"], n["node_to"], n["capacity"]),
+                f"Branch={i} ({n['node_from']}-{n['node_to']}), type = {n['type']}, capacity={n['capacity']:g}",
             ]
-            if branchtype == "type":
-                data[2] = "{}; type={}".format(data[2], n["type"])
+            if "flow" in n:
+                data[2] = f"{data[2]}, flow={n['flow']:g}"
             if value_col is not None:
                 colHex = cm_branch(n[value_col])
                 data.append(colHex)

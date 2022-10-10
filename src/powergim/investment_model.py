@@ -7,6 +7,8 @@ import mpisppy.scenario_tree as scenario_tree
 import pandas as pd
 import pyomo.environ as pyo
 
+import powergim
+
 from .utils import annuityfactor
 
 
@@ -628,8 +630,32 @@ class SipModel(pyo.ConcreteModel):
             all_values[myvar.name] = df
         return all_values
 
-    def model_info(self, model):
+    def grid_data_result(self, all_var_values):
+        """Create grid data representing optimisation results"""
+        years = list(all_var_values["v_investment_cost"].index)
+        grid_data = self.grid_data
+        nodes = grid_data.node.copy()
+        branches = grid_data.branch.copy()
+        generators = grid_data.generator.copy()
+        consumers = grid_data.consumer.copy()
+        is_expanded = all_var_values["v_branch_new_cables"].clip(upper=10).unstack("s_period")
+        new_branch_cap = is_expanded * all_var_values["v_branch_new_capacity"].unstack("s_period")
+        for y in years:
+            branches[f"capacity_{y}"] = branches[f"capacity_{y}"] + new_branch_cap[y]
+            branches[f"flow_{y}"] = (
+                (
+                    all_var_values["v_branch_flow12"].unstack("s_period")
+                    - all_var_values["v_branch_flow21"].unstack("s_period")
+                )[y]
+                .unstack("s_time")
+                .mean(axis=1)
+            )
+        grid_res = powergim.grid_data.GridData(years, nodes, branches, generators, consumers)
+        return grid_res
+
+    def model_info(self):
         """Return info about model as dictionary"""
+        model = self
         model_vars = model.component_data_objects(ctype=pyo.Var)
         varlist = list(model_vars)
         integers = [v.is_integer() for v in varlist]

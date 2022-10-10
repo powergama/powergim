@@ -38,7 +38,7 @@ def test_deterministic():
 
     # Solve using external solver - this may take some time.
     # Fixme: Works with glpk, but not with cbc
-    opt = pyo.SolverFactory("glpk")
+    opt = pyo.SolverFactory("cbc", solver_io="nl")
     results = opt.solve(
         sip,
         tee=False,
