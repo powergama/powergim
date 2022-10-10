@@ -5,6 +5,7 @@ import testcases
 import powergim
 
 
+@pytest.mark.skipif(not pyo.SolverFactory("cbc").available(), reason="Skipping test because CBC is not available.")
 def test_case_N5():
     years = [0, 10, 20]
     number_nodes = 5
@@ -33,6 +34,7 @@ def test_case_N5():
     assert (all_var_values["v_load_shed"] == 0).all()
 
 
+@pytest.mark.skipif(not pyo.SolverFactory("cbc").available(), reason="Skipping test because CBC is not available.")
 def test_case_N4():
     years = [0, 10]
     number_nodes = 4
