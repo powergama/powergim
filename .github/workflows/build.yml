@@ -63,6 +63,10 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: brew install cbc
 
+      - name: Setup GLPK on macos
+        if: matrix.os == 'macos-latest'
+        run: brew install glpk
+
       # - name: Setup CBC on Windows
       #   if: matrix.os == 'windows-latest'
       #   run: choco install cbc # package not found
