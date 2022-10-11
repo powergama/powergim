@@ -66,19 +66,17 @@ def test_stochastic_ef():
     # assert all_var_values["scen2.opCost"][2] == pytest.approx(5.3318421e10)
 
 
-# @pytest.mark.skipif(not pyo.SolverFactory("cbc").available(), reason="Skipping test because CBC is not available.")
-@pytest.mark.skip(reason="CBC returns error on this case")
+@pytest.mark.skipif(not pyo.SolverFactory("glpk").available(), reason="Skipping test because GLPK is not available.")
 def test_stochastic_ph(tmp_path):
     northsea.TMP_PATH = tmp_path
 
-    ph, df_res = northsea.solve_ph("cbc")
+    ph, df_res = northsea.solve_ph("glpk")
 
     assert ph is not None
     assert isinstance(df_res, pd.DataFrame)
 
 
-# @pytest.mark.skipif(not pyo.SolverFactory("cbc").available(), reason="Skipping test because CBC is not available.")
-@pytest.mark.skip(reason="CBC returns error on this case")
+@pytest.mark.skipif(not pyo.SolverFactory("glpk").available(), reason="Skipping test because GLPK is not available.")
 def test_stochastic_ph_mpi(tmp_path):
     mpiexec_arg = ""
     progname = Path(__file__).absolute().parent / "northsea.py"

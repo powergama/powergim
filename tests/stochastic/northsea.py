@@ -95,8 +95,6 @@ def solve_ph(solver_name):
         "initial_proximal_cut_count": 2,  # default = 2
         "iter0_solver_options": {},  # {"mipgap": 0.01},  # dict(),
         "iterk_solver_options": {},  # {"mipgap": 0.005},  # dict(),
-        "solveroptions": {"solver_io": "nl"},  # trying
-        "solver_io": "nl",
     }
     ph = mpisppy.opt.ph.PH(
         options,
@@ -135,4 +133,4 @@ if __name__ == "__main__":
         filepath = sys.argv[1]
         TMP_PATH = Path(filepath)
 
-    main_ph = solve_ph(solver_name="cbc")
+    main_ph = solve_ph(solver_name="glpk")
