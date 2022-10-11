@@ -10,7 +10,7 @@ TEST_DATA_ROOT_PATH = Path(__file__).parent / "test_data"
 NUMERIC_THRESHOLD = 1e-3
 
 
-@pytest.mark.skipif(not pyo.SolverFactory("cbc").available(), reason="Skipping test because CBC is not available.")
+@pytest.mark.skipif(not pyo.SolverFactory("glpk").available(), reason="Skipping test because GLPK is not available.")
 def test_deterministic():
 
     # Read input data
@@ -28,17 +28,12 @@ def test_deterministic():
     # TODO: Set temporarily to reproduce previous result:
     grid_data.branch.loc[:, "max_newCap"] = 5000
 
-    # Prepare model
     sip = pgim.SipModel(grid_data=grid_data, parameter_data=parameter_data)
-    # dict_data = sip.createModelData(
-    #    grid_data, parameter_data, maxNewBranchNum=5, maxNewBranchCap=5000, maxNewGenCap=5000
-    # )
-    # model = sip.createConcreteModel(dict_data)
     grid_data.branch["dist_computed"] = grid_data.compute_branch_distances()
 
-    # Solve using external solver - this may take some time.
     # Fixme: Works with glpk, but not with cbc
-    opt = pyo.SolverFactory("cbc", solver_io="nl")
+    # opt = pyo.SolverFactory("cbc", solver_io="nl")
+    opt = pyo.SolverFactory("glpk")
     results = opt.solve(
         sip,
         tee=False,

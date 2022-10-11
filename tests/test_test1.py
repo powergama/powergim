@@ -5,14 +5,14 @@ import powergim
 from powergim import testcases
 
 
-@pytest.mark.skipif(not pyo.SolverFactory("cbc").available(), reason="Skipping test because CBC is not available.")
+@pytest.mark.skipif(not pyo.SolverFactory("glpk").available(), reason="Skipping test because GLPK is not available.")
 def test_case_N5():
     years = [0, 10, 20]
     number_nodes = 5
     number_timesteps = 2
     grid_data, parameter_data = testcases.create_case_star(years, number_nodes, number_timesteps, base_MW=2000)
     sip = powergim.SipModel(grid_data, parameter_data)
-    opt = pyo.SolverFactory("cbc", solver_io="nl")
+    opt = pyo.SolverFactory("glpk")
     results = opt.solve(
         sip,
         tee=False,
@@ -34,14 +34,14 @@ def test_case_N5():
     assert (all_var_values["v_load_shed"] == 0).all()
 
 
-@pytest.mark.skipif(not pyo.SolverFactory("cbc").available(), reason="Skipping test because CBC is not available.")
+@pytest.mark.skipif(not pyo.SolverFactory("glpk").available(), reason="Skipping test because GLPK is not available.")
 def test_case_N4():
     years = [0, 10]
     number_nodes = 4
     number_timesteps = 10
     grid_data, parameter_data = testcases.create_case_star(years, number_nodes, number_timesteps, base_MW=2000)
     sip = powergim.SipModel(grid_data, parameter_data)
-    opt = pyo.SolverFactory("cbc", solver_io="nl")
+    opt = pyo.SolverFactory("glpk")
     results = opt.solve(
         sip,
         tee=False,

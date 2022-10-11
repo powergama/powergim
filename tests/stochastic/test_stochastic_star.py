@@ -45,7 +45,7 @@ def test_stochastic_star_benders(tmp_path):
     assert result is not None
 
 
-@pytest.mark.skipif(not pyo.SolverFactory("glpk").available(), reason="Skipping test because CBC is not available.")
+@pytest.mark.skipif(not pyo.SolverFactory("glpk").available(), reason="Skipping test because GLPK is not available.")
 def test_stochastic_star_mpi_glpk(tmp_path):
     mpiexec_arg = ""
     progname = Path(__file__).absolute().parent / "starcase.py"
