@@ -90,16 +90,13 @@ def solve_ph(solver_name):
         "verbose": False,
         "display_progress": False,
         "display_timing": False,
-        # "linearize_binary_proximal_terms": True,  # HGS (linearise only binary terms)
-        # the below gives error unless "create_cut" is change to "add_cut" in mpisppy code:
-        # mpisppy\utils\prox_approx.py", line 176, in _create_initial_cuts
-        # ...but that creates new error because y_pnt is 'NoneType'
-        # mpisppy\utils\prox_approx.py", line 89, in check_tol_add_cut
-        "linearize_proximal_terms": True,  # True gives error (bug in mpisppy code)
+        "linearize_proximal_terms": True,
         "proximal_linearization_tolerance ": 0.1,  # default =1e-1
         "initial_proximal_cut_count": 2,  # default = 2
-        "iter0_solver_options": dict(),  # {"mipgap": 0.01},  # dict(),
-        "iterk_solver_options": dict(),  # {"mipgap": 0.005},  # dict(),
+        "iter0_solver_options": {},  # {"mipgap": 0.01},  # dict(),
+        "iterk_solver_options": {},  # {"mipgap": 0.005},  # dict(),
+        "solveroptions": {"solver_io": "nl"},  # trying
+        "solver_io": "nl",
     }
     ph = mpisppy.opt.ph.PH(
         options,
@@ -138,4 +135,4 @@ if __name__ == "__main__":
         filepath = sys.argv[1]
         TMP_PATH = Path(filepath)
 
-    main_ph = solve_ph(solver_name="glpk")
+    main_ph = solve_ph(solver_name="cbc")

@@ -1,8 +1,8 @@
 import pyomo.environ as pyo
 import pytest
-import testcases
 
 import powergim
+from powergim import testcases
 
 
 @pytest.mark.skipif(not pyo.SolverFactory("cbc").available(), reason="Skipping test because CBC is not available.")

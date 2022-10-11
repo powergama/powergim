@@ -11,6 +11,8 @@ import powergim
 
 from .utils import annuityfactor
 
+# import mpisppy.utils.sputils # alternative to scenario_tree
+
 
 class const:
     baseMVA = 100  # MVA
@@ -189,6 +191,14 @@ class SipModel(pyo.ConcreteModel):
         self.c_operating_costs = pyo.Constraint(self.s_period, rule=operating_cost_rule)
 
         def total_cost_objective_rule(model):
+            # TODO: Why does this make any difference?
+            # THIS WORKS (more often) with CBC:
+            # investment = 0
+            # operation = 0
+            # for period in self.s_period:
+            #    investment += self.costInvestments(period)
+            #    operation += self.costOperation(period)
+            # This does NOT (always) work with CBC
             investment = pyo.summation(self.v_investment_cost)
             operation = pyo.summation(self.v_operating_cost)
             return investment + operation
@@ -585,20 +595,25 @@ class SipModel(pyo.ConcreteModel):
             + _slice_to_list(self.v_branch_new_capacity[:, stage1])
             + _slice_to_list(self.v_new_nodes[:, stage1])
             + _slice_to_list(self.v_gen_new_capacity[:, stage1])
+            # + [self.v_operating_cost[stage1], self.v_investment_cost[stage1]]
         )
         # Create the list of nodes associated with the scenario (for two stage,
         # there is only one node associated with the scenario--leaf nodes are
         # ignored).
+        # TODO: Any difference between these? (does not seem to be (and should not be))
+        stage1cost = self.costInvestments(stage1) + self.costOperation(stage1)
+        # stage1cost = self.v_operating_cost[stage1] + self.v_investment_cost[stage1]
         root_node = scenario_tree.ScenarioNode(
             name="ROOT",
             cond_prob=1.0,
             stage=1,
-            cost_expression=self.v_operating_cost[stage1] + self.v_investment_cost[stage1],
+            cost_expression=stage1cost,
             nonant_list=stage1vars,
             scen_model=self,
         )
         self._mpisppy_probability = probability  # probabilities[scenario_name]
         self._mpisppy_node_list = [root_node]
+        # mpisppy.utils.sputils.attach_root_node(self, stage1cost, stage1vars) # alternative to scenario_tree
         return self
 
     def extract_all_variable_values(self):
