@@ -17,15 +17,20 @@ NUMERIC_THRESHOLD = 1e-3
 @pytest.mark.skipif(not pyo.SolverFactory("cbc").available(), reason="Skipping test because CBC is not available.")
 def test_stochastic_ef():
     # Read input data
+    parameter_data = pgim.file_io.read_parameters(TEST_DATA_ROOT_PATH / "parameters_stoch.yaml")
+    print(parameter_data["parameters"])
     grid_data = pgim.file_io.read_grid(
+        investment_years=parameter_data["parameters"]["investment_years"],
         nodes=TEST_DATA_ROOT_PATH / "nodes.csv",
         branches=TEST_DATA_ROOT_PATH / "branches.csv",
         generators=TEST_DATA_ROOT_PATH / "generators.csv",
         consumers=TEST_DATA_ROOT_PATH / "consumers.csv",
     )
-    parameter_data = pgim.file_io.read_parameters(TEST_DATA_ROOT_PATH / "parameters.yaml")
     file_timeseries_sample = TEST_DATA_ROOT_PATH / "time_series_sample.csv"
     grid_data.profiles = pgim.file_io.read_profiles(filename=file_timeseries_sample)
+
+    # TODO: Set temporarily to reproduce previous result:
+    grid_data.branch.loc[:, "max_newCap"] = 5000
 
     # Scenarios
     scenario_creator_kwargs = {"grid_data": grid_data, "parameter_data": parameter_data}
@@ -45,14 +50,12 @@ def test_stochastic_ef():
     )
 
     # Extract results:
-    sip = pgim.SipModel()
-    # grid_data_res = {}
     for scen in mpisppy.utils.sputils.ef_scenarios(main_ef):
         scen_name = scen[0]
         this_scen = scen[1]
-        all_var_values = sip.extract_all_variable_values(this_scen)
+        all_var_values = pgim.SipModel.extract_all_variable_values(this_scen)
         print(f"{scen_name}: OBJ = {pyo.value(this_scen.OBJ)}")
-        print(f"{scen_name}: opCost = {all_var_values[f'{scen_name}.opCost'].values}")
+        print(f"{scen_name}: opCost = {all_var_values[f'{scen_name}.v_operating_cost'].values}")
 
     # sputils.ef_nonants_csv(main_ef, "sns_results_ef.csv")
     # sputils.ef_ROOT_nonants_npy_serializer(main_ef, "sns_root_nonants.npy")
@@ -63,17 +66,17 @@ def test_stochastic_ef():
     # assert all_var_values["scen2.opCost"][2] == pytest.approx(5.3318421e10)
 
 
-@pytest.mark.skipif(not pyo.SolverFactory("cbc").available(), reason="Skipping test because CBC is not available.")
+@pytest.mark.skipif(not pyo.SolverFactory("glpk").available(), reason="Skipping test because GLPK is not available.")
 def test_stochastic_ph(tmp_path):
     northsea.TMP_PATH = tmp_path
 
-    ph, df_res = northsea.solve_ph("cbc")
+    ph, df_res = northsea.solve_ph("glpk")
 
     assert ph is not None
     assert isinstance(df_res, pd.DataFrame)
 
 
-@pytest.mark.skipif(not pyo.SolverFactory("cbc").available(), reason="Skipping test because CBC is not available.")
+@pytest.mark.skipif(not pyo.SolverFactory("glpk").available(), reason="Skipping test because GLPK is not available.")
 def test_stochastic_ph_mpi(tmp_path):
     mpiexec_arg = ""
     progname = Path(__file__).absolute().parent / "northsea.py"
@@ -92,3 +95,10 @@ def test_stochastic_ph_mpi(tmp_path):
         # the result is not very stable with so few iterations, so skip this test
         # mask_cable1 = (df_scen["variable"] == "branchNewCables") & (df_scen["STAGE"] == "1")
         # assert df_scen.loc[mask_cable1, "value"].sum() == 4
+
+
+if __name__ == "__main__":
+    # test_stochastic_ef()
+    test_stochastic_ph(Path(__file__).absolute().parent / "tmp_output")
+    # test_stochastic_ph_mpi(Path(__file__).absolute().parent / "tmp_output_mpi")
+    pass

@@ -1,12 +1,13 @@
 import pandas as pd
-import yaml
+from ruamel.yaml import YAML
 
 from . import grid_data
 
 
 def read_parameters(yaml_file):
+    yaml = YAML(typ="safe")
     with open(yaml_file, "r") as stream:
-        data = yaml.safe_load(stream)
+        data = yaml.load(stream)
     return data
 
 
@@ -18,7 +19,7 @@ def read_profiles(filename, timerange=None):
     return profiles
 
 
-def read_grid(nodes, branches, generators, consumers):
+def read_grid(investment_years, nodes, branches, generators, consumers):
     """Read and validate grid data from input files
 
     time-series data may be used for
@@ -47,6 +48,8 @@ def read_grid(nodes, branches, generators, consumers):
         dtype={"node": str},
     )
 
-    grid = grid_data.GridData(node=node, branch=branch, generator=generator, consumer=consumer)
+    grid = grid_data.GridData(
+        investment_years=investment_years, node=node, branch=branch, generator=generator, consumer=consumer
+    )
     grid.validate_grid_data()
     return grid

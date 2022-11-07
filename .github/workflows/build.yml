@@ -55,9 +55,17 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt-get install coinor-cbc
 
+      - name: Setup GLPK on ubuntu
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get install glpk-utils
+
       - name: Setup CBC on macos
         if: matrix.os == 'macos-latest'
         run: brew install cbc
+
+      - name: Setup GLPK on macos
+        if: matrix.os == 'macos-latest'
+        run: brew install glpk
 
       # - name: Setup CBC on Windows
       #   if: matrix.os == 'windows-latest'

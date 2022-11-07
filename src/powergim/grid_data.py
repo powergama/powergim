@@ -1,63 +1,64 @@
 import math
 
+import pandas as pd
+
 
 class GridData(object):
     """
     Class for grid data storage and import
     """
 
-    def __init__(self, node, branch, generator, consumer, profiles=None):
+    def __init__(self, investment_years, node, branch, generator, consumer, profiles=None):
         """ """
         self.node = node
         self.branch = branch
         self.generator = generator
         self.consumer = consumer
         self.profiles = profiles
+        self.investment_years = investment_years
 
-    # Required fields for investment analysis input data
-    # Default value = -1 means that it should be computed by the program
-    keys_sipdata = {
-        "node": {
-            "id": None,
-            "area": None,
-            "lat": None,
-            "lon": None,
-            "offshore": None,
-            "type": None,
-            "existing": None,
-            "cost_scaling": None,
-        },
-        "branch": {
-            "node_from": None,
-            "node_to": None,
-            "capacity": None,
-            "capacity2": 0,
-            "expand": None,
-            "expand2": None,
-            "max_newCap": -1,
-            "distance": -1,
-            "cost_scaling": None,
-            "type": None,
-        },
-        "generator": {
-            "type": None,
-            "node": None,
-            "desc": "",
-            "pmax": None,
-            "pmax2": 0,
-            "pmin": None,
-            "expand": None,
-            "expand2": None,
-            "p_maxNew": -1,
-            "cost_scaling": 1,
-            "fuelcost": None,
-            "fuelcost_ref": None,
-            "pavg": 0,
-            "inflow_fac": None,
-            "inflow_ref": None,
-        },
-        "consumer": {"node": None, "demand_avg": None, "emission_cap": -1, "demand_ref": None},
-    }
+        # Required fields for investment analysis input data
+        # value == None: Required column, value must be specified in input
+        # value == -1: Optional input, value to be computed by program
+        # value == <default value>: Optional input, if not specified, use the default
+        self.keys_sipdata = {
+            "node": {
+                "id": None,
+                "area": None,
+                "lat": None,
+                "lon": None,
+                "offshore": None,
+                "type": None,
+                "existing": None,
+                "cost_scaling": None,
+            },
+            "branch": {
+                "node_from": None,
+                "node_to": None,
+                **{f"capacity_{p}": None for p in self.investment_years},
+                **{f"expand_{p}": None for p in self.investment_years},
+                "max_newCap": -1,
+                "distance": -1,
+                "cost_scaling": None,
+                "type": None,
+            },
+            "generator": {
+                "type": None,
+                "node": None,
+                "desc": "",
+                **{f"capacity_{p}": None for p in self.investment_years},
+                **{f"expand_{p}": None for p in self.investment_years},
+                "pmin": None,
+                "p_maxNew": -1,
+                "cost_scaling": 1,
+                "fuelcost": None,
+                "fuelcost_ref": None,
+                "pavg": 0,
+                "inflow_fac": None,
+                "inflow_ref": None,
+            },
+            "consumer": {"node": None, "demand_avg": None, "emission_cap": -1, "demand_ref": None},
+        }
 
     def validate_grid_data(self):
         self._checkGridDataFields(self.keys_sipdata)
@@ -80,6 +81,10 @@ class GridData(object):
         for col, val in keys["branch"].items():
             if val is not None:
                 self.branch[col] = self.branch[col].fillna(keys["branch"][col])
+
+        # insert computed distances if not provided in input (and given default value -1 above)
+        distances = pd.Series(index=self.branch.index, data=self.compute_branch_distances())
+        self.branch["distance"].where(self.branch["distance"] != -1, distances, inplace=True)
 
     def _addDefaultColumns(self, keys, remove_extra_columns=False):
         """insert optional columns with default values when none

@@ -10,13 +10,16 @@ import pandas as pd
 
 def plot_map(
     pg_data,
+    years,
     filename=None,
     nodetype=None,
     branchtype=None,
-    filter_node=[0, 100],
+    filter_node=None,
     filter_branch=None,
     spread_nodes_r=None,
-    **kwargs
+    include_zero_capacity=False,
+    add_folium_control=True,
+    **kwargs,
 ):
     """
     Plot on a map
@@ -25,6 +28,8 @@ def plot_map(
     ==========
     pg_data : grid_data object
         powergama data object
+    years : list
+        investment years to include
     filename : str
         name of output file (html)
     nodetype : str ('nodalprice','area') or None (default)
@@ -38,6 +43,10 @@ def plot_map(
     spread_nodes_r : float (degrees)
         radius (degrees) of circle on which overlapping nodes are
         spread (use eg 0.04)
+    include_zero_capacity : bool
+        include branches and generators even if they have zero capacity
+    add_folium_node : bool
+        include folium layer control.
     kwargs : arguments passed on to folium.Map(...)
     """
 
@@ -48,6 +57,12 @@ def plot_map(
     node = pg_data.node.copy()
     generator = pg_data.generator.copy()
     consumer = pg_data.consumer.copy()
+
+    branch["capacity"] = branch[[f"capacity_{p}" for p in years]].sum(axis=1)
+    generator["capacity"] = generator[[f"capacity_{p}" for p in years]].sum(axis=1)
+    if f"flow_{years[0]}" in branch.columns:
+        branch["flow"] = branch[[f"flow_{p}" for p in years]].mean(axis=1)
+        branch["utilisation"] = branch["flow"].abs() / branch["capacity"]
 
     if spread_nodes_r is not None:
         # spread out nodes lying on top of each other
@@ -81,6 +96,9 @@ def plot_map(
     node["area_ind"] = 0.5 + node["area_ind"] % 10
 
     m = folium.Map(location=[node["lat"].median(), node["lon"].median()], **kwargs)
+    sw = [node["lat"].min(), node["lon"].max()]
+    ne = [node["lat"].max(), node["lon"].min()]
+    m.fit_bounds([sw, ne])
 
     callbackNode = """function (row,colour) {
                if (colour=='') {
@@ -143,7 +161,7 @@ def plot_map(
         feature_group_Nodes
     )
 
-    # print("AC branches...")
+    # print("Branches...")
     if branchtype == "utilisation":
         value_col = "utilisation"
         if filter_branch is None:
@@ -192,17 +210,17 @@ def plot_map(
         value_col = None
     locationsB = []
     for i, n in branch.iterrows():
-        if (branchtype == "capacity") and (n["capacity"] == 0):
+        if (not include_zero_capacity) and (n["capacity"] == 0):
             # skip this branch
             pass
         elif not (n[["lat_x", "lon_x", "lat_y", "lon_y"]].isnull().any()):
             data = [
                 [n["lat_x"], n["lon_x"]],
                 [n["lat_y"], n["lon_y"]],
-                "AC Branch={} ({}-{}), capacity={:g}".format(i, n["node_from"], n["node_to"], n["capacity"]),
+                f"Branch={i} ({n['node_from']}-{n['node_to']}), type = {n['type']}, capacity={n['capacity']:g}",
             ]
-            if branchtype == "type":
-                data[2] = "{}; type={}".format(data[2], n["type"])
+            if "flow" in n:
+                data[2] = f"{data[2]}, flow={n['flow']:g}"
             if value_col is not None:
                 colHex = cm_branch(n[value_col])
                 data.append(colHex)
@@ -212,7 +230,7 @@ def plot_map(
             locationsB.append(data)
         else:
             print("Missing lat/lon for node index={}".format(i))
-    feature_group_Branches = folium.FeatureGroup(name="AC branches").add_to(m)
+    feature_group_Branches = folium.FeatureGroup(name="Branches").add_to(m)
     FeatureCollection(locationsB, callback=callbackBranch, addto=feature_group_Branches, colour=colour).add_to(
         feature_group_Branches
     )
@@ -267,7 +285,7 @@ def plot_map(
                 data = [
                     n["lat"],
                     n["lon"],
-                    "{}<br>Generator {}: {}, pmax={:g}".format(gentype, genind, n["desc"], n["pmax"]),
+                    "{}<br>Generator {}: {}, pmax={:g}".format(gentype, genind, n["desc"], n["capacity"]),
                 ]
                 col = cm_stepG(typeind)
                 data.append(col)
@@ -292,13 +310,15 @@ def plot_map(
     #             bottom: 50px; left: 50px; width: 150px; height: 300px;
     for typeind, gentype in enumerate(gentypes):
         col = cm_stepG(typeind)
-        legend_generator_html = '{}<br> &nbsp; <i class="fa fa-circle fa-1x" ' 'style="color:{}">&nbsp;{}</i>'.format(
-            legend_generator_html, col, gentype
+        legend_generator_html = (
+            f'{legend_generator_html}<br> &nbsp; <i class="fa fa-circle fa-1x" '
+            'style="color:{col}">&nbsp;{gentype}</i>'
         )
     legend_generator_html = "{}</div>".format(legend_generator_html)
     m.get_root().html.add_child(folium.Element(legend_generator_html))
 
-    folium.LayerControl().add_to(m)
+    if add_folium_control:
+        folium.LayerControl().add_to(m)
 
     if filename:
         print("Saving map to file {}".format(filename))
