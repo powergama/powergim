@@ -125,6 +125,7 @@ def create_case(investment_years, number_nodes, number_timesteps, base_MW=200):
             "operation_maintenance_rate": 0.05,
             "CO2_price": 0,
             "load_shed_penalty": 10000,
+            "profiles_period_suffix": False,
         },
     }
 
@@ -264,6 +265,7 @@ def create_case_star(investment_years, number_nodes, number_timesteps, base_MW=2
             "operation_maintenance_rate": 0.05,
             "CO2_price": 0,
             "load_shed_penalty": 10000,
+            "profiles_period_suffix": False,
         },
     }
 

@@ -159,6 +159,8 @@ class SipModel(pyo.ConcreteModel):
         # load shedding
         def bounds_load_shed(model, consumer, period, time):
             ref = self.grid_data.consumer.loc[consumer, "demand_ref"]
+            if self.parameters["profiles_period_suffix"]:
+                ref = f"{ref}_{period}"
             profile = self.grid_data.profiles.loc[time, ref]
             demand_avg = self.grid_data.consumer.loc[consumer, "demand_avg"]
             ub = max(0, demand_avg * profile)
@@ -291,6 +293,8 @@ class SipModel(pyo.ConcreteModel):
             cap = cap_existing + cap_new
             gentype = self.grid_data.generator.loc[gen, "type"]
             profile_ref = self.grid_data.generator.loc[gen, "inflow_ref"]
+            if self.parameters["profiles_period_suffix"]:
+                profile_ref = f"{profile_ref}_{period}"
             profile_fac = self.grid_data.generator.loc[gen, "inflow_fac"]
             profile_value = self.grid_data.profiles.loc[t, profile_ref] * profile_fac
             allow_curtailment = self.gentypes[gentype]["allow_curtailment"]
@@ -398,6 +402,8 @@ class SipModel(pyo.ConcreteModel):
                 if node_load == node:
                     dem_avg = self.grid_data.consumer.loc[cons, "demand_avg"]
                     dem_profile_ref = self.grid_data.consumer.loc[cons, "demand_ref"]
+                    if self.parameters["profiles_period_suffix"]:
+                         dem_profile_ref = f"{dem_profile_ref}_{period}"
                     profile = self.grid_data.profiles.loc[t, dem_profile_ref]
                     flow_into_node += -dem_avg * profile
 
@@ -524,6 +530,8 @@ class SipModel(pyo.ConcreteModel):
         for gen in self.s_gen:
             fuelcost = self.grid_data.generator.loc[gen, "fuelcost"]
             cost_profile_ref = self.grid_data.generator.loc[gen, "fuelcost_ref"]
+            if self.parameters["profiles_period_suffix"]:
+                cost_profile_ref = f"{cost_profile_ref}_{period}"
             cost_profile = self.grid_data.profiles[cost_profile_ref]
             gentype = self.grid_data.generator.loc[gen, "type"]
             emission_rate = self.gentypes[gentype]["CO2"]

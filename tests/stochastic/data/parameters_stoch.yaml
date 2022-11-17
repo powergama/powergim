@@ -74,3 +74,5 @@ parameters:
     operation_maintenance_rate: 0.05
     CO2_price: 0
     load_shed_penalty: 10000 # very high value of lost load (loadshedding penalty)
+    profiles_period_suffix: False # Use same profiles for all operating periods
+    
