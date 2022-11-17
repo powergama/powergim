@@ -251,6 +251,7 @@ parameters:
     operation_maintenance_rate: 0.05
     CO2_price: 0
     load_shed_penalty: 10000 # very high value of lost load (loadshedding penalty)
+    profiles_period_suffix: False
 ```
 
 Most of the parametes in the  ```nodetype```, ```branchtype``` and ```gentype```
@@ -269,6 +270,7 @@ Parameters specified in the ```parameters``` block are:
   relative to the investment cost
 * CO2_price = costs for CO2 emissions (EUR/kgCO2)
 * load_shed_penalty = penalty cost for load shedding (demand not supplied) (EUR/MWh)
+* profiles_period_suffix = True/False specifying whether to use different profiles for each operating period, with a `_<period>` suffix to the profile name
 
 ## Analysis of results
 
