@@ -403,7 +403,7 @@ class SipModel(pyo.ConcreteModel):
                     dem_avg = self.grid_data.consumer.loc[cons, "demand_avg"]
                     dem_profile_ref = self.grid_data.consumer.loc[cons, "demand_ref"]
                     if self.parameters["profiles_period_suffix"]:
-                         dem_profile_ref = f"{dem_profile_ref}_{period}"
+                        dem_profile_ref = f"{dem_profile_ref}_{period}"
                     profile = self.grid_data.profiles.loc[t, dem_profile_ref]
                     flow_into_node += -dem_avg * profile
 
@@ -562,29 +562,37 @@ class SipModel(pyo.ConcreteModel):
         )
         return opcost
 
-    def costOperationSingleGen(self, model, g, stage):
+    def costOperationSingleGen(self, gen, period):
         """Operational costs: cost of gen, load shed (NPV)"""
-        opcost = 0
-        # operation cost per year:
+
+        fuelcost = self.grid_data.generator.loc[gen, "fuelcost"]
+        cost_profile_ref = self.grid_data.generator.loc[gen, "fuelcost_ref"]
+        if self.parameters["profiles_period_suffix"]:
+            cost_profile_ref = f"{cost_profile_ref}_{period}"
+        cost_profile = self.grid_data.profiles[cost_profile_ref]
+        gentype = self.grid_data.generator.loc[gen, "type"]
+        emission_rate = self.gentypes[gentype]["CO2"]
         opcost = sum(
-            model.generation[g, t, stage]
-            * model.samplefactor[t]
-            * (
-                model.genCostAvg[g] * model.genCostProfile[g, t]
-                + model.genTypeEmissionRate[model.genType[g]] * model.CO2price
-            )
-            for t in model.TIME
+            self.v_generation[gen, period, t]
+            * (fuelcost * cost_profile[t] + emission_rate * self.CO2_price)
+            * self.sample_factor[t]
+            for t in self.s_time
         )
 
         # compute present value of future annual costs
-        if stage == len(model.STAGE):
-            opcost = opcost * (
-                annuityfactor(model.financeInterestrate, model.financeYears)
-                - annuityfactor(model.financeInterestrate, int(stage - 1) * model.stage2TimeDelta)
-            )
+        year_0 = self.investment_years[0]
+        N_this = period - year_0
+        # Number of years since start
+        if period == self.investment_years[-1]:
+            # last period - lasts until finance_years
+            N_next = self.finance_years  # e.g. 30 years
         else:
-            opcost = opcost * annuityfactor(model.financeInterestrate, model.stage2TimeDelta)
-        # opcost = opcost*discount_t0
+            #
+            ind_this_period = self.investment_years.index(period)
+            N_next = self.investment_years[ind_this_period + 1] - year_0
+        opcost = opcost * (
+            annuityfactor(self.finance_interest_rate, N_next) - annuityfactor(self.finance_interest_rate, N_this)
+        )
         return opcost
 
     def scenario_creator(self, scenario_name, probability):
