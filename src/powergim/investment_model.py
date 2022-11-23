@@ -56,7 +56,7 @@ class SipModel(pyo.ConcreteModel):
         self.CO2_price = parameter_data["parameters"]["CO2_price"]
         self.MAX_BRANCH_NEW_NUM = 5  # Fixme: get from parameter input
         self.MAX_GEN_NEW_CAPACITY = 10000  # Fixme: get from parameter input
-        self.MAX_NODE_NEW_CAPACITY = 10000  # Fixme: get from parameter input
+        self.MAX_NODE_NEW_CAPACITY = 100000  # Fixme: get from parameter input
 
         # sample factor scales from sample to annual value
         self.sample_factor = pd.Series(
@@ -81,11 +81,9 @@ class SipModel(pyo.ConcreteModel):
         self.s_time = pyo.Set(initialize=timerange)
         self.s_area = pyo.Set(initialize=list(self.grid_data.node["area"].unique()))
         self.s_period = pyo.Set(initialize=self.investment_years)
-        self.s_branchtype = pyo.Set(initialize=self.branchtypes.keys())
-        self.s_branch_cost_element = pyo.Set(initialize=["B", "Bd", "Bdp", "CLp", "CL", "CSp", "CS"])
-        self.s_nodetype = pyo.Set()
-        self.s_gentype = pyo.Set()
-        self.s_node_cost_element = pyo.Set(initialize=["L", "S"])
+        # self.s_branchtype = pyo.Set(initialize=self.branchtypes.keys())
+        # self.s_nodetype = pyo.Set()
+        # self.s_gentype = pyo.Set()
 
     def create_variables(self):
         # NOTE: bounds vs constraints
@@ -270,23 +268,6 @@ class SipModel(pyo.ConcreteModel):
             expr = self.v_node_new_capacity[node, period] <= max_node_cap * self.v_new_nodes[node, period]
             return expr
 
-        # A node required at each branch endpoint
-        def NOT_USED_rule_new_nodes(model, node, period):
-            num_nodes = self.grid_data.node.loc[node, "existing"]
-            previous_periods = (p for p in self.s_period if p <= period)
-            for p in previous_periods:
-                num_nodes += self.v_new_nodes[node, p]
-            connected_branches = 0
-            for branch in self.s_branch:
-                node_from = self.grid_data.branch.loc[branch, "node_from"]
-                node_to = self.grid_data.branch.loc[branch, "node_to"]
-                if node_from == node or node_to == node:
-                    connected_branches += self.v_branch_new_cables[branch, period]
-            expr = connected_branches <= self.M_const * num_nodes
-            if (type(expr) is bool) and (expr is True):
-                expr = pyo.Constraint.Skip
-            return expr
-
         self.c_new_nodes = pyo.Constraint(self.s_node, self.s_period, rule=rule_new_nodes)
 
         # Limit new generator capacity
@@ -441,7 +422,7 @@ class SipModel(pyo.ConcreteModel):
             # sum power into node
             # rating according to branch capacity
 
-            previous_periods = (p for p in self.s_period if p <= period)
+            previous_periods = [p for p in self.s_period if p <= period]
             connected_capacity = 0
             # capacity of connected branches
             for branch in self.s_branch:
@@ -457,30 +438,30 @@ class SipModel(pyo.ConcreteModel):
 
             # TODO add connected load?
 
-            node_capacity = self.grid_data.node.loc[node, "existing"]
+            # TODO: Fixme: this existing capacity...
+            node_capacity = self.grid_data.node.loc[node, "existing"] * 100000
             for p in previous_periods:
                 node_capacity += self.v_node_new_capacity[node, p]
-
-            expr = node_capacity <= connected_capacity
+            expr = connected_capacity <= node_capacity
 
             if (type(expr) is bool) and (expr is True):
                 # Trivial constraint
                 expr = pyo.Constraint.Skip
             return expr
 
-        self.c_nodecapacity = pyo.Constraint(self.s_node, self.s_period, self.s_time, rule=rule_nodecapacity)
+        self.c_nodecapacity = pyo.Constraint(self.s_node, self.s_period, rule=rule_nodecapacity)
 
     def costNode(self, node, period):
         """Expression for cost of node, investment cost no discounting"""
         n_cost = 0
-        var_num = self.v_new_nodes
-        var_cap = self.v_node_new_capacity
+        var_num = self.v_new_nodes[node, period]
+        var_cap = self.v_node_new_capacity[node, period]
         is_offshore = self.grid_data.node.loc[node, "offshore"]  # 1 or 0
         nodetype = self.grid_data.node.loc[node, "type"]
         nodetype_costs = self.nodetypes[nodetype]
         scale = self.grid_data.node.loc[node, "cost_scaling"]
-        n_cost += is_offshore * (nodetype_costs["S"] * var_num[node, period] + nodetype_costs["Sp"] * var_cap)
-        n_cost += (1 - is_offshore) * (nodetype_costs["L"] * var_num[node, period] + nodetype_costs["Lp"] * var_cap)
+        n_cost += is_offshore * (nodetype_costs["S"] * var_num + nodetype_costs["Sp"] * var_cap)
+        n_cost += (1 - is_offshore) * (nodetype_costs["L"] * var_num + nodetype_costs["Lp"] * var_cap)
         return scale * n_cost
 
     def costBranch(self, branch, period):
@@ -657,6 +638,7 @@ class SipModel(pyo.ConcreteModel):
             _slice_to_list(self.v_branch_new_cables[:, stage1])
             + _slice_to_list(self.v_branch_new_capacity[:, stage1])
             + _slice_to_list(self.v_new_nodes[:, stage1])
+            + _slice_to_list(self.v_node_new_capacity[:, stage1])
             + _slice_to_list(self.v_gen_new_capacity[:, stage1])
             # + [self.v_operating_cost[stage1], self.v_investment_cost[stage1]]
         )

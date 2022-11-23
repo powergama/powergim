@@ -91,7 +91,14 @@ def create_case(investment_years, number_nodes, number_timesteps, base_MW=200):
     grid_data.validate_grid_data()
 
     parameter_data = {
-        "nodetype": {"nodetype1": {"L": 1, "S": 50e6}},
+        "nodetype": {
+            "nodetype1": {
+                "L": 1,
+                "Lp": 0,
+                "S": 50e6,
+                "Sp": 0,
+            }
+        },
         "branchtype": {
             "branchtype1": {
                 "B": 5000e3,
@@ -231,7 +238,14 @@ def create_case_star(investment_years, number_nodes, number_timesteps, base_MW=2
     grid_data.validate_grid_data()
 
     parameter_data = {
-        "nodetype": {"nodetype1": {"L": 1, "S": 50e6}},
+        "nodetype": {
+            "nodetype1": {
+                "L": 1,
+                "Lp": 0,
+                "S": 50e6,
+                "Sp": 0,
+            }
+        },
         "branchtype": {
             "branchtype1": {
                 "B": 5000e3,
