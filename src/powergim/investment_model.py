@@ -438,8 +438,7 @@ class SipModel(pyo.ConcreteModel):
 
             # TODO add connected load?
 
-            # TODO: Fixme: this existing capacity...
-            node_capacity = self.grid_data.node.loc[node, "existing"] * 100000
+            node_capacity = self.grid_data.node.loc[node, "capacity"]
             for p in previous_periods:
                 node_capacity += self.v_node_new_capacity[node, p]
             expr = connected_capacity <= node_capacity

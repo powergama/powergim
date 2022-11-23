@@ -29,7 +29,7 @@ class GridData(object):
                 "lon": None,
                 "offshore": None,
                 "type": None,
-                "existing": None,
+                "capacity": None,
                 "cost_scaling": None,
             },
             "branch": {
