@@ -1,3 +1,4 @@
+import logging
 import sys
 from pathlib import Path
 
@@ -56,6 +57,9 @@ def my_scenario_denouement(rank, scenario_name, scenario):
     all_var_values_dict = pgim.SipModel.extract_all_variable_values(scenario)
     dfs = []
     for varname, data in all_var_values_dict.items():
+        if data is None:
+            logging.warning(f"northsea.py: Skipping variable with no data ({varname})")
+            continue
         df = pd.DataFrame(data).reset_index()
         df.loc[:, "variable"] = varname
         dfs.append(df)
