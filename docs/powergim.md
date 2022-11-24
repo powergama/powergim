@@ -112,7 +112,7 @@ id   | Unique string identifier | string
 lat  | Latitude   | float |degrees
 lon  | Longitude  | float |degrees
 area | Area/country code | string
-existing | Whether node already exists |boolean |0,1
+capacity | Existing node capacity |float | MW
 offshore | Whether node is offshore | boolean | 0,1
 cost_scaling | Cost scaling factor |float
 type | Node (cost) type |string

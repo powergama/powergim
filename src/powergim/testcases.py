@@ -19,7 +19,7 @@ def create_case(investment_years, number_nodes, number_timesteps, base_MW=200):
     nodes["area"] = "area"
     nodes["offshore"] = [i % 2 for i in node_numbers]
     nodes["type"] = "nodetype1"
-    nodes["existing"] = 0
+    nodes["capacity"] = 0
     nodes["cost_scaling"] = 1
     nodes["lat"] = 60 + radius * np.sin(np.pi * 2 / number_nodes * node_numbers)
     nodes["lon"] = 5 + radius * np.cos(np.pi * 2 / number_nodes * node_numbers)
@@ -91,7 +91,14 @@ def create_case(investment_years, number_nodes, number_timesteps, base_MW=200):
     grid_data.validate_grid_data()
 
     parameter_data = {
-        "nodetype": {"nodetype1": {"L": 1, "S": 50e6}},
+        "nodetype": {
+            "nodetype1": {
+                "L": 1,
+                "Lp": 0,
+                "S": 50e6,
+                "Sp": 0,
+            }
+        },
         "branchtype": {
             "branchtype1": {
                 "B": 5000e3,
@@ -150,7 +157,7 @@ def create_case_star(investment_years, number_nodes, number_timesteps, base_MW=2
     nodes["area"] = "area"
     nodes["offshore"] = [i % 2 for i in node_numbers]
     nodes["type"] = "nodetype1"
-    nodes["existing"] = 0
+    nodes["capacity"] = 0
     nodes["cost_scaling"] = 1
     nodes.loc[1:, "lat"] = [lat0] * (number_nodes - 1) + (radius * (1 + 0.5 * nodes_outer / number_nodes)) * np.sin(
         np.pi * 2 / (number_nodes - 1) * nodes_outer
@@ -231,7 +238,14 @@ def create_case_star(investment_years, number_nodes, number_timesteps, base_MW=2
     grid_data.validate_grid_data()
 
     parameter_data = {
-        "nodetype": {"nodetype1": {"L": 1, "S": 50e6}},
+        "nodetype": {
+            "nodetype1": {
+                "L": 1,
+                "Lp": 0,
+                "S": 50e6,
+                "Sp": 0,
+            }
+        },
         "branchtype": {
             "branchtype1": {
                 "B": 5000e3,

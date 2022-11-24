@@ -1,6 +1,6 @@
 nodetype:
-    ac: { L: 1, S: 50e6 }
-    hvdc: { L: 1, S: 1 }
+    ac: { L: 1, S: 50e6, Lp: 0, Sp: 0 }
+    hvdc: { L: 1, S: 1, Lp: 0, Sp: 0 }
 branchtype:
     ac:
         B: 5000e3
