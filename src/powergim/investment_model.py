@@ -506,10 +506,8 @@ class SipModel(pyo.ConcreteModel):
 
         Parameters
         ----------
-        model : object
-            Pyomo model
-        stage : int
-            Investment or operation stage (1 or 2)
+        period : int
+            Year of investment
         investment :
             cost of e.g. node, branch or gen
 
@@ -707,6 +705,7 @@ class SipModel(pyo.ConcreteModel):
         consumers = grid_data.consumer.copy()
         is_expanded = all_var_values["v_branch_new_cables"].clip(upper=10).unstack("s_period")
         new_branch_cap = is_expanded * all_var_values["v_branch_new_capacity"].unstack("s_period")
+        new_node_cap = all_var_values["v_node_new_capacity"].unstack("s_period")
         for y in years:
             branches[f"capacity_{y}"] = branches[f"capacity_{y}"] + new_branch_cap[y]
             branches[f"flow_{y}"] = (
@@ -717,6 +716,7 @@ class SipModel(pyo.ConcreteModel):
                 .unstack("s_time")
                 .mean(axis=1)
             )
+            nodes[f"capacity_{y}"] = new_node_cap[y]
         grid_res = powergim.grid_data.GridData(years, nodes, branches, generators, consumers)
         return grid_res
 

@@ -9,7 +9,9 @@ def extract_costs(sip: powergim.SipModel, npv=True):
     if npv:
         npv_func = sip.npvInvestment
     else:
-        npv_func = lambda x, y: y
+        # just return the investment without any discounting etc.
+        def npv_func(x, y):
+            return y
 
     # Investment costs:
     df_branch_cost = pd.DataFrame()
@@ -23,12 +25,11 @@ def extract_costs(sip: powergim.SipModel, npv=True):
     for node in sip.s_node:
         for period in sip.s_period:
             investment = pyo.value(sip.costNode(node, period))
-            df_node_cost.loc[branch, period] = npv_func(period, investment)
+            df_node_cost.loc[node, period] = npv_func(period, investment)
     for gen in sip.s_gen:
         for period in sip.s_period:
             investment = pyo.value(sip.costGen(gen, period))
             df_gen_cost.loc[gen, period] = npv_func(period, investment)
-    # df_investment_cost = pd.concat({"branch":df_branch_cost.sum(), "node":df_node_cost.sum(), "gen":df_gen_cost.sum()},axis=1).T
 
     # Operating costs:
     df_gen_opcost = pd.DataFrame()
