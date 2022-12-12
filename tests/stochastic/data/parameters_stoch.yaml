@@ -61,12 +61,9 @@ gentype:
     alt:
         CX: 10
         CO2: 0
-        allow_curtailment: true
     wind:
         CX: 0
         CO2: 0
-        allow_curtailment: false # TODO: disallowing curtailment gives trouble - solves but returns None variable values
-    #    curtailment_cost: 0
 parameters:
     investment_years: [2025, 2028]
     finance_interest_rate: 0.05

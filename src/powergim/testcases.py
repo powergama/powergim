@@ -70,6 +70,7 @@ def create_case(investment_years, number_nodes, number_timesteps, base_MW=200):
     generators["pavg"] = 0
     generators["inflow_fac"] = 1
     generators["inflow_ref"] = "inflow_" + generators["type"]
+    generators["allow_curtailment"] = 1
 
     timesteps = np.array(range(number_timesteps))
     profiles = pd.DataFrame(index=timesteps)
@@ -117,12 +118,10 @@ def create_case(investment_years, number_nodes, number_timesteps, base_MW=200):
             "gentype0": {
                 "CX": 0,
                 "CO2": 0,
-                "allow_curtailment": True,
             },
             "gentype1": {
                 "CX": 100,
                 "CO2": 0,
-                "allow_curtailment": True,
             },
         },
         "parameters": {
@@ -217,6 +216,7 @@ def create_case_star(investment_years, number_nodes, number_timesteps, base_MW=2
     generators["pavg"] = 0
     generators["inflow_fac"] = 1
     generators["inflow_ref"] = "inflow_" + generators["type"]
+    generators["allow_curtailment"] = 1
 
     timesteps = np.array(range(number_timesteps))
     profiles = pd.DataFrame(index=timesteps)
@@ -264,12 +264,10 @@ def create_case_star(investment_years, number_nodes, number_timesteps, base_MW=2
             "gentype0": {
                 "CX": 0,
                 "CO2": 0,
-                "allow_curtailment": True,
             },
             "gentype1": {
                 "CX": 100,
                 "CO2": 0,
-                "allow_curtailment": True,
             },
         },
         "parameters": {

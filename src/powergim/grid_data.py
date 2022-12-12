@@ -49,6 +49,7 @@ class GridData(object):
                 **{f"capacity_{p}": None for p in self.investment_years},
                 **{f"expand_{p}": None for p in self.investment_years},
                 "pmin": None,
+                "allow_curtailment": None,
                 "p_maxNew": -1,
                 "cost_scaling": 1,
                 "fuelcost": None,

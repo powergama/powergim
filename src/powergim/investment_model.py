@@ -292,13 +292,12 @@ class SipModel(pyo.ConcreteModel):
                 if self.grid_data.generator.loc[gen, f"expand_{p}"] == 1:
                     cap_new += self.v_gen_new_capacity[gen, p]
             cap = cap_existing + cap_new
-            gentype = self.grid_data.generator.loc[gen, "type"]
             profile_ref = self.grid_data.generator.loc[gen, "inflow_ref"]
             if self.parameters["profiles_period_suffix"]:
                 profile_ref = f"{profile_ref}_{period}"
             profile_fac = self.grid_data.generator.loc[gen, "inflow_fac"]
             profile_value = self.grid_data.profiles.loc[t, profile_ref] * profile_fac
-            allow_curtailment = self.gentypes[gentype]["allow_curtailment"]
+            allow_curtailment = self.grid_data.generator.loc[gen, "allow_curtailment"]
             if allow_curtailment:
                 expr = self.v_generation[gen, period, t] <= (profile_value * cap)
             else:
