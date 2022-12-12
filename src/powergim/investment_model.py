@@ -225,7 +225,7 @@ class SipModel(pyo.ConcreteModel):
         def _branch_flow_limit(branch, period, t):
             branch_existing_capacity = 0
             branch_new_capacity = 0
-            previous_periods = (p for p in self.s_period if p <= period)
+            previous_periods = [p for p in self.s_period if p <= period]
             for p in previous_periods:
                 branch_existing_capacity += self.grid_data.branch.loc[branch, f"capacity_{p}"]
                 if self.grid_data.branch.loc[branch, f"expand_{period}"] == 1:
@@ -286,7 +286,7 @@ class SipModel(pyo.ConcreteModel):
         def rule_max_gen_power(model, gen, period, t):
             cap_existing = 0
             cap_new = 0
-            previous_periods = (p for p in self.s_period if p <= period)
+            previous_periods = [p for p in self.s_period if p <= period]
             for p in previous_periods:
                 cap_existing += self.grid_data.generator.loc[gen, f"capacity_{p}"]
                 if self.grid_data.generator.loc[gen, f"expand_{p}"] == 1:
@@ -313,7 +313,7 @@ class SipModel(pyo.ConcreteModel):
         def rule_max_energy(model, gen, period):
             cap_existing = 0
             cap_new = 0
-            previous_periods = (p for p in self.s_period if p <= period)
+            previous_periods = [p for p in self.s_period if p <= period]
             for p in previous_periods:
                 cap_existing += self.grid_data.generator.loc[gen, f"capacity_{p}"]
                 cap_new += self.v_gen_new_capacity[gen, p]
