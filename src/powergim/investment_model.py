@@ -225,7 +225,7 @@ class SipModel(pyo.ConcreteModel):
         def _branch_flow_limit(branch, period, t):
             branch_existing_capacity = 0
             branch_new_capacity = 0
-            previous_periods = (p for p in self.s_period if p <= period)
+            previous_periods = [p for p in self.s_period if p <= period]
             for p in previous_periods:
                 branch_existing_capacity += self.grid_data.branch.loc[branch, f"capacity_{p}"]
                 if self.grid_data.branch.loc[branch, f"expand_{period}"] == 1:
@@ -286,7 +286,7 @@ class SipModel(pyo.ConcreteModel):
         def rule_max_gen_power(model, gen, period, t):
             cap_existing = 0
             cap_new = 0
-            previous_periods = (p for p in self.s_period if p <= period)
+            previous_periods = [p for p in self.s_period if p <= period]
             for p in previous_periods:
                 cap_existing += self.grid_data.generator.loc[gen, f"capacity_{p}"]
                 if self.grid_data.generator.loc[gen, f"expand_{p}"] == 1:
@@ -313,7 +313,7 @@ class SipModel(pyo.ConcreteModel):
         def rule_max_energy(model, gen, period):
             cap_existing = 0
             cap_new = 0
-            previous_periods = (p for p in self.s_period if p <= period)
+            previous_periods = [p for p in self.s_period if p <= period]
             for p in previous_periods:
                 cap_existing += self.grid_data.generator.loc[gen, f"capacity_{p}"]
                 cap_new += self.v_gen_new_capacity[gen, p]
@@ -506,10 +506,8 @@ class SipModel(pyo.ConcreteModel):
 
         Parameters
         ----------
-        model : object
-            Pyomo model
-        stage : int
-            Investment or operation stage (1 or 2)
+        period : int
+            Year of investment
         investment :
             cost of e.g. node, branch or gen
 
@@ -597,29 +595,37 @@ class SipModel(pyo.ConcreteModel):
         )
         return opcost
 
-    def costOperationSingleGen(self, model, g, stage):
+    def costOperationSingleGen(self, gen, period):
         """Operational costs: cost of gen, load shed (NPV)"""
-        opcost = 0
-        # operation cost per year:
+
+        fuelcost = self.grid_data.generator.loc[gen, "fuelcost"]
+        cost_profile_ref = self.grid_data.generator.loc[gen, "fuelcost_ref"]
+        if self.parameters["profiles_period_suffix"]:
+            cost_profile_ref = f"{cost_profile_ref}_{period}"
+        cost_profile = self.grid_data.profiles[cost_profile_ref]
+        gentype = self.grid_data.generator.loc[gen, "type"]
+        emission_rate = self.gentypes[gentype]["CO2"]
         opcost = sum(
-            model.generation[g, t, stage]
-            * model.samplefactor[t]
-            * (
-                model.genCostAvg[g] * model.genCostProfile[g, t]
-                + model.genTypeEmissionRate[model.genType[g]] * model.CO2price
-            )
-            for t in model.TIME
+            self.v_generation[gen, period, t]
+            * (fuelcost * cost_profile[t] + emission_rate * self.CO2_price)
+            * self.sample_factor[t]
+            for t in self.s_time
         )
 
         # compute present value of future annual costs
-        if stage == len(model.STAGE):
-            opcost = opcost * (
-                annuityfactor(model.financeInterestrate, model.financeYears)
-                - annuityfactor(model.financeInterestrate, int(stage - 1) * model.stage2TimeDelta)
-            )
+        year_0 = self.investment_years[0]
+        N_this = period - year_0
+        # Number of years since start
+        if period == self.investment_years[-1]:
+            # last period - lasts until finance_years
+            N_next = self.finance_years  # e.g. 30 years
         else:
-            opcost = opcost * annuityfactor(model.financeInterestrate, model.stage2TimeDelta)
-        # opcost = opcost*discount_t0
+            #
+            ind_this_period = self.investment_years.index(period)
+            N_next = self.investment_years[ind_this_period + 1] - year_0
+        opcost = opcost * (
+            annuityfactor(self.finance_interest_rate, N_next) - annuityfactor(self.finance_interest_rate, N_this)
+        )
         return opcost
 
     def scenario_creator(self, scenario_name, probability):
@@ -699,6 +705,7 @@ class SipModel(pyo.ConcreteModel):
         consumers = grid_data.consumer.copy()
         is_expanded = all_var_values["v_branch_new_cables"].clip(upper=10).unstack("s_period")
         new_branch_cap = is_expanded * all_var_values["v_branch_new_capacity"].unstack("s_period")
+        new_node_cap = all_var_values["v_node_new_capacity"].unstack("s_period")
         for y in years:
             branches[f"capacity_{y}"] = branches[f"capacity_{y}"] + new_branch_cap[y]
             branches[f"flow_{y}"] = (
@@ -709,6 +716,7 @@ class SipModel(pyo.ConcreteModel):
                 .unstack("s_time")
                 .mean(axis=1)
             )
+            nodes[f"capacity_{y}"] = new_node_cap[y]
         grid_res = powergim.grid_data.GridData(years, nodes, branches, generators, consumers)
         return grid_res
 

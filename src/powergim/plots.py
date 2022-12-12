@@ -10,16 +10,15 @@ def read_results_from_excel(filename, sheet):
     return df_res
 
 
-def plotEnergyMix(
-    self,
-    model,
+def plot_energy_mix(
+    sip_model,
+    year,
     areas=None,
-    timeMaxMin=None,
+    time_max_min=None,
     relative=False,
-    showTitle=True,
+    show_title=True,
     variable="energy",
     gentypes=None,
-    stage=1,
 ):
     """
     Plot energy, generation capacity or spilled energy as stacked bars
@@ -28,7 +27,7 @@ def plotEnergyMix(
     ----------
     areas : list of sting
         Which areas to include, default=None means include all
-    timeMaxMin : list of two integers
+    time_max_min : list of two integers
         Time range, [min,max]
     relative : boolean
         Whether to plot absolute (false) or relative (true) values
@@ -36,31 +35,49 @@ def plotEnergyMix(
         Which variable to plot (default is energy production)
     gentypes : list
         List of generator types to include. None gives all.
+    year : int
+        Operating period (year)
     """
+    all_var_values = sip_model.extract_all_variable_values()
+    grid_data = sip_model.grid_data
 
-    s = stage
+    generator_output = pd.DataFrame({"value":all_var_values["v_generation"].loc[:,year,:].unstack("s_gen").mean(axis=0)})
+    generator_output["type"] = grid_data.generator["type"]
+    generator_output["node"] = grid_data.generator["node"]
+    generator_output = generator_output.merge(grid_data.node[["area"]],left_on="node",right_index=True)
+    generator_output = generator_output[["value","area","type"]].groupby(["area","type"]).sum()["value"].unstack()
+    if relative:
+        generator_output.apply(lambda x: x/(generator_output.sum(axis=1))).plot(kind="bar",stacked=True,title="Power mix")
+    else:
+        generator_output.plot(kind='bar', stacked=True,title="Mean power (MW)")
+    return
+
+    model = sip_model
+    s = year
     if areas is None:
-        areas = list(model.AREA)
+        areas = list(model.s_area)
     if timeMaxMin is None:
-        timeMaxMin = list(model.TIME)
+        timeMaxMin = list(model.s_time)
     if gentypes is None:
-        gentypes = list(model.GENTYPE)
+        gentypes = list(model.s_gentype)
+
 
     gen_output = []
     if variable == "energy":
-        print("Getting energy output from all generators...")
-        for g in model.GEN:
-            gen_output.append(sum(model.generation[g, t, s].value for t in timeMaxMin))
+        gen_output = all_var_values["v_generation"].loc[:,year,:].unstack("s_gen")
+#        print("Getting energy output from all generators...")
+#        for g in model.s_gen:
+#            gen_output.append(sum(model.v_generation[g, s, t].value for t in time_max_min))
         title = "Energy mix"
     elif variable == "capacity":
         print("Getting capacity from all generators...")
-        for g in model.GEN:
-            gen_output.append(model.genCapacity[g])
+        for g in model.s_gen:
+            gen_output.append(model.v_gen_new_capacity[g])
         title = "Capacity mix"
     elif variable == "spilled":
         print("Getting curatailed energy from all generators...")
-        for g in model.GEN:
-            gen_output.append(sum(self.computeCurtailment(model, g, t, s) for t in timeMaxMin))
+        for g in model.s_gen:
+            gen_output.append(sum(model.computeCurtailment(model, g, t, s) for t in timeMaxMin))
         title = "Energy spilled"
     else:
         print("Variable not valid")
@@ -71,9 +88,11 @@ def plotEnergyMix(
         prodsum = {}
         for ar in areas:
             prodsum[ar] = 0
-            for i in model.GEN:
-                if ar == model.nodeArea[model.genNode[i]]:
-                    prodsum[ar] += gen_output[i]
+            for g in gen_output.columns:
+                gen_node = model.grid_data.generator.loc[g,"node"]
+                gen_area = model.grid_data.node.loc[gen_node,"area"]
+                if ar == gen_area:
+                    prodsum[ar] += gen_output[g]
 
     plt.figure()
     ax = plt.subplot(111)
@@ -89,9 +108,9 @@ def plotEnergyMix(
     ind = range(len(areas))
     for typ in gentypes:
         A = []
-        for ar in model.AREA:
+        for ar in model.s_area:
             prod = 0
-            for g in model.GEN:
+            for g in model.s_gen:
                 if (typ == model.genType[g]) & (ar == model.nodeArea[model.genNode[g]]):
                     prod += gen_output[g]
                 else:
@@ -115,7 +134,7 @@ def plotEnergyMix(
     #        plt.legend(handles, labels, loc='best',
     #                   bbox_to_anchor=(1.05,1), borderaxespad=0.0)
     plt.xticks(np.arange(len(areas)) + width / 2.0, tuple(areas))
-    if showTitle:
+    if show_title:
         plt.title(title)
     plt.show()
     return

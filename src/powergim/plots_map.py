@@ -60,6 +60,7 @@ def plot_map(
 
     branch["capacity"] = branch[[f"capacity_{p}" for p in years]].sum(axis=1)
     generator["capacity"] = generator[[f"capacity_{p}" for p in years]].sum(axis=1)
+    node["capacity"] = node["capacity"] + node[[f"capacity_{p}" for p in years]].sum(axis=1)
     if f"flow_{years[0]}" in branch.columns:
         branch["flow"] = branch[[f"flow_{p}" for p in years]].mean(axis=1)
         branch["utilisation"] = branch["flow"].abs() / branch["capacity"]
@@ -153,6 +154,9 @@ def plot_map(
                 colour = ""
             else:
                 colour = "blue"
+            if "capacity" in n:
+                data[2] = f"{data[2]}, capacity={n['capacity']:g}"
+
             locationsN.append(data)
         else:
             print("Missing lat/lon for node index={}".format(i))
