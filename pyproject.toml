@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "powergim"
-version = "0.3"
+version = "0.3.1"
 description = "Power Grid Investment Module (PowerGIM)"
 authors = ["Harald G Svendsen <harald.svendsen@sintef.no>"]
 license = "MIT License (http://opensource.org/licenses/MIT)"
@@ -46,7 +46,7 @@ cloudpickle = "^2.2.0"
 pytest = "^7"
 mypy = ">=0.96"
 pylint = "^2"
-black = "^22"
+black = "22.08.0"
 nbmake = "^1"
 bandit = "^1.7.4"
 flake8 = "^5.0.4"
