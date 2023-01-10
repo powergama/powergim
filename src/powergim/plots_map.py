@@ -82,8 +82,10 @@ def plot_map(
         # node[['lat','lon']] = coords
 
     # Careful! Merge may change the order
+    branch["index"] = branch.index
     branch = branch.merge(node[["id", "lat", "lon"]], how="left", left_on="node_from", right_on="id")
     branch = branch.merge(node[["id", "lat", "lon"]], how="left", left_on="node_to", right_on="id")
+    branch.set_index("index")
     generator = generator.merge(node[["id", "lat", "lon"]], how="left", left_on="node", right_on="id")
     consumer = consumer.merge(node[["id", "lat", "lon"]], how="left", left_on="node", right_on="id")
     gentypes = list(pg_data.generator["type"].unique())
