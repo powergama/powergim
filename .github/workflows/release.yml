@@ -41,6 +41,17 @@ jobs:
       - name: Check pyproject.toml validity
         run: poetry check --no-interaction
 
+      - name: Setup MPI
+        uses: mpi4py/setup-mpi@v1
+
+      - name: Setup CBC on ubuntu
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get install coinor-cbc
+
+      - name: Setup GLPK on ubuntu
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt-get install glpk-utils
+
       - name: Cache dependencies
         id: cache-deps
         uses: actions/cache@v3.0.11
@@ -54,17 +65,6 @@ jobs:
         run: |
           poetry config virtualenvs.in-project true
           poetry install --no-interaction
-
-      - name: Setup MPI
-        uses: mpi4py/setup-mpi@v1
-
-      - name: Setup CBC on ubuntu
-        if: matrix.os == 'ubuntu-latest'
-        run: sudo apt-get install coinor-cbc
-
-      - name: Setup GLPK on ubuntu
-        if: matrix.os == 'ubuntu-latest'
-        run: sudo apt-get install glpk-utils
 
       - name: Run tests
         run: poetry run pytest -v
