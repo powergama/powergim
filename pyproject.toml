@@ -1,26 +1,26 @@
 [tool.poetry]
 name = "powergim"
-version = "0.3.1"
+version = "0.4.0"
 description = "Power Grid Investment Module (PowerGIM)"
 authors = ["Harald G Svendsen <harald.svendsen@sintef.no>"]
 license = "MIT License (http://opensource.org/licenses/MIT)"
 readme = "README.md"
-homepage = "https://github.com/sintef/powergim"
-repository = "https://github.com/sintef/powergim"
+homepage = "https://github.com/powergama/powergim"
+repository = "https://github.com/powergama/powergim"
 classifiers=[
     "Development Status :: 4 - Beta",
     "Topic :: Scientific/Engineering",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: MacOS",
     "Operating System :: POSIX :: Linux",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Natural Language :: English",
     "License :: OSI Approved :: MIT License",
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.12"
+python = ">=3.10,<3.12"
 numpy = "^1.23.0"
 pandas = "^1.5.0"
 "ruamel.yaml" = "^0.17.21"
