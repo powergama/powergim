@@ -1,10 +1,12 @@
 
-[![GitHub license](https://img.shields.io/github/license/powergama/powergim)](https://github.com/powergama/powergim/blob/main/LICENSE)
-[![Python](https://img.shields.io/badge/python-3.9%20%7C%203.10-blue.svg)](https://python.org)
+[![GitHub license](https://img.shields.io/github/license/powergama/powergama)](https://github.com/powergama/powergim/blob/main/LICENSE)
+[![Python](https://img.shields.io/badge/python-3-blue.svg)](https://python.org)
 [![Code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/powergama/powergim)
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/powergama/powergim/CI%20Build)
-![GitHub branch checks state](https://img.shields.io/github/checks-status/powergama/powergim/main)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
+[![build](https://github.com/powergama/powergim/actions/workflows/build.yml/badge.svg)](https://github.com/powergama/powergim/actions/workflows/build.yml)
+[![GitHub version](https://badge.fury.io/gh/powergama%2Fpowergim.svg)](https://badge.fury.io/gh/powergama%2Fpowergim)
+[![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/powergama/powergim)
+
 
 # Power Grid Investment Module (PowerGIM)
 
@@ -26,7 +28,7 @@ specify input data and run a simulation case.
 *  [User guide](docs/powergim.md)
 
 
-## Local installation
+## Developer installation
 Prerequisite: 
 - [Poetry](https://python-poetry.org/docs/#installation)
 - [Pre-commit](https://pre-commit.com/)
@@ -37,7 +39,7 @@ Clone or download the code and install it as a python package.
 ### Install dependencies
 1. `git clone git@github.com:powergim/powergim.git`
 2. `cd powergim`
-3. `poetry install --no-root`  --no-root to not install the package itself, only the dependencies.
+3. `poetry install` 
 4. `poetry shell`
 5. `poetry run pytest tests`
 
