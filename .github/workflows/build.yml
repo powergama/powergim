@@ -22,8 +22,8 @@ jobs:
           - "macos-latest"
           - "windows-latest"
         python-version:
-          - "3.9"
           - "3.10"
+          - "3.11"
     steps:
       - name: Checkout code
         uses: actions/checkout@v3.0.2
