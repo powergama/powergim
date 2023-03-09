@@ -67,9 +67,14 @@ def plot_map2(
     gdf_edges = branch.merge(
         gdf_nodes[["lat", "lon", "geometry"]], how="left", left_on="node_from", right_index=True
     ).merge(gdf_nodes[["lat", "lon", "geometry"]], how="left", left_on="node_to", right_index=True)
+    # TODO: This gives shapely deprecation warning (issue 13)
     gdf_edges_geometry = gdf_edges.apply(
-        lambda x: shapely.geometry.LineString([x["geometry_x"], x["geometry_y"]]), axis=1
+        lambda x: shapely.geometry.LineString([x["geometry_x"], x["geometry_y"]]),
+        axis=1
+        # lambda x: [[x["lon_x"],x["lat_x"]],[x["lon_y"],x["lat_y"]]], axis=1
     )
+    #    gdf_edges["geometry"] = gdf_edges_geometry
+    #    gdf_edges = geopandas.GeoDataFrame(gdf_edges, geometry="geometry", crs="EPSG:4326")
     gdf_edges = geopandas.GeoDataFrame(gdf_edges, geometry=gdf_edges_geometry, crs="EPSG:4326")
     gdf_edges.set_index("index")
     if width_col is not None:

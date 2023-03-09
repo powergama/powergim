@@ -1,26 +1,26 @@
 [tool.poetry]
 name = "powergim"
-version = "0.3.1"
+version = "0.4.0"
 description = "Power Grid Investment Module (PowerGIM)"
 authors = ["Harald G Svendsen <harald.svendsen@sintef.no>"]
 license = "MIT License (http://opensource.org/licenses/MIT)"
 readme = "README.md"
-homepage = "https://github.com/sintef/powergim"
-repository = "https://github.com/sintef/powergim"
+homepage = "https://github.com/powergama/powergim"
+repository = "https://github.com/powergama/powergim"
 classifiers=[
     "Development Status :: 4 - Beta",
     "Topic :: Scientific/Engineering",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: MacOS",
     "Operating System :: POSIX :: Linux",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Natural Language :: English",
     "License :: OSI Approved :: MIT License",
 ]
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.11"
+python = ">=3.10,<3.12"
 numpy = "^1.23.0"
 pandas = "^1.5.0"
 "ruamel.yaml" = "^0.17.21"
@@ -41,6 +41,7 @@ jinja2 = {version = "^3.1", optional = true}
 openpyxl = "^3.0.10"
 geopandas = "^0.12.1"
 cloudpickle = "^2.2.0"
+networkx = "^3.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7"
@@ -50,7 +51,7 @@ black = "22.08.0"
 nbmake = "^1"
 bandit = "^1.7.4"
 flake8 = "^5.0.4"
-setuptools = "^65.3.0"
+setuptools = "^65.6.3"
 pre-commit = "^2.20.0"
 
 [tool.poetry.extras]
