@@ -41,7 +41,6 @@ jinja2 = {version = "^3.1", optional = true}
 openpyxl = "^3.0.10"
 geopandas = "^0.12.1"
 cloudpickle = "^2.2.0"
-highspy = "^1.5.0.dev0"
 networkx = "^3.0"
 
 [tool.poetry.dev-dependencies]
