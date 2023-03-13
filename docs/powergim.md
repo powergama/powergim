@@ -125,8 +125,8 @@ column | description | type | units
 -------|-------------|------|------
 node_from | Node identifier | string
 node to   | Node identifier | string
-capacity_<year>  | Capacity installed before investment year <year>| float   | MW
-expand_<year>    | Consider expansion in investment year <year>   | boolean | 0,1
+capacity_\<year\>  | Capacity installed before investment year <year>| float   | MW
+expand_\<year\>    | Consider expansion in investment year <year>   | boolean | 0,1
 distance  | Branch length (OPT) | float | km
 max_newCap    | Max new capacity (OPT) | float | km
 cost_scaling  | Cost scaling factor | float
@@ -136,9 +136,9 @@ Branches have from and to references that must match a node identifier
 in the list of nodes.
 * distance may be left blank. Then distance is computed as the shortest
   distance between the associated nodes (based on lat/lon coordinates)
-* expand_<year> is 0 if no expansion should be considered (not part of
+* expand_\<year\> is 0 if no expansion should be considered (not part of
   optimisaion)
-* capacity_<year> is already decided (present or additional future) branch 
+* capacity_\<year\> is already decided (present or additional future) branch 
   capacity, i.e. it does not depend on the optimisation output
 
 
@@ -152,9 +152,10 @@ column | description | type | units
 node  | Node identifier |string
 desc  | Description or name (OPT) |string
 type  | Generator type |string
-capacity_<year>  | (Additional) capacity installed before investment year <year>  |float |MW
+capacity_\<year\>  | (Additional) capacity installed before investment year <year>  |float |MW
 pmin  | Minimum production |float |MW
-expand_<year> | Consider expansion in investment year <year>   | boolean | 0,1
+expand_\<year\> | Consider expansion in investment year <year>   | boolean | 0,1
+allow_curtailment | Whether generator can be curtailed | boolean | 0,1
 fuelcost  | Cost of generation |float |€/MWh
 fuelcost_ref  | Cost profile |string
 inflow_fac  | Inflow factor |float
@@ -166,7 +167,7 @@ cost_scaling  | Cost scaling factor (OPT) |float
 * The average power constraint (pavg) is used to represent generators
   with large storage. pavg=0 means no constraint on average output is used
   (no storage constraint).
-* * capacity_<year> is already decided (present or additional future) generator 
+* capacity_\<year\> is already decided (present or additional future) generator 
   capacity, i.e. it does not depend on the optimisation output
 
 
@@ -239,11 +240,9 @@ gentype:
     <gentype1>:
        CX: 10
        CO2: 0
-       allow_curtailment: true
     <gentype2>:
        CX: 0
        CO2: 0
-       allow_curtailment: false
 parameters:
     investment_years: [2025, 2028]
     finance_interest_rate: 0.05
@@ -262,6 +261,7 @@ power rating per cable system (maxCap)
 
 Parameters specified in the ```parameters``` block are:
 
+* investment_years = list of years to consider for investments. The first value is the here-and-now (stage 1) investments. Use absolute values (e.g. [2030, 2040]) or relative values (e.g. [0, 5, 10]). The years specified here must match \<year\> in column names in the grud uboyt data,
 * finance_interest_rate = discount rate used in net present value calculation of
   generation costs and operation and maintenance costs
 * finance_years = financial lifetime of investments - the period over which
