@@ -60,7 +60,8 @@ class SipModel(pyo.ConcreteModel):
 
         # sample factor scales from sample to annual value
         self.sample_factor = pd.Series(
-            index=self.grid_data.profiles.index, data=self._HOURS_PER_YEAR / self.grid_data.profiles.shape[0]
+            index=self.grid_data.profiles.index,
+            data=self._HOURS_PER_YEAR / self.grid_data.profiles.shape[0],
         )
         if "frequency" in self.grid_data.profiles:
             # a column describing weight for each time-step
@@ -148,7 +149,11 @@ class SipModel(pyo.ConcreteModel):
             return (0, maxcap)
 
         self.v_gen_new_capacity = pyo.Var(
-            self.s_gen, self.s_period, within=pyo.NonNegativeReals, bounds=bounds_gen_new_capacity, initialize=0
+            self.s_gen,
+            self.s_period,
+            within=pyo.NonNegativeReals,
+            bounds=bounds_gen_new_capacity,
+            initialize=0,
         )
 
         # branch flows in both directions
@@ -220,7 +225,6 @@ class SipModel(pyo.ConcreteModel):
         self.OBJ = pyo.Objective(rule=total_cost_objective_rule, sense=pyo.minimize)
 
     def create_constraints(self):
-
         # Power flow limited by installed (existing or new) capacity
         def _branch_flow_limit(branch, period, t):
             branch_existing_capacity = 0
@@ -437,9 +441,14 @@ class SipModel(pyo.ConcreteModel):
 
             # TODO add connected load?
 
-            node_capacity = self.grid_data.node.loc[node, "capacity"]
+            cap_existing = 0
+            cap_new = 0
             for p in previous_periods:
-                node_capacity += self.v_node_new_capacity[node, p]
+                cap_existing += self.grid_data.node.loc[node, f"capacity_{p}"]
+                if self.grid_data.node.loc[node, f"expand_{p}"] == 1:
+                    cap_new += self.v_node_new_capacity[node, p]
+            node_capacity = cap_existing + cap_new
+
             expr = connected_capacity <= node_capacity
 
             if (type(expr) is bool) and (expr is True):

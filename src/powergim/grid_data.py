@@ -25,11 +25,12 @@ class GridData(object):
             "node": {
                 "id": None,
                 "area": None,
+                **{f"capacity_{p}": None for p in self.investment_years},
+                **{f"expand_{p}": None for p in self.investment_years},
                 "lat": None,
                 "lon": None,
                 "offshore": None,
                 "type": None,
-                "capacity": None,
                 "cost_scaling": None,
             },
             "branch": {
@@ -58,7 +59,12 @@ class GridData(object):
                 "inflow_fac": None,
                 "inflow_ref": None,
             },
-            "consumer": {"node": None, "demand_avg": None, "emission_cap": -1, "demand_ref": None},
+            "consumer": {
+                "node": None,
+                "demand_avg": None,
+                "emission_cap": -1,
+                "demand_ref": None,
+            },
         }
 
     def validate_grid_data(self):
