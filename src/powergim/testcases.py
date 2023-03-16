@@ -156,7 +156,9 @@ def create_case_star(investment_years, number_nodes, number_timesteps, base_MW=2
     nodes["area"] = "area"
     nodes["offshore"] = [i % 2 for i in node_numbers]
     nodes["type"] = "nodetype1"
-    nodes["capacity"] = 0
+    for year in investment_years:
+        nodes[f"capacity_{year}"] = 0
+        nodes[f"expand_{year}"] = 1
     nodes["cost_scaling"] = 1
     nodes.loc[1:, "lat"] = [lat0] * (number_nodes - 1) + (radius * (1 + 0.5 * nodes_outer / number_nodes)) * np.sin(
         np.pi * 2 / (number_nodes - 1) * nodes_outer

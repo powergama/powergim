@@ -109,10 +109,11 @@ columns as shown below:
 column | description | type | units
 -------|-------------|------|------
 id   | Unique string identifier | string
+area | Area/country code | string
+capacity_\<year\>  | (Additional) capacity installed before investment year <year>| float   | MW
+expand_\<year\>    | Consider expansion in investment year <year>   | boolean | 0,1
 lat  | Latitude   | float |degrees
 lon  | Longitude  | float |degrees
-area | Area/country code | string
-capacity | Existing node capacity |float | MW
 offshore | Whether node is offshore | boolean | 0,1
 cost_scaling | Cost scaling factor |float
 type | Node (cost) type |string
@@ -125,7 +126,7 @@ column | description | type | units
 -------|-------------|------|------
 node_from | Node identifier | string
 node to   | Node identifier | string
-capacity_\<year\>  | Capacity installed before investment year <year>| float   | MW
+capacity_\<year\>  | (Additional) capacity installed before investment year <year>| float   | MW
 expand_\<year\>    | Consider expansion in investment year <year>   | boolean | 0,1
 distance  | Branch length (OPT) | float | km
 max_newCap    | Max new capacity (OPT) | float | km

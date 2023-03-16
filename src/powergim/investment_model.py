@@ -17,6 +17,12 @@ from .utils import annuityfactor
 class const:
     baseMVA = 100  # MVA
 
+    # Fixme: Get this from input?
+    # (the user may also just change the module constant)
+    MAX_BRANCH_NEW_NUM = 5
+    MAX_GEN_NEW_CAPACITY = 10000
+    MAX_NODE_NEW_CAPACITY = 100000
+
 
 def _slice_to_list(component_slice):
     """expand slice to list of components"""
@@ -54,13 +60,11 @@ class SipModel(pyo.ConcreteModel):
         self.operation_maintenance_rate = parameter_data["parameters"]["operation_maintenance_rate"]
         self.load_shed_penalty = parameter_data["parameters"]["load_shed_penalty"]
         self.CO2_price = parameter_data["parameters"]["CO2_price"]
-        self.MAX_BRANCH_NEW_NUM = 5  # Fixme: get from parameter input
-        self.MAX_GEN_NEW_CAPACITY = 10000  # Fixme: get from parameter input
-        self.MAX_NODE_NEW_CAPACITY = 100000  # Fixme: get from parameter input
 
         # sample factor scales from sample to annual value
         self.sample_factor = pd.Series(
-            index=self.grid_data.profiles.index, data=self._HOURS_PER_YEAR / self.grid_data.profiles.shape[0]
+            index=self.grid_data.profiles.index,
+            data=self._HOURS_PER_YEAR / self.grid_data.profiles.shape[0],
         )
         if "frequency" in self.grid_data.profiles:
             # a column describing weight for each time-step
@@ -98,7 +102,7 @@ class SipModel(pyo.ConcreteModel):
             # default max capacity is given by branch type and max number of cables
             branchtype = self.grid_data.branch.loc[branch, "type"]
             cap_branchtype = self.branchtypes[branchtype]["max_cap"]
-            maxcap = self.MAX_BRANCH_NEW_NUM * cap_branchtype
+            maxcap = const.MAX_BRANCH_NEW_NUM * cap_branchtype
             if self.grid_data.branch.loc[branch, "max_newCap"] > 0:
                 maxcap = self.grid_data.branch.loc[branch, "max_newCap"]
             return (0, maxcap)
@@ -112,7 +116,7 @@ class SipModel(pyo.ConcreteModel):
 
         # investment: new branch cables (needed for linearisation, see also model.cMaxNumberCables)
         def bounds_branch_new_cables(model, branch, period):
-            return (0, self.MAX_BRANCH_NEW_NUM)
+            return (0, const.MAX_BRANCH_NEW_NUM)
 
         self.v_branch_new_cables = pyo.Var(
             self.s_branch,
@@ -126,7 +130,7 @@ class SipModel(pyo.ConcreteModel):
         self.v_new_nodes = pyo.Var(self.s_node, self.s_period, within=pyo.Binary)
 
         def bounds_node_new_capacity(model, node, period):
-            maxcap = self.MAX_NODE_NEW_CAPACITY
+            maxcap = const.MAX_NODE_NEW_CAPACITY
             # nodetype = self.grid_data.node.loc[node, "type"]
             # maxcap = self.branchtypes[nodetype]["max_cap"]
             return (0, maxcap)
@@ -140,7 +144,7 @@ class SipModel(pyo.ConcreteModel):
 
         # investment: generation capacity
         def bounds_gen_new_capacity(model, gen, period):
-            maxcap = self.MAX_GEN_NEW_CAPACITY
+            maxcap = const.MAX_GEN_NEW_CAPACITY
             if self.grid_data.generator.loc[gen, "p_maxNew"] > 0:
                 maxcap = self.grid_data.generator.loc[gen, "p_maxNew"]
             # this does not work here, as it in some cases gives ub=0=lb -> using constraints instead
@@ -148,7 +152,11 @@ class SipModel(pyo.ConcreteModel):
             return (0, maxcap)
 
         self.v_gen_new_capacity = pyo.Var(
-            self.s_gen, self.s_period, within=pyo.NonNegativeReals, bounds=bounds_gen_new_capacity, initialize=0
+            self.s_gen,
+            self.s_period,
+            within=pyo.NonNegativeReals,
+            bounds=bounds_gen_new_capacity,
+            initialize=0,
         )
 
         # branch flows in both directions
@@ -220,7 +228,6 @@ class SipModel(pyo.ConcreteModel):
         self.OBJ = pyo.Objective(rule=total_cost_objective_rule, sense=pyo.minimize)
 
     def create_constraints(self):
-
         # Power flow limited by installed (existing or new) capacity
         def _branch_flow_limit(branch, period, t):
             branch_existing_capacity = 0
@@ -245,7 +252,7 @@ class SipModel(pyo.ConcreteModel):
 
         # number of new cables is limited
         def rule_max_new_cables(model, branch, period):
-            max_num = self.MAX_BRANCH_NEW_NUM * self.grid_data.branch.loc[branch, f"expand_{period}"]
+            max_num = const.MAX_BRANCH_NEW_NUM * self.grid_data.branch.loc[branch, f"expand_{period}"]
             expr = self.v_branch_new_cables[branch, period] <= max_num
             return expr
 
@@ -264,7 +271,7 @@ class SipModel(pyo.ConcreteModel):
 
         # No new node capacity without new nodes
         def rule_new_nodes(model, node, period):
-            max_node_cap = self.MAX_NODE_NEW_CAPACITY
+            max_node_cap = const.MAX_NODE_NEW_CAPACITY
             expr = self.v_node_new_capacity[node, period] <= max_node_cap * self.v_new_nodes[node, period]
             return expr
 
@@ -272,7 +279,7 @@ class SipModel(pyo.ConcreteModel):
 
         # Limit new generator capacity
         def rule_gen_new_capacity(model, gen, period):
-            maxcap = self.MAX_GEN_NEW_CAPACITY
+            maxcap = const.MAX_GEN_NEW_CAPACITY
             if self.grid_data.generator.loc[gen, "p_maxNew"] > 0:
                 maxcap = self.grid_data.generator.loc[gen, "p_maxNew"]
             max_value = maxcap * self.grid_data.generator.loc[gen, f"expand_{period}"]
@@ -437,9 +444,14 @@ class SipModel(pyo.ConcreteModel):
 
             # TODO add connected load?
 
-            node_capacity = self.grid_data.node.loc[node, "capacity"]
+            cap_existing = 0
+            cap_new = 0
             for p in previous_periods:
-                node_capacity += self.v_node_new_capacity[node, p]
+                cap_existing += self.grid_data.node.loc[node, f"capacity_{p}"]
+                if self.grid_data.node.loc[node, f"expand_{p}"] == 1:
+                    cap_new += self.v_node_new_capacity[node, p]
+            node_capacity = cap_existing + cap_new
+
             expr = connected_capacity <= node_capacity
 
             if (type(expr) is bool) and (expr is True):

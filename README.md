@@ -5,7 +5,7 @@
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![build](https://github.com/powergama/powergim/actions/workflows/build.yml/badge.svg)](https://github.com/powergama/powergim/actions/workflows/build.yml)
 [![GitHub version](https://badge.fury.io/gh/powergama%2Fpowergim.svg)](https://badge.fury.io/gh/powergama%2Fpowergim)
-[![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/powergama/powergim)
+[![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/powergama/powergim)](https://github.com/powergama/powergim/tags)
 
 
 # Power Grid Investment Module (PowerGIM)
