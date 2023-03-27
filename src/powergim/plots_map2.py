@@ -24,13 +24,17 @@ def plot_map2(
         coastline = geopandas.read_file(f"{shapefile_path}/ne_50m_coastline.zip")
         borders = geopandas.read_file(f"{shapefile_path}/ne_50m_admin_0_boundary_lines_land.zip")
     except Exception as ex:
-        print(ex, ">> Missing shape file. Download from https://www.naturalearthdata.com/downloads/")
+        print(
+            ex,
+            ">> Missing shape file. Download from https://www.naturalearthdata.com/downloads/",
+        )
         return
     try:
         borders_sea = geopandas.read_file(f"{shapefile_path}/World_maritime_Boundaries.zip")
     except Exception as ex:
         print(
-            ex, ">> Missing shape file. Download from https://hub.arcgis.com/datasets/nga::world-maritime-boundaries/"
+            ex,
+            ">> Missing shape file. Download from https://hub.arcgis.com/datasets/nga::world-maritime-boundaries/",
         )
         return
 
@@ -51,9 +55,7 @@ def plot_map2(
     if years is not None:
         branch["capacity"] = branch[[f"capacity_{p}" for p in years]].sum(axis=1)
         # generator["capacity"] = generator[[f"capacity_{p}" for p in years]].sum(axis=1)
-        node["capacity"] = node["capacity"] + node[[f"capacity_{p}" for p in years if f"capacity_{p}" in node]].sum(
-            axis=1
-        )
+        node["capacity"] = node[[f"capacity_{p}" for p in years if f"capacity_{p}" in node]].sum(axis=1)
     if not include_zero_capacity:
         branch = branch[branch["capacity"] > 0]
         node = node[node["capacity"] > 0]
@@ -61,12 +63,22 @@ def plot_map2(
     # node.plot.scatter(ax=ax, x="lon", y="lat", size=10, color="red")
 
     gdf_nodes = geopandas.GeoDataFrame(
-        grid_data.node, geometry=geopandas.points_from_xy(grid_data.node["lon"], grid_data.node["lat"]), crs="EPSG:4326"
+        grid_data.node,
+        geometry=geopandas.points_from_xy(grid_data.node["lon"], grid_data.node["lat"]),
+        crs="EPSG:4326",
     )
     branch["index"] = branch.index
     gdf_edges = branch.merge(
-        gdf_nodes[["lat", "lon", "geometry"]], how="left", left_on="node_from", right_index=True
-    ).merge(gdf_nodes[["lat", "lon", "geometry"]], how="left", left_on="node_to", right_index=True)
+        gdf_nodes[["lat", "lon", "geometry"]],
+        how="left",
+        left_on="node_from",
+        right_index=True,
+    ).merge(
+        gdf_nodes[["lat", "lon", "geometry"]],
+        how="left",
+        left_on="node_to",
+        right_index=True,
+    )
     # TODO: This gives shapely deprecation warning (issue 13)
     gdf_edges_geometry = gdf_edges.apply(
         lambda x: shapely.geometry.LineString([x["geometry_x"], x["geometry_y"]]),
