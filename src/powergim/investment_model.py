@@ -100,11 +100,11 @@ class SipModel(pyo.ConcreteModel):
 
         def bounds_branch_new_capacity(model, branch, period):
             # default max capacity is given by branch type and max number of cables
-            branchtype = self.grid_data.branch.loc[branch, "type"]
+            branchtype = self.grid_data.branch.at[branch, "type"]
             cap_branchtype = self.branchtypes[branchtype]["max_cap"]
             maxcap = const.MAX_BRANCH_NEW_NUM * cap_branchtype
-            if self.grid_data.branch.loc[branch, "max_newCap"] > 0:
-                maxcap = self.grid_data.branch.loc[branch, "max_newCap"]
+            if self.grid_data.branch.at[branch, "max_newCap"] > 0:
+                maxcap = self.grid_data.branch.at[branch, "max_newCap"]
             return (0, maxcap)
 
         self.v_branch_new_capacity = pyo.Var(
@@ -145,8 +145,8 @@ class SipModel(pyo.ConcreteModel):
         # investment: generation capacity
         def bounds_gen_new_capacity(model, gen, period):
             maxcap = const.MAX_GEN_NEW_CAPACITY
-            if self.grid_data.generator.loc[gen, "p_maxNew"] > 0:
-                maxcap = self.grid_data.generator.loc[gen, "p_maxNew"]
+            if self.grid_data.generator.at[gen, "p_maxNew"] > 0:
+                maxcap = self.grid_data.generator.at[gen, "p_maxNew"]
             # this does not work here, as it in some cases gives ub=0=lb -> using constraints instead
             # max_value = maxcap * self.grid_data.generator.loc[gen, f"expand_{period}"]
             return (0, maxcap)
@@ -178,11 +178,11 @@ class SipModel(pyo.ConcreteModel):
 
         # load shedding
         def bounds_load_shed(model, consumer, period, time):
-            ref = self.grid_data.consumer.loc[consumer, "demand_ref"]
+            ref = self.grid_data.consumer.at[consumer, "demand_ref"]
             if self.parameters["profiles_period_suffix"]:
                 ref = f"{ref}_{period}"
-            profile = self.grid_data.profiles.loc[time, ref]
-            demand_avg = self.grid_data.consumer.loc[consumer, "demand_avg"]
+            profile = self.grid_data.profiles.at[time, ref]
+            demand_avg = self.grid_data.consumer.at[consumer, "demand_avg"]
             ub = max(0, demand_avg * profile)
             return (0, ub)
 
@@ -234,8 +234,8 @@ class SipModel(pyo.ConcreteModel):
             branch_new_capacity = 0
             previous_periods = [p for p in self.s_period if p <= period]
             for p in previous_periods:
-                branch_existing_capacity += self.grid_data.branch.loc[branch, f"capacity_{p}"]
-                if self.grid_data.branch.loc[branch, f"expand_{period}"] == 1:
+                branch_existing_capacity += self.grid_data.branch.at[branch, f"capacity_{p}"]
+                if self.grid_data.branch.at[branch, f"expand_{period}"] == 1:
                     branch_new_capacity += self.v_branch_new_capacity[branch, p]
             return branch_existing_capacity + branch_new_capacity
 
@@ -252,7 +252,7 @@ class SipModel(pyo.ConcreteModel):
 
         # number of new cables is limited
         def rule_max_new_cables(model, branch, period):
-            max_num = const.MAX_BRANCH_NEW_NUM * self.grid_data.branch.loc[branch, f"expand_{period}"]
+            max_num = const.MAX_BRANCH_NEW_NUM * self.grid_data.branch.at[branch, f"expand_{period}"]
             expr = self.v_branch_new_cables[branch, period] <= max_num
             return expr
 
@@ -260,7 +260,7 @@ class SipModel(pyo.ConcreteModel):
 
         # No new branch capacity without new cables
         def rule_max_new_cap(model, branch, period):
-            branchtype = self.grid_data.branch.loc[branch, "type"]
+            branchtype = self.grid_data.branch.at[branch, "type"]
             cap_branchtype = self.branchtypes[branchtype]["max_cap"]
             expr = (
                 self.v_branch_new_capacity[branch, period] <= cap_branchtype * self.v_branch_new_cables[branch, period]
@@ -280,9 +280,9 @@ class SipModel(pyo.ConcreteModel):
         # Limit new generator capacity
         def rule_gen_new_capacity(model, gen, period):
             maxcap = const.MAX_GEN_NEW_CAPACITY
-            if self.grid_data.generator.loc[gen, "p_maxNew"] > 0:
-                maxcap = self.grid_data.generator.loc[gen, "p_maxNew"]
-            max_value = maxcap * self.grid_data.generator.loc[gen, f"expand_{period}"]
+            if self.grid_data.generator.at[gen, "p_maxNew"] > 0:
+                maxcap = self.grid_data.generator.at[gen, "p_maxNew"]
+            max_value = maxcap * self.grid_data.generator.at[gen, f"expand_{period}"]
             return self.v_gen_new_capacity[gen, period] <= max_value
 
         self.c_max_new_gen_capacity = pyo.Constraint(self.s_gen, self.s_period, rule=rule_gen_new_capacity)
@@ -295,16 +295,16 @@ class SipModel(pyo.ConcreteModel):
             cap_new = 0
             previous_periods = [p for p in self.s_period if p <= period]
             for p in previous_periods:
-                cap_existing += self.grid_data.generator.loc[gen, f"capacity_{p}"]
-                if self.grid_data.generator.loc[gen, f"expand_{p}"] == 1:
+                cap_existing += self.grid_data.generator.at[gen, f"capacity_{p}"]
+                if self.grid_data.generator.at[gen, f"expand_{p}"] == 1:
                     cap_new += self.v_gen_new_capacity[gen, p]
             cap = cap_existing + cap_new
-            profile_ref = self.grid_data.generator.loc[gen, "inflow_ref"]
+            profile_ref = self.grid_data.generator.at[gen, "inflow_ref"]
             if self.parameters["profiles_period_suffix"]:
                 profile_ref = f"{profile_ref}_{period}"
-            profile_fac = self.grid_data.generator.loc[gen, "inflow_fac"]
-            profile_value = self.grid_data.profiles.loc[t, profile_ref] * profile_fac
-            allow_curtailment = self.grid_data.generator.loc[gen, "allow_curtailment"]
+            profile_fac = self.grid_data.generator.at[gen, "inflow_fac"]
+            profile_value = self.grid_data.profiles.at[t, profile_ref] * profile_fac
+            allow_curtailment = self.grid_data.generator.at[gen, "allow_curtailment"]
             if allow_curtailment:
                 expr = self.v_generation[gen, period, t] <= (profile_value * cap)
             else:
@@ -321,10 +321,10 @@ class SipModel(pyo.ConcreteModel):
             cap_new = 0
             previous_periods = [p for p in self.s_period if p <= period]
             for p in previous_periods:
-                cap_existing += self.grid_data.generator.loc[gen, f"capacity_{p}"]
+                cap_existing += self.grid_data.generator.at[gen, f"capacity_{p}"]
                 cap_new += self.v_gen_new_capacity[gen, p]
             cap = cap_existing + cap_new
-            max_p_avg = self.grid_data.generator.loc[gen, "pavg"]
+            max_p_avg = self.grid_data.generator.at[gen, "pavg"]
             if max_p_avg > 0:
                 # TODO: Weighted average according to sample factor
                 expr = sum(self.v_generation[gen, period, t] for t in self.s_time) <= (
@@ -342,12 +342,12 @@ class SipModel(pyo.ConcreteModel):
             if self.CO2_price > 0:
                 area_emission = 0
                 for n in self.s_node:
-                    node_area = self.grid_data.node.loc[n, "area"]
+                    node_area = self.grid_data.node.at[n, "area"]
                     if node_area == area:
                         for gen in self.s_gen:
-                            gen_node = self.grid_data.generator.loc[gen, "node"]
+                            gen_node = self.grid_data.generator.at[gen, "node"]
                             if gen_node == n:
-                                gentype = self.grid_data.generator.loc[gen, "type"]
+                                gentype = self.grid_data.generator.at[gen, "type"]
                                 emission_rate = self.gentypes[gentype]["CO2"]
                                 area_emission += sum(
                                     self.v_generation[gen, period, t] * emission_rate * self.sample_factor[t]
@@ -355,10 +355,10 @@ class SipModel(pyo.ConcreteModel):
                                 )
                 area_cap = 0
                 for cons in self.s_load:
-                    load_node = self.grid_data.consumer.loc[cons, "node"]
-                    load_area = self.grid_data.node.loc[load_node, "area"]
+                    load_node = self.grid_data.consumer.at[cons, "node"]
+                    load_area = self.grid_data.node.at[load_node, "area"]
                     if load_area == area:
-                        cons_cap = self.grid_data.consumer.loc[cons, "emission_cap"]
+                        cons_cap = self.grid_data.consumer.at[cons, "emission_cap"]
                         area_cap += cons_cap
                 expr = area_emission <= area_cap
             else:
@@ -372,20 +372,20 @@ class SipModel(pyo.ConcreteModel):
             flow_into_node = 0
             # flow of power into node (subtrating losses)
             for branch in self.s_branch:
-                node_from = self.grid_data.branch.loc[branch, "node_from"]
-                node_to = self.grid_data.branch.loc[branch, "node_to"]
+                node_from = self.grid_data.branch.at[branch, "node_from"]
+                node_to = self.grid_data.branch.at[branch, "node_to"]
                 if node_from == node:
                     # branch out of node
-                    branchtype = self.grid_data.branch.loc[branch, "type"]
-                    dist = self.grid_data.branch.loc[branch, "distance"]
+                    branchtype = self.grid_data.branch.at[branch, "type"]
+                    dist = self.grid_data.branch.at[branch, "distance"]
                     loss_fix = self.branchtypes[branchtype]["loss_fix"]
                     loss_slope = self.branchtypes[branchtype]["loss_slope"]
                     flow_into_node -= self.v_branch_flow12[branch, period, t]
                     flow_into_node += self.v_branch_flow21[branch, period, t] * (1 - (loss_fix + loss_slope * dist))
                 if node_to == node:
                     # branch into node
-                    branchtype = self.grid_data.branch.loc[branch, "type"]
-                    dist = self.grid_data.branch.loc[branch, "distance"]
+                    branchtype = self.grid_data.branch.at[branch, "type"]
+                    dist = self.grid_data.branch.at[branch, "distance"]
                     loss_fix = self.branchtypes[branchtype]["loss_fix"]
                     loss_slope = self.branchtypes[branchtype]["loss_slope"]
                     flow_into_node -= self.v_branch_flow21[branch, period, t]
@@ -393,25 +393,25 @@ class SipModel(pyo.ConcreteModel):
 
             # generated power
             for gen in self.s_gen:
-                node_gen = self.grid_data.generator.loc[gen, "node"]
+                node_gen = self.grid_data.generator.at[gen, "node"]
                 if node_gen == node:
                     flow_into_node += self.v_generation[gen, period, t]
 
             # load shedding
             for cons in self.s_load:
-                node_load = self.grid_data.consumer.loc[cons, "node"]
+                node_load = self.grid_data.consumer.at[cons, "node"]
                 if node_load == node:
                     flow_into_node += self.v_load_shed[cons, period, t]
 
             # consumed power
             for cons in self.s_load:
-                node_load = self.grid_data.consumer.loc[cons, "node"]
+                node_load = self.grid_data.consumer.at[cons, "node"]
                 if node_load == node:
-                    dem_avg = self.grid_data.consumer.loc[cons, "demand_avg"]
-                    dem_profile_ref = self.grid_data.consumer.loc[cons, "demand_ref"]
+                    dem_avg = self.grid_data.consumer.at[cons, "demand_avg"]
+                    dem_profile_ref = self.grid_data.consumer.at[cons, "demand_ref"]
                     if self.parameters["profiles_period_suffix"]:
                         dem_profile_ref = f"{dem_profile_ref}_{period}"
-                    profile = self.grid_data.profiles.loc[t, dem_profile_ref]
+                    profile = self.grid_data.profiles.at[t, dem_profile_ref]
                     flow_into_node += -dem_avg * profile
 
             expr = flow_into_node == 0
@@ -432,12 +432,12 @@ class SipModel(pyo.ConcreteModel):
             connected_capacity = 0
             # capacity of connected branches
             for branch in self.s_branch:
-                node_from = self.grid_data.branch.loc[branch, "node_from"]
-                node_to = self.grid_data.branch.loc[branch, "node_to"]
+                node_from = self.grid_data.branch.at[branch, "node_from"]
+                node_to = self.grid_data.branch.at[branch, "node_to"]
                 if (node_from == node) or (node_to == node):
                     # does not matter if branch is directed to or from
                     for p in previous_periods:
-                        connected_capacity += self.grid_data.branch.loc[branch, f"capacity_{p}"]
+                        connected_capacity += self.grid_data.branch.at[branch, f"capacity_{p}"]
                         connected_capacity += self.v_branch_new_capacity[branch, p]
 
             # TODO: add connected generation capacity?
@@ -447,8 +447,8 @@ class SipModel(pyo.ConcreteModel):
             cap_existing = 0
             cap_new = 0
             for p in previous_periods:
-                cap_existing += self.grid_data.node.loc[node, f"capacity_{p}"]
-                if self.grid_data.node.loc[node, f"expand_{p}"] == 1:
+                cap_existing += self.grid_data.node.at[node, f"capacity_{p}"]
+                if self.grid_data.node.at[node, f"expand_{p}"] == 1:
                     cap_new += self.v_node_new_capacity[node, p]
             node_capacity = cap_existing + cap_new
 
@@ -466,10 +466,10 @@ class SipModel(pyo.ConcreteModel):
         n_cost = 0
         var_num = self.v_new_nodes[node, period]
         var_cap = self.v_node_new_capacity[node, period]
-        is_offshore = self.grid_data.node.loc[node, "offshore"]  # 1 or 0
-        nodetype = self.grid_data.node.loc[node, "type"]
+        is_offshore = self.grid_data.node.at[node, "offshore"]  # 1 or 0
+        nodetype = self.grid_data.node.at[node, "type"]
         nodetype_costs = self.nodetypes[nodetype]
-        scale = self.grid_data.node.loc[node, "cost_scaling"]
+        scale = self.grid_data.node.at[node, "cost_scaling"]
         n_cost += is_offshore * (nodetype_costs["S"] * var_num + nodetype_costs["Sp"] * var_cap)
         n_cost += (1 - is_offshore) * (nodetype_costs["L"] * var_num + nodetype_costs["Lp"] * var_cap)
         return scale * n_cost
@@ -480,18 +480,18 @@ class SipModel(pyo.ConcreteModel):
 
         var_num = self.v_branch_new_cables
         var_cap = self.v_branch_new_capacity
-        branchtype = self.grid_data.branch.loc[branch, "type"]
+        branchtype = self.grid_data.branch.at[branch, "type"]
         branchtype_costs = self.branchtypes[branchtype]
-        distance = self.grid_data.branch.loc[branch, "distance"]
+        distance = self.grid_data.branch.at[branch, "distance"]
         b_cost += branchtype_costs["B"] * var_num[branch, period]
         b_cost += branchtype_costs["Bd"] * distance * var_num[branch, period]
         b_cost += branchtype_costs["Bdp"] * distance * var_cap[branch, period]
 
         # endpoint costs (difference onshore/offshore)
-        node1 = self.grid_data.branch.loc[branch, "node_from"]
-        node2 = self.grid_data.branch.loc[branch, "node_to"]
-        is_offshore1 = self.grid_data.node.loc[node1, "offshore"]
-        is_offshore2 = self.grid_data.node.loc[node2, "offshore"]
+        node1 = self.grid_data.branch.at[branch, "node_from"]
+        node2 = self.grid_data.branch.at[branch, "node_to"]
+        is_offshore1 = self.grid_data.node.at[node1, "offshore"]
+        is_offshore2 = self.grid_data.node.at[node2, "offshore"]
         for N in [is_offshore1, is_offshore2]:
             b_cost += N * (
                 branchtype_costs["CS"] * var_num[branch, period] + branchtype_costs["CSp"] * var_cap[branch, period]
@@ -499,16 +499,16 @@ class SipModel(pyo.ConcreteModel):
             b_cost += (1 - N) * (
                 branchtype_costs["CL"] * var_num[branch, period] + branchtype_costs["CLp"] * var_cap[branch, period]
             )
-        scale = self.grid_data.branch.loc[branch, "cost_scaling"]
+        scale = self.grid_data.branch.at[branch, "cost_scaling"]
         return scale * b_cost
 
     def costGen(self, gen, period):
         """Expression for cost of generator, investment cost no discounting"""
         g_cost = 0
         var_cap = self.v_gen_new_capacity
-        gentype = self.grid_data.generator.loc[gen, "type"]
+        gentype = self.grid_data.generator.at[gen, "type"]
         gentype_cost = self.gentypes[gentype]
-        scale = self.grid_data.generator.loc[gen, "cost_scaling"]
+        scale = self.grid_data.generator.at[gen, "cost_scaling"]
         g_cost += gentype_cost["CX"] * var_cap[gen, period]
         return scale * g_cost
 
@@ -572,12 +572,12 @@ class SipModel(pyo.ConcreteModel):
         # operation cost for single year:
         opcost = 0
         for gen in self.s_gen:
-            fuelcost = self.grid_data.generator.loc[gen, "fuelcost"]
-            cost_profile_ref = self.grid_data.generator.loc[gen, "fuelcost_ref"]
+            fuelcost = self.grid_data.generator.at[gen, "fuelcost"]
+            cost_profile_ref = self.grid_data.generator.at[gen, "fuelcost_ref"]
             if self.parameters["profiles_period_suffix"]:
                 cost_profile_ref = f"{cost_profile_ref}_{period}"
             cost_profile = self.grid_data.profiles[cost_profile_ref]
-            gentype = self.grid_data.generator.loc[gen, "type"]
+            gentype = self.grid_data.generator.at[gen, "type"]
             emission_rate = self.gentypes[gentype]["CO2"]
             opcost += sum(
                 self.v_generation[gen, period, t]
@@ -609,12 +609,12 @@ class SipModel(pyo.ConcreteModel):
     def costOperationSingleGen(self, gen, period):
         """Operational costs: cost of gen, load shed (NPV)"""
 
-        fuelcost = self.grid_data.generator.loc[gen, "fuelcost"]
-        cost_profile_ref = self.grid_data.generator.loc[gen, "fuelcost_ref"]
+        fuelcost = self.grid_data.generator.at[gen, "fuelcost"]
+        cost_profile_ref = self.grid_data.generator.at[gen, "fuelcost_ref"]
         if self.parameters["profiles_period_suffix"]:
             cost_profile_ref = f"{cost_profile_ref}_{period}"
         cost_profile = self.grid_data.profiles[cost_profile_ref]
-        gentype = self.grid_data.generator.loc[gen, "type"]
+        gentype = self.grid_data.generator.at[gen, "type"]
         emission_rate = self.gentypes[gentype]["CO2"]
         opcost = sum(
             self.v_generation[gen, period, t]
