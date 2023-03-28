@@ -76,6 +76,7 @@ jobs:
         if: steps.cache-deps.cache-hit != 'true'
         run: |
           poetry config virtualenvs.in-project true
+          poetry config installer.modern-installation false
           poetry install --no-interaction
 
       - name: Run tests

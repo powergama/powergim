@@ -98,9 +98,8 @@ Script:
 ## Input data
 
 ### Grid data
-Grid data is imported from CSV files in almost the same format as for
-PowerGAMA. There are files for *nodes*, *branches*, *generators* and
-*consumers*.
+Grid data is imported from CSV files. There are separate files for *nodes*, *branches*, *generators* and
+*consumers*. Below, \<year\> refers to an investment year, and must match the years specified in the parameter value investment_year
 
 #### Nodes
 Node data are specified in a CSV file with one element per row, with

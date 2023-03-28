@@ -1,7 +1,8 @@
 # Changes
 
-## Unpublished
+## v0.4.1
 - Change input data format for nodes
+- Model creation speedup
 
 ## v0.4.0
 2023-03-10 - First release of development version
