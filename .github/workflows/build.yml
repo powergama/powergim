@@ -36,7 +36,6 @@ jobs:
       - uses: snok/install-poetry@v1.2.1
         with:
           virtualenvs-create: true
-          installer.modern-installation: false
 
       - name: Check pyproject.toml validity
         run: poetry check --no-interaction
@@ -77,6 +76,7 @@ jobs:
         if: steps.cache-deps.cache-hit != 'true'
         run: |
           poetry config virtualenvs.in-project true
+          poetry config installer.modern-installation false
           poetry install --no-interaction
 
       - name: Run tests
