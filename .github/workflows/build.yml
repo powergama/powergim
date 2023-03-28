@@ -36,6 +36,7 @@ jobs:
       - uses: snok/install-poetry@v1.2.1
         with:
           virtualenvs-create: true
+          installer.modern-installation: false
 
       - name: Check pyproject.toml validity
         run: poetry check --no-interaction
