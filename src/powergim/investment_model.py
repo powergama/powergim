@@ -714,7 +714,7 @@ class SipModel(pyo.ConcreteModel):
         branches = grid_data.branch.copy()
         generators = grid_data.generator.copy()
         consumers = grid_data.consumer.copy()
-        is_expanded = all_var_values["v_branch_new_cables"].clip(upper=10).unstack("s_period")
+        is_expanded = all_var_values["v_branch_new_cables"].clip(upper=1).unstack("s_period")
         new_branch_cap = is_expanded * all_var_values["v_branch_new_capacity"].unstack("s_period")
         new_node_cap = all_var_values["v_node_new_capacity"].unstack("s_period")
         for y in years:
