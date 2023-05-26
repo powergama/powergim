@@ -32,11 +32,11 @@ ipywidgets = "^8"
 pydantic = "^1.10.0"
 jupyterlab = "^3.4.7"
 scikit-learn = "^1.1.2"
-matplotlib = {version = "^3.6.0", optional = true}
-plotly = {version = "^5.10.0", optional = true}
-seaborn = {version = "^0.12.0", optional = true}
-branca = {version = "^0.5", optional = true}
-folium = {version = "^0.12", optional = true}
+matplotlib = {version = "^3.7.1", optional = true}
+plotly = {version = "^5.13.1", optional = true}
+seaborn = {version = "^0.12.2", optional = true}
+branca = {version = "^0.6", optional = true}
+folium = {version = "^0.14", optional = true}
 jinja2 = {version = "^3.1", optional = true}
 openpyxl = "^3.0.10"
 geopandas = "^0.12.1"
@@ -63,3 +63,20 @@ build-backend = "poetry.core.masonry.api"
 
 [pytest]
 pythonpath = "tests/stochastic"
+
+[tool.black]
+line-length = 120
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
