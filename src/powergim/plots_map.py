@@ -86,7 +86,13 @@ def plot_map(
     branch = branch.merge(node[["id", "lat", "lon"]], how="left", left_on="node_from", right_on="id")
     branch = branch.merge(node[["id", "lat", "lon"]], how="left", left_on="node_to", right_on="id")
     branch.set_index("index")
-    generator = generator.merge(node[["id", "lat", "lon"]], how="left", left_on="node", right_on="id")
+    # Use node lat,lon only if generator lat,lon is unspecified (-1):
+    generator = generator.merge(
+        node[["id", "lat", "lon"]], how="left", left_on="node", right_on="id", suffixes=("", "_node")
+    )
+    mask_latlon_given = ~(generator[["lat", "lon"]] == -1).any(axis=1)
+    generator["lat"] = generator["lat"].where(mask_latlon_given, generator["lat_node"])
+    generator["lon"] = generator["lon"].where(mask_latlon_given, generator["lon_node"])
     consumer = consumer.merge(node[["id", "lat", "lon"]], how="left", left_on="node", right_on="id")
     gentypes = list(pg_data.generator["type"].unique())
     areas = list(pg_data.node["area"].unique())
@@ -281,6 +287,7 @@ def plot_map(
     }"""
     for thenode, genindices in groups.groups.items():
         locationsN = []
+        locationsG = []
         marker_cluster = folium.plugins.MarkerCluster(icon_create_function=gencluster_icon_create_function)
         marker_cluster.add_to(feature_group_Generators)
         for genind in genindices:
@@ -296,6 +303,12 @@ def plot_map(
                 col = cm_stepG(typeind)
                 data.append(col)
                 locationsN.append(data)
+                dataG = [
+                    [n["lat"], n["lon"]],
+                    [n["lat_node"], n["lon_node"]],
+                    "{}<br>Generator {}: {}, pmax={:g}".format(gentype, genind, n["desc"], n["capacity"]),
+                ]
+                locationsG.append(dataG)
             else:
                 print("Missing lat/lon for node index={}".format(i))
 
@@ -306,22 +319,10 @@ def plot_map(
         FeatureCollection(data=locationsN, callback=callbackNode, addto=marker_cluster, colour="").add_to(
             marker_cluster
         )
-
-    legend_generator_html = """
-         <div style="position: fixed;
-             bottom: 20px; left: 20px;
-             border:2px solid grey; z-index:9999; font-size:13px;
-             background-color: lightgray">
-         &nbsp; <b>Generators</b>"""
-    #             bottom: 50px; left: 50px; width: 150px; height: 300px;
-    for typeind, gentype in enumerate(gentypes):
-        col = cm_stepG(typeind)
-        legend_generator_html = (
-            f'{legend_generator_html}<br> &nbsp; <i class="fa fa-circle fa-1x" '
-            'style="color:{col}">&nbsp;{gentype}</i>'
+        # green line from generator to node:
+        FeatureCollection(data=locationsG, callback=callbackBranch, addto=marker_cluster, colour="green").add_to(
+            marker_cluster
         )
-    legend_generator_html = "{}</div>".format(legend_generator_html)
-    m.get_root().html.add_child(folium.Element(legend_generator_html))
 
     if add_folium_control:
         folium.LayerControl().add_to(m)

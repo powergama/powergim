@@ -46,6 +46,8 @@ class GridData(object):
             "generator": {
                 "type": None,
                 "node": None,
+                "lat": -1,
+                "lon": -1,
                 "desc": "",
                 **{f"capacity_{p}": None for p in self.investment_years},
                 **{f"expand_{p}": None for p in self.investment_years},
@@ -69,9 +71,9 @@ class GridData(object):
 
     def validate_grid_data(self):
         self._checkGridDataFields(self.keys_sipdata)
+        self._checkGridData()
         self._addDefaultColumns(keys=self.keys_sipdata)
         self._fillEmptyCells(keys=self.keys_sipdata)
-        self._checkGridData()
 
     def _fillEmptyCells(self, keys):
         """Use default data where none is given"""
