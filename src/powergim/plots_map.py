@@ -154,7 +154,9 @@ def plot_map(
 
     locationsN = []
     for i, n in node.iterrows():
-        if not (n[["lat", "lon"]].isnull().any()):
+        if (not include_zero_capacity) and (n["capacity"] == 0):
+            pass
+        elif not (n[["lat", "lon"]].isnull().any()):
             data = [n["lat"], n["lon"], "Node={}, area={}".format(n["id"], n["area"])]
             if value_col is not None:
                 colHex = cm_node(n[value_col])
@@ -294,7 +296,9 @@ def plot_map(
             n = generator.loc[genind]
             gentype = n["type"]
             typeind = gentypes.index(gentype)
-            if not (n[["lat", "lon"]].isnull().any()):
+            if (not include_zero_capacity) and (n["capacity"] == 0):
+                pass
+            elif not (n[["lat", "lon"]].isnull().any()):
                 data = [
                     n["lat"],
                     n["lon"],
