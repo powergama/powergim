@@ -3,6 +3,7 @@
 ## v0.4.1
 - Change input data format for nodes
 - Model creation speedup
+- Fix bug when extracting grid results
 
 ## v0.4.0
 2023-03-10 - First release of development version
