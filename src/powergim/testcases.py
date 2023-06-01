@@ -45,7 +45,11 @@ def create_case(investment_years, number_nodes, number_timesteps, base_MW=200):
     consumers = pd.DataFrame(columns=cols_consumer)
     # consumers at odd number nodes
     consumers["node"] = [f"n{i+1}" for i in range(0, number_nodes - 1, 2)]
-    consumers["demand_avg"] = base_MW * len(investment_years)
+    for year in investment_years:
+        if year == investment_years[0]:
+            consumers[f"demand_{year}"] = base_MW * len(investment_years)  # must be high enough
+        else:
+            consumers[f"demand_{year}"] = 0
     consumers["demand_ref"] = "demand1"
     consumers["emission_cap"] = -1
 
@@ -186,7 +190,11 @@ def create_case_star(investment_years, number_nodes, number_timesteps, base_MW=2
     range_bottom_half = range((number_nodes - 1) // 2 + 1, number_nodes)
     consumers = pd.DataFrame(columns=cols_consumer)
     consumers["node"] = [f"n{i}" for i in range_bottom_half]
-    consumers["demand_avg"] = base_MW * len(investment_years)  # must be high enough
+    for year in investment_years:
+        if year == investment_years[0]:
+            consumers[f"demand_{year}"] = base_MW * len(investment_years)  # must be high enough
+        else:
+            consumers[f"demand_{year}"] = 0
     consumers["demand_ref"] = "demand1"
     consumers["emission_cap"] = -1
 

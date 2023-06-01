@@ -1,7 +1,7 @@
 # Changes
 
 ## v0.4.1
-- Change input data format for nodes
+- Change input data format for nodes and consumers
 - Model creation speedup
 - Fix bug when extracting grid results
 

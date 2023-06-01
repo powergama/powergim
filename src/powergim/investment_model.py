@@ -182,7 +182,11 @@ class SipModel(pyo.ConcreteModel):
             if self.parameters["profiles_period_suffix"]:
                 ref = f"{ref}_{period}"
             profile = self.grid_data.profiles.at[time, ref]
-            demand_avg = self.grid_data.consumer.at[consumer, "demand_avg"]
+
+            demand_avg = 0
+            previous_periods = [p for p in self.s_period if p <= period]
+            for p in previous_periods:
+                demand_avg += self.grid_data.consumer.at[consumer, f"demand_{p}"]
             ub = max(0, demand_avg * profile)
             return (0, ub)
 
@@ -407,7 +411,10 @@ class SipModel(pyo.ConcreteModel):
             for cons in self.s_load:
                 node_load = self.grid_data.consumer.at[cons, "node"]
                 if node_load == node:
-                    dem_avg = self.grid_data.consumer.at[cons, "demand_avg"]
+                    dem_avg = 0
+                    previous_periods = [p for p in self.s_period if p <= period]
+                    for p in previous_periods:
+                        dem_avg += self.grid_data.consumer.at[cons, f"demand_{p}"]
                     dem_profile_ref = self.grid_data.consumer.at[cons, "demand_ref"]
                     if self.parameters["profiles_period_suffix"]:
                         dem_profile_ref = f"{dem_profile_ref}_{period}"

@@ -36,7 +36,7 @@ def my_scenario_creator(scenario_name, grid_data, parameter_data):
         # More wind, more demand
         grid_data.generator.loc[0, cap] = 5000
         grid_data.generator.loc[0, cap] = 8000
-        grid_data.consumer["demand_avg"] = 1.20 * grid_data.consumer["demand_avg"]
+        grid_data.consumer[f"demand_{years[0]}"] = 1.20 * grid_data.consumer[f"demand_{years[0]}"]
     else:
         raise ValueError("Invalid scenario name")
 
@@ -108,7 +108,7 @@ def solve_ph(solver_name):
     df_res = None
     if variables is not None:
         # this is true when rank is zero.
-        for (scenario_name, variable_name) in variables:
+        for scenario_name, variable_name in variables:
             variable_value = variables[scenario_name, variable_name]
             res_ph.append({"scen": scenario_name, "var": variable_name, "value": variable_value})
         df_res = pd.DataFrame(data=res_ph)
@@ -137,7 +137,7 @@ def solve_benders(solver_name):
     )
     result = ls.lshaped_algorithm()
     variables = ls.gather_var_values_to_rank0()
-    for ((scen_name, var_name), var_value) in variables.items():
+    for (scen_name, var_name), var_value in variables.items():
         print(scen_name, var_name, var_value)
     return ls, result
 

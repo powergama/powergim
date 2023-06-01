@@ -61,6 +61,7 @@ def plot_map(
     branch["capacity"] = branch[[f"capacity_{p}" for p in years]].sum(axis=1)
     generator["capacity"] = generator[[f"capacity_{p}" for p in years]].sum(axis=1)
     node["capacity"] = node[[f"capacity_{p}" for p in years]].sum(axis=1)
+    consumer["demand_avg"] = consumer[[f"demand_{p}" for p in years]].sum(axis=1)
     if f"flow_{years[0]}" in branch.columns:
         branch["flow"] = branch[[f"flow_{p}" for p in years]].mean(axis=1)
         branch["utilisation"] = branch["flow"].abs() / branch["capacity"]

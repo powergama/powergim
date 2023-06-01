@@ -1,4 +1,4 @@
-node,demand_avg,demand_ref,emission_cap,comment
-UK_main,10000,const,1.00E+09,
-NO_main,1,demand_NO,1.00E+09,
-DK_main,1,demand_DK,1.00E+09,
+node,demand_2025,demand_2028,demand_ref,comment
+UK_main,10000,0,const,
+NO_main,1,0,demand_NO,
+DK_main,1,0,demand_DK,

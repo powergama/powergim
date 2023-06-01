@@ -182,13 +182,12 @@ columns as shown below:
 column | description | type | units
 -------|-------------|------|------
 node    | Node identifier  | string
-demand_avg  | Average demand |float |MW
+demand_\<year\>  | (Additional) average demand at investment year <year>  |float |MW
 demand_ref  | Profile reference |string
-emission_cap| Maximum CO2 emission allowed (OPT) |float |kg
 
 * There may be any number of consumers per node, although zero or one is
   typical.
-* demand_avg gives the average demand, which is easily computed from the
+* demand_\<year\> gives the average demand, which is easily computed from the
   annual demand if necessary.
 * demand_ref gives the name of the demand profile (time sample) which gives
   the variation over time. Demand profiles should be normalised and have an annual

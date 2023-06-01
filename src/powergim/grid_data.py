@@ -63,8 +63,7 @@ class GridData(object):
             },
             "consumer": {
                 "node": None,
-                "demand_avg": None,
-                "emission_cap": -1,
+                **{f"demand_{p}": None for p in self.investment_years},
                 "demand_ref": None,
             },
         }

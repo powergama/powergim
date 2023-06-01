@@ -150,6 +150,8 @@ def sampleProfileData(data, samplesize, sampling_method):
 
     elif sampling_method == "kmeans_scale":
         print("Using k-means with scaled profiles -> IN PROGRESS")
+        raise NotImplementedError("kmeans_scale clustering method not implemented yet.")
+
         # TODO: How to scale prices?
         # Multiply time series for load and VRES with their respective
         # maximum capacities in order to get the correct clusters/samples
