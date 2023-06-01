@@ -55,16 +55,14 @@ def plot_map2(
     if years is not None:
         branch["capacity"] = branch[[f"capacity_{p}" for p in years]].sum(axis=1)
         # generator["capacity"] = generator[[f"capacity_{p}" for p in years]].sum(axis=1)
-        node["capacity"] = node[[f"capacity_{p}" for p in years if f"capacity_{p}" in node]].sum(axis=1)
-    if not include_zero_capacity:
-        branch = branch[branch["capacity"] > 0]
-        node = node[node["capacity"] > 0]
+        node["capacity"] = node[[f"capacity_{p}" for p in years]].sum(axis=1)
+        # node["capacity"] = node[[f"capacity_{p}" for p in years if f"capacity_{p}" in node]].sum(axis=1)
 
     # node.plot.scatter(ax=ax, x="lon", y="lat", size=10, color="red")
 
     gdf_nodes = geopandas.GeoDataFrame(
-        grid_data.node,
-        geometry=geopandas.points_from_xy(grid_data.node["lon"], grid_data.node["lat"]),
+        node,
+        geometry=geopandas.points_from_xy(node["lon"], node["lat"]),
         crs="EPSG:4326",
     )
     branch["index"] = branch.index
@@ -89,6 +87,13 @@ def plot_map2(
     #    gdf_edges = geopandas.GeoDataFrame(gdf_edges, geometry="geometry", crs="EPSG:4326")
     gdf_edges = geopandas.GeoDataFrame(gdf_edges, geometry=gdf_edges_geometry, crs="EPSG:4326")
     gdf_edges.set_index("index")
+
+    if not include_zero_capacity:
+        # branch = branch[branch["capacity"] > 0]
+        # node = node[node["capacity"] > 0]
+        gdf_edges = gdf_edges[gdf_edges["capacity"] > 0]
+        gdf_nodes = gdf_nodes[gdf_nodes["capacity"] > 0]
+
     if width_col is not None:
         kwargs["linewidth"] = (gdf_edges[width_col[0]] / width_col[1]).clip(upper=width_col[2])
     gdf_edges.plot(ax=ax, **kwargs)

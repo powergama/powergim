@@ -163,12 +163,16 @@ inflow_ref  | Inflow profile reference |string
 pavg  | Average power output (OPT) |float |MW
 p_maxNew  | Maximum new capacity (OPT) |float |MW
 cost_scaling  | Cost scaling factor (OPT) |float
+lat | latitude (OPT) | float | degrees
+lon | longitude (OPT) | float | degrees
 
 * The average power constraint (pavg) is used to represent generators
   with large storage. pavg=0 means no constraint on average output is used
   (no storage constraint).
 * capacity_\<year\> is already decided (present or additional future) generator 
   capacity, i.e. it does not depend on the optimisation output
+* If optional latitude/longitude are not given, they are inferred from the coordinates of the node where generator is connected
+
 
 
 #### Consumers
