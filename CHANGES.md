@@ -4,6 +4,7 @@
 - Change input data format for nodes and consumers
 - Model creation speedup
 - Fix bug when extracting grid results
+- Change in emission cap implementation
 
 ## v0.4.0
 2023-03-10 - First release of development version
