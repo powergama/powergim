@@ -60,6 +60,7 @@ class SipModel(pyo.ConcreteModel):
         self.operation_maintenance_rate = parameter_data["parameters"]["operation_maintenance_rate"]
         self.load_shed_penalty = parameter_data["parameters"]["load_shed_penalty"]
         self.CO2_price = parameter_data["parameters"]["CO2_price"]
+        self.CO2_cap = parameter_data["parameters"]["CO2_cap"]
 
         # sample factor scales from sample to annual value
         self.sample_factor = pd.Series(
@@ -182,7 +183,11 @@ class SipModel(pyo.ConcreteModel):
             if self.parameters["profiles_period_suffix"]:
                 ref = f"{ref}_{period}"
             profile = self.grid_data.profiles.at[time, ref]
-            demand_avg = self.grid_data.consumer.at[consumer, "demand_avg"]
+
+            demand_avg = 0
+            previous_periods = [p for p in self.s_period if p <= period]
+            for p in previous_periods:
+                demand_avg += self.grid_data.consumer.at[consumer, f"demand_{p}"]
             ub = max(0, demand_avg * profile)
             return (0, ub)
 
@@ -336,36 +341,46 @@ class SipModel(pyo.ConcreteModel):
 
         self.c_max_energy = pyo.Constraint(self.s_gen, self.s_period, rule=rule_max_energy)
 
-        # Emissions restriction per country/load
-        # TODO: deal with situation when no emission cap has been given (-1)
-        def rule_emission_cap(model, area, period):
-            if self.CO2_price > 0:
-                area_emission = 0
-                for n in self.s_node:
-                    node_area = self.grid_data.node.at[n, "area"]
-                    if node_area == area:
-                        for gen in self.s_gen:
-                            gen_node = self.grid_data.generator.at[gen, "node"]
-                            if gen_node == n:
-                                gentype = self.grid_data.generator.at[gen, "type"]
-                                emission_rate = self.gentypes[gentype]["CO2"]
-                                area_emission += sum(
-                                    self.v_generation[gen, period, t] * emission_rate * self.sample_factor[t]
-                                    for t in self.s_time
-                                )
-                area_cap = 0
-                for cons in self.s_load:
-                    load_node = self.grid_data.consumer.at[cons, "node"]
-                    load_area = self.grid_data.node.at[load_node, "area"]
-                    if load_area == area:
-                        cons_cap = self.grid_data.consumer.at[cons, "emission_cap"]
-                        area_cap += cons_cap
-                expr = area_emission <= area_cap
-            else:
+        def rule_emission_cap_global(model, period):
+            global_emission = 0
+            for gen in self.s_gen:
+                gentype = self.grid_data.generator.at[gen, "type"]
+                emission_rate = self.gentypes[gentype]["CO2"]
+                global_emission += sum(
+                    self.v_generation[gen, period, t] * emission_rate * self.sample_factor[t] for t in self.s_time
+                )
+            return global_emission <= self.CO2_cap
+
+        def rule_emission_cap_area(model, area, period):
+            area_emission = 0
+            # loop through all nodes to get right area
+            # then loop through generators connected to these nodes
+            for n in self.s_node:
+                node_area = self.grid_data.node.at[n, "area"]
+                if node_area == area:
+                    for gen in self.s_gen:
+                        gen_node = self.grid_data.generator.at[gen, "node"]
+                        if gen_node == n:
+                            gentype = self.grid_data.generator.at[gen, "type"]
+                            emission_rate = self.gentypes[gentype]["CO2"]
+                            area_emission += sum(
+                                self.v_generation[gen, period, t] * emission_rate * self.sample_factor[t]
+                                for t in self.s_time
+                            )
+            expr = area_emission <= self.CO2_cap[area]
+            if (type(expr) is bool) and (expr is True):
+                # Trivial constraint
                 expr = pyo.Constraint.Skip
             return expr
 
-        self.c_emission_cap = pyo.Constraint(self.s_area, self.s_period, rule=rule_emission_cap)
+        if self.CO2_cap is None:
+            self.c_emission_cap = pyo.Constraint.Skip
+        elif isinstance(self.CO2_cap, dict):
+            # specified per area
+            self.c_emission_cap = pyo.Constraint(self.s_area, self.s_period, rule=rule_emission_cap_area)
+        else:
+            # global cap
+            self.c_emission_cap = pyo.Constraint(self.s_period, rule=rule_emission_cap_global)
 
         # Power balance in nodes : gen+demand+flow into node=0
         def rule_powerbalance(model, node, period, t):
@@ -407,7 +422,10 @@ class SipModel(pyo.ConcreteModel):
             for cons in self.s_load:
                 node_load = self.grid_data.consumer.at[cons, "node"]
                 if node_load == node:
-                    dem_avg = self.grid_data.consumer.at[cons, "demand_avg"]
+                    dem_avg = 0
+                    previous_periods = [p for p in self.s_period if p <= period]
+                    for p in previous_periods:
+                        dem_avg += self.grid_data.consumer.at[cons, f"demand_{p}"]
                     dem_profile_ref = self.grid_data.consumer.at[cons, "demand_ref"]
                     if self.parameters["profiles_period_suffix"]:
                         dem_profile_ref = f"{dem_profile_ref}_{period}"

@@ -1,13 +1,14 @@
 import pandas as pd
 from ruamel.yaml import YAML
 
-from . import grid_data
+from . import grid_data, utils
 
 
 def read_parameters(yaml_file):
     yaml = YAML(typ="safe")
     with open(yaml_file, "r") as stream:
         data = yaml.load(stream)
+    utils.validate_parameter_data(data)
     return data
 
 

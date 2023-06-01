@@ -62,6 +62,27 @@ def test_case_N4():
     assert (all_var_values["v_load_shed"] == 0).all()
 
 
+def test_create_model():
+    years = [0, 10]
+    number_nodes = 4
+    number_timesteps = 10
+    grid_data, parameter_data = testcases.create_case_star(years, number_nodes, number_timesteps, base_MW=2000)
+    # specify global CO2_cap:
+    parameter_data["parameters"]["CO2_cap"] = None
+    sip = powergim.SipModel(grid_data, parameter_data)
+    assert sip.c_emission_cap is pyo.Constraint.Skip
+
+    # specify global CO2_cap:
+    parameter_data["parameters"]["CO2_cap"] = 1e4
+    sip = powergim.SipModel(grid_data, parameter_data)
+    assert len(sip.c_emission_cap) == len(sip.s_period)
+
+    # specify global CO2_cap:
+    parameter_data["parameters"]["CO2_cap"] = dict(area=1e4, area2=2e4)
+    sip = powergim.SipModel(grid_data, parameter_data)
+    assert len(sip.c_emission_cap) == len(sip.s_period) * len(sip.s_area)
+
+
 if __name__ == "__main__":
     test_case_N5()
     test_case_N4()

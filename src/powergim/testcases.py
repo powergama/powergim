@@ -3,6 +3,8 @@ import pandas as pd
 
 from powergim.grid_data import GridData as grid
 
+from . import utils
+
 
 def create_case(investment_years, number_nodes, number_timesteps, base_MW=200):
     """Create test case of a given size"""
@@ -45,9 +47,12 @@ def create_case(investment_years, number_nodes, number_timesteps, base_MW=200):
     consumers = pd.DataFrame(columns=cols_consumer)
     # consumers at odd number nodes
     consumers["node"] = [f"n{i+1}" for i in range(0, number_nodes - 1, 2)]
-    consumers["demand_avg"] = base_MW * len(investment_years)
+    for year in investment_years:
+        if year == investment_years[0]:
+            consumers[f"demand_{year}"] = base_MW * len(investment_years)  # must be high enough
+        else:
+            consumers[f"demand_{year}"] = 0
     consumers["demand_ref"] = "demand1"
-    consumers["emission_cap"] = -1
 
     generators = pd.DataFrame(columns=cols_generator)
     # generators at odd number nodes
@@ -130,10 +135,12 @@ def create_case(investment_years, number_nodes, number_timesteps, base_MW=200):
             "finance_years": 40,
             "operation_maintenance_rate": 0.05,
             "CO2_price": 0,
+            "CO2_cap": None,
             "load_shed_penalty": 10000,
             "profiles_period_suffix": False,
         },
     }
+    utils.validate_parameter_data(parameter_data)
 
     return grid_data, parameter_data
 
@@ -186,9 +193,12 @@ def create_case_star(investment_years, number_nodes, number_timesteps, base_MW=2
     range_bottom_half = range((number_nodes - 1) // 2 + 1, number_nodes)
     consumers = pd.DataFrame(columns=cols_consumer)
     consumers["node"] = [f"n{i}" for i in range_bottom_half]
-    consumers["demand_avg"] = base_MW * len(investment_years)  # must be high enough
+    for year in investment_years:
+        if year == investment_years[0]:
+            consumers[f"demand_{year}"] = base_MW * len(investment_years)  # must be high enough
+        else:
+            consumers[f"demand_{year}"] = 0
     consumers["demand_ref"] = "demand1"
-    consumers["emission_cap"] = -1
 
     # generators on every second node on top half, at least 2
     if number_nodes >= 7:
@@ -278,9 +288,11 @@ def create_case_star(investment_years, number_nodes, number_timesteps, base_MW=2
             "finance_years": 40,
             "operation_maintenance_rate": 0.05,
             "CO2_price": 0,
+            "CO2_cap": None,
             "load_shed_penalty": 10000,
             "profiles_period_suffix": False,
         },
     }
+    utils.validate_parameter_data(parameter_data)
 
     return grid_data, parameter_data

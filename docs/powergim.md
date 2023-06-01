@@ -182,13 +182,12 @@ columns as shown below:
 column | description | type | units
 -------|-------------|------|------
 node    | Node identifier  | string
-demand_avg  | Average demand |float |MW
+demand_\<year\>  | (Additional) average demand at investment year <year>  |float |MW
 demand_ref  | Profile reference |string
-emission_cap| Maximum CO2 emission allowed (OPT) |float |kg
 
 * There may be any number of consumers per node, although zero or one is
   typical.
-* demand_avg gives the average demand, which is easily computed from the
+* demand_\<year\> gives the average demand, which is easily computed from the
   annual demand if necessary.
 * demand_ref gives the name of the demand profile (time sample) which gives
   the variation over time. Demand profiles should be normalised and have an annual
@@ -253,6 +252,7 @@ parameters:
     finance_years: 40
     operation_maintenance_rate: 0.05
     CO2_price: 0
+    CO2_cap: null
     load_shed_penalty: 10000 # very high value of lost load (loadshedding penalty)
     profiles_period_suffix: False
 ```
@@ -273,6 +273,7 @@ Parameters specified in the ```parameters``` block are:
 * operation_maintenance_rate = fraction specifying the annual operation and maintenance costs
   relative to the investment cost
 * CO2_price = costs for CO2 emissions (EUR/kgCO2)
+* CO2_cap = cap on CO2 emissions, specified as global cap (float), per area (dict) or none (null)
 * load_shed_penalty = penalty cost for load shedding (demand not supplied) (EUR/MWh)
 * profiles_period_suffix = True/False specifying whether to use different profiles for each operating period, with a `_<period>` suffix to the profile name
 
