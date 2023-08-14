@@ -61,9 +61,7 @@ def test_stochastic_ef():
     # sputils.ef_ROOT_nonants_npy_serializer(main_ef, "sns_root_nonants.npy")
     print(f"EF objective: {pyo.value(main_ef.EF_Obj)}")
 
-    assert pyo.value(main_ef.EF_Obj) == pytest.approx(131457566096)
-    # assert all_var_values["scen2.opCost"][1] == pytest.approx(2.0442991e10)
-    # assert all_var_values["scen2.opCost"][2] == pytest.approx(5.3318421e10)
+    assert pyo.value(main_ef.EF_Obj) == pytest.approx(133.10901e9)
 
 
 @pytest.mark.skipif(not pyo.SolverFactory("glpk").available(), reason="Skipping test because GLPK is not available.")

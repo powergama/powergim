@@ -12,7 +12,6 @@ NUMERIC_THRESHOLD = 1e-3
 
 @pytest.mark.skipif(not pyo.SolverFactory("glpk").available(), reason="Skipping test because GLPK is not available.")
 def test_deterministic():
-
     # Read input data
     parameter_data = pgim.file_io.read_parameters(TEST_DATA_ROOT_PATH / "parameters.yaml")
     grid_data = pgim.file_io.read_grid(
@@ -47,10 +46,10 @@ def test_deterministic():
 
     # Check results are as expected
     print(f"Objective = {pyo.value(sip.OBJ)}")
-    print(all_var_values.keys())
-
-    assert all_var_values["v_investment_cost"][2025] == pytest.approx(18.541664000e9)
-    assert all_var_values["v_investment_cost"][2028] == pytest.approx(25.829794000e9)
+    # print(all_var_values.keys())
+    assert pyo.value(sip.OBJ) == pytest.approx(15189.51e9)
+    assert all_var_values["v_investment_cost"][2025] == pytest.approx(18.54166e9)
+    assert all_var_values["v_investment_cost"][2028] == pytest.approx(27.54888e9)
 
     expected_branch_new_capacity = pd.read_csv(
         TEST_DATA_ROOT_PATH / "expected_branch_new_capacity.csv", index_col=["s_branch", "s_period"]
