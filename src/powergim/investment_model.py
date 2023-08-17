@@ -240,7 +240,7 @@ class SipModel(pyo.ConcreteModel):
             previous_periods = [p for p in self.s_period if p <= period]
             for p in previous_periods:
                 branch_existing_capacity += self.grid_data.branch.at[branch, f"capacity_{p}"]
-                if self.grid_data.branch.at[branch, f"expand_{period}"] == 1:
+                if self.grid_data.branch.at[branch, f"expand_{p}"] == 1:
                     branch_new_capacity += self.v_branch_new_capacity[branch, p]
             return branch_existing_capacity + branch_new_capacity
 
