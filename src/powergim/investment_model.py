@@ -240,7 +240,7 @@ class SipModel(pyo.ConcreteModel):
             previous_periods = [p for p in self.s_period if p <= period]
             for p in previous_periods:
                 branch_existing_capacity += self.grid_data.branch.at[branch, f"capacity_{p}"]
-                if self.grid_data.branch.at[branch, f"expand_{period}"] == 1:
+                if self.grid_data.branch.at[branch, f"expand_{p}"] == 1:
                     branch_new_capacity += self.v_branch_new_capacity[branch, p]
             return branch_existing_capacity + branch_new_capacity
 
@@ -549,8 +549,9 @@ class SipModel(pyo.ConcreteModel):
             # Remaining value of investment at end of period considered (self.finance_years)
             # if delta_years=0, then residual value should be zero.
             # if delta_years=finance_years, then residual value factor should be 1
+            # NPV value at time 0
             residual_factor = (delta_years / self.finance_years) * (
-                1 / ((1 + self.finance_interest_rate) ** (self.finance_years - delta_years))
+                1 / ((1 + self.finance_interest_rate) ** self.finance_years)
             )
         if include_om:
             # NPV of all O&M from investment made to end of time period considered
@@ -563,8 +564,7 @@ class SipModel(pyo.ConcreteModel):
         # present value vs future value: pv = fv/(1+r)^n
         discount_t0 = 1 / ((1 + self.finance_interest_rate) ** (delta_years))
 
-        investment = investment * discount_t0
-        pv_cost = investment * (1 + om_factor - residual_factor)
+        pv_cost = investment * (discount_t0 + om_factor - residual_factor)
         return pv_cost
 
     def costInvestments(self, period, include_om=True, subtract_residual_value=True):

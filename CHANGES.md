@@ -5,6 +5,7 @@
 - Model creation speedup
 - Fix bug when extracting grid results
 - Change in emission cap implementation
+- Fix bug in net present value calculation
 
 ## v0.4.0
 2023-03-10 - First release of development version

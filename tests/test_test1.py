@@ -22,12 +22,12 @@ def test_case_N5():
     assert pyo.check_optimal_termination(results)
 
     # print(pyo.value(sip.OBJ))
-    assert pyo.value(sip.OBJ) == pytest.approx(181.7401e9)
+    assert pyo.value(sip.OBJ) == pytest.approx(183.2714e9)
 
     # Optimal variable values
     all_var_values = sip.extract_all_variable_values()
     assert all_var_values["v_new_nodes"].sum() == 5
-    print(all_var_values["v_branch_new_capacity"][4])
+    # print(all_var_values["v_branch_new_capacity"][4])
     assert all_var_values["v_branch_new_capacity"][4][0] == pytest.approx(0)
     assert all_var_values["v_branch_new_capacity"][4][10] == pytest.approx(3000)
     assert all_var_values["v_branch_new_capacity"][4][20] == pytest.approx(3000)
@@ -51,14 +51,14 @@ def test_case_N4():
     assert pyo.check_optimal_termination(results)
 
     # print(pyo.value(sip.OBJ))
-    assert pyo.value(sip.OBJ) == pytest.approx(113.77779e9)
+    assert pyo.value(sip.OBJ) == pytest.approx(114.7293e9)
 
     # Optimal variable values
     all_var_values = sip.extract_all_variable_values()
-    assert all_var_values["v_new_nodes"].sum() == 3
-    assert all_var_values["v_branch_new_capacity"].sum() == 7000
+    assert all_var_values["v_new_nodes"].sum() == 4
+    assert all_var_values["v_branch_new_capacity"].sum() == 9000
     assert (all_var_values["v_branch_flow12"][0][0] == 0).all()
-    assert (all_var_values["v_branch_flow12"][0][10] == 3000).all()
+    assert (all_var_values["v_branch_flow12"][3][10] == 3000).all()
     assert (all_var_values["v_load_shed"] == 0).all()
 
 
