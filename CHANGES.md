@@ -1,5 +1,8 @@
 # Changes
 
+## v0.5.0
+- Change input data format for generator fuel costs
+
 ## v0.4.1
 - Change input data format for nodes and consumers
 - Model creation speedup
