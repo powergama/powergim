@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "powergim"
-version = "0.4.1"
+version = "0.5.0"
 description = "Power Grid Investment Module (PowerGIM)"
 authors = ["Harald G Svendsen <harald.svendsen@sintef.no>"]
 license = "MIT License (http://opensource.org/licenses/MIT)"

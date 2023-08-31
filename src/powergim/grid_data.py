@@ -55,7 +55,7 @@ class GridData(object):
                 "allow_curtailment": None,
                 "p_maxNew": -1,
                 "cost_scaling": 1,
-                "fuelcost": None,
+                **{f"fuelcost_{p}": None for p in self.investment_years},
                 "fuelcost_ref": None,
                 "pavg": 0,
                 "inflow_fac": None,
