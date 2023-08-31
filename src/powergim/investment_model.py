@@ -590,7 +590,7 @@ class SipModel(pyo.ConcreteModel):
         # operation cost for single year:
         opcost = 0
         for gen in self.s_gen:
-            fuelcost = self.grid_data.generator.at[gen, "fuelcost"]
+            fuelcost = self.grid_data.generator.at[gen, f"fuelcost_{period}"]
             cost_profile_ref = self.grid_data.generator.at[gen, "fuelcost_ref"]
             if self.parameters["profiles_period_suffix"]:
                 cost_profile_ref = f"{cost_profile_ref}_{period}"
@@ -627,7 +627,7 @@ class SipModel(pyo.ConcreteModel):
     def costOperationSingleGen(self, gen, period):
         """Operational costs: cost of gen, load shed (NPV)"""
 
-        fuelcost = self.grid_data.generator.at[gen, "fuelcost"]
+        fuelcost = self.grid_data.generator.at[gen, f"fuelcost_{period}"]
         cost_profile_ref = self.grid_data.generator.at[gen, "fuelcost_ref"]
         if self.parameters["profiles_period_suffix"]:
             cost_profile_ref = f"{cost_profile_ref}_{period}"

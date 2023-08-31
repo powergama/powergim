@@ -109,8 +109,8 @@ column | description | type | units
 -------|-------------|------|------
 id   | Unique string identifier | string
 area | Area/country code | string
-capacity_\<year\>  | (Additional) capacity installed before investment year <year>| float   | MW
-expand_\<year\>    | Consider expansion in investment year <year>   | boolean | 0,1
+capacity_\<year\>  | (Additional) capacity installed before investment year \<year\>| float   | MW
+expand_\<year\>    | Consider expansion in investment year \<year\>   | boolean | 0,1
 lat  | Latitude   | float |degrees
 lon  | Longitude  | float |degrees
 offshore | Whether node is offshore | boolean | 0,1
@@ -125,8 +125,8 @@ column | description | type | units
 -------|-------------|------|------
 node_from | Node identifier | string
 node to   | Node identifier | string
-capacity_\<year\>  | (Additional) capacity installed before investment year <year>| float   | MW
-expand_\<year\>    | Consider expansion in investment year <year>   | boolean | 0,1
+capacity_\<year\>  | (Additional) capacity installed before investment year \<year\>| float   | MW
+expand_\<year\>    | Consider expansion in investment year \<year\>   | boolean | 0,1
 distance  | Branch length (OPT) | float | km
 max_newCap    | Max new capacity (OPT) | float | km
 cost_scaling  | Cost scaling factor | float
@@ -152,11 +152,11 @@ column | description | type | units
 node  | Node identifier |string
 desc  | Description or name (OPT) |string
 type  | Generator type |string
-capacity_\<year\>  | (Additional) capacity installed before investment year <year>  |float |MW
+capacity_\<year\>  | (Additional) capacity installed before investment year \<year\>  |float |MW
 pmin  | Minimum production |float |MW
-expand_\<year\> | Consider expansion in investment year <year>   | boolean | 0,1
+expand_\<year\> | Consider expansion in investment year \<year\>   | boolean | 0,1
 allow_curtailment | Whether generator can be curtailed | boolean | 0,1
-fuelcost  | Cost of generation |float |€/MWh
+fuelcost_\<year\>  | Cost of generation in operating period \<year\> |float |€/MWh
 fuelcost_ref  | Cost profile |string
 inflow_fac  | Inflow factor |float
 inflow_ref  | Inflow profile reference |string

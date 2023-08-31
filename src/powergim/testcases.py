@@ -70,7 +70,8 @@ def create_case(investment_years, number_nodes, number_timesteps, base_MW=200):
 
     generators["pmin"] = 0
     generators["cost_scaling"] = 1
-    generators["fuelcost"] = [10 * (i % 2) for i in range(generators.shape[0])] + generators.index / 2
+    for year in investment_years:
+        generators[f"fuelcost_{year}"] = [10 * (i % 2) for i in range(generators.shape[0])] + generators.index / 2
     generators["fuelcost_ref"] = "fuelcost_" + generators["type"]
     generators["pavg"] = 0
     generators["inflow_fac"] = 1
@@ -222,8 +223,9 @@ def create_case_star(investment_years, number_nodes, number_timesteps, base_MW=2
         )
     generators["pmin"] = 0
     generators["cost_scaling"] = 1
-    generators["fuelcost"] = 0
-    generators.loc[generators["type"] == "gentype1", "fuelcost"] = 100
+    for year in investment_years:
+        generators[f"fuelcost_{year}"] = 0
+        generators.loc[generators["type"] == "gentype1", f"fuelcost_{year}"] = 100
     generators["fuelcost_ref"] = "fuelcost_" + generators["type"]
     generators["pavg"] = 0
     generators["inflow_fac"] = 1
