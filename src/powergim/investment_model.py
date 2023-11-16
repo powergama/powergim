@@ -71,6 +71,9 @@ class SipModel(pyo.ConcreteModel):
             # a column describing weight for each time-step
             self.sample_factor = self.grid_data.profiles["frequency"]
 
+        self.has_load_flex_shift = "load_flex_shift_frac" in self.parameters
+        self.has_load_flex_price = "load_flex_price_frac" in self.parameters
+
         self.create_sets()
         self.create_variables()
         self.create_objective()
@@ -201,9 +204,8 @@ class SipModel(pyo.ConcreteModel):
 
         # Flexible load (shiftable and price sensitive)
         def bounds_load_flex_shift(model, consumer, period, t):
-            if "load_flex_shift_frac" not in self.parameters:
-                ub = 0
-            else:
+            ub = 0
+            if self.has_load_flex_shift:
                 flex_frac = self.parameters["load_flex_shift_frac"][period]
                 flex_onoff = self.parameters["load_flex_shift_max"][period]
                 demand_avg = 0
@@ -214,9 +216,8 @@ class SipModel(pyo.ConcreteModel):
             return (0, ub)
 
         def bounds_load_flex_price(model, consumer, period, t):
-            if "load_flex_price_frac" not in self.parameters:
-                ub = 0
-            else:
+            ub = 0
+            if self.has_load_flex_price:
                 flex_frac = self.parameters["load_flex_price_frac"][period]
                 demand_avg = 0
                 previous_periods = [p for p in self.s_period if p <= period]
@@ -375,10 +376,10 @@ class SipModel(pyo.ConcreteModel):
 
         # fixed overall average demand for shiftable loads
         def rule_load_shift_sum(model, cons, period):
-            if "flex_shift_frac" not in self.parameters:
+            if not self.has_load_flex_shift:
                 return pyo.Constraint.Skip
 
-            shift_frac = self.parameters["flex_shift_frac"][period]
+            shift_frac = self.parameters["load_flex_shift_frac"][period]
             previous_periods = [p for p in self.s_period if p <= period]
             load_sum_mw = 0
             for p in previous_periods:
@@ -486,7 +487,7 @@ class SipModel(pyo.ConcreteModel):
 
                     # shiftable load:
                     shift_frac = 0
-                    if "load_flex_shift_frac" in self.parameters:
+                    if self.has_load_flex_shift:
                         shift_frac = self.parameters["load_flex_shift_frac"][period]
 
                     flow_into_node += (
@@ -668,7 +669,7 @@ class SipModel(pyo.ConcreteModel):
             )
         for cons in self.s_load:
             # negative cost for price sensitive load:
-            if "flex_load_price_frac" in self.parameters:
+            if self.has_load_flex_price:
                 price_sense_cap = self.parameters["flex_load_price_cap"][period]
                 opcost -= sum(
                     self.v_load_flex_price[cons, period, t] * price_sense_cap * self.sample_factor[t]
