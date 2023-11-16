@@ -199,6 +199,39 @@ class SipModel(pyo.ConcreteModel):
             bounds=bounds_load_shed,
         )
 
+        # Flexible load (shiftable and price sensitive)
+        def bounds_load_flex_shift(model, consumer, period, t):
+            if "load_flex_shift_frac" not in self.parameters:
+                ub = 0
+            else:
+                flex_frac = self.parameters["load_flex_shift_frac"][period]
+                flex_onoff = self.parameters["load_flex_shift_max"][period]
+                demand_avg = 0
+                previous_periods = [p for p in self.s_period if p <= period]
+                for p in previous_periods:
+                    demand_avg += self.grid_data.consumer.at[consumer, f"demand_{p}"]
+                ub = demand_avg * flex_frac * flex_onoff
+            return (0, ub)
+
+        def bounds_load_flex_price(model, consumer, period, t):
+            if "load_flex_price_frac" not in self.parameters:
+                ub = 0
+            else:
+                flex_frac = self.parameters["load_flex_price_frac"][period]
+                demand_avg = 0
+                previous_periods = [p for p in self.s_period if p <= period]
+                for p in previous_periods:
+                    demand_avg += self.grid_data.consumer.at[consumer, f"demand_{p}"]
+                ub = demand_avg * flex_frac
+            return (0, ub)
+
+        self.v_load_flex_shift = pyo.Var(
+            self.s_load, self.s_period, self.s_time, domain=pyo.NonNegativeReals, bounds=bounds_load_flex_shift
+        )
+        self.v_load_flex_price = pyo.Var(
+            self.s_load, self.s_period, self.s_time, domain=pyo.NonNegativeReals, bounds=bounds_load_flex_price
+        )
+
     def create_objective(self):
         self.v_investment_cost = pyo.Var(self.s_period, within=pyo.Reals)
         self.v_operating_cost = pyo.Var(self.s_period, within=pyo.Reals)
@@ -331,15 +364,35 @@ class SipModel(pyo.ConcreteModel):
             cap = cap_existing + cap_new
             max_p_avg = self.grid_data.generator.at[gen, "pavg"]
             if max_p_avg > 0:
-                # TODO: Weighted average according to sample factor
-                expr = sum(self.v_generation[gen, period, t] for t in self.s_time) <= (
-                    max_p_avg * cap * len(self.s_time)
-                )
+                expr = sum(
+                    self.v_generation[gen, period, t] * self.sample_factor[t] for t in self.s_time
+                ) / self._HOURS_PER_YEAR <= (max_p_avg * cap)
             else:
                 expr = pyo.Constraint.Skip
             return expr
 
         self.c_max_energy = pyo.Constraint(self.s_gen, self.s_period, rule=rule_max_energy)
+
+        # fixed overall average demand for shiftable loads
+        def rule_load_shift_sum(model, cons, period):
+            if "flex_shift_frac" not in self.parameters:
+                return pyo.Constraint.Skip
+
+            shift_frac = self.parameters["flex_shift_frac"][period]
+            previous_periods = [p for p in self.s_period if p <= period]
+            load_sum_mw = 0
+            for p in previous_periods:
+                load_sum_mw += self.grid_data.consumer.at[cons, f"demand_{p}"]
+            loadshift_avg_target_mw = load_sum_mw * shift_frac
+
+            loadshift_avg_mw = (
+                sum(self.v_load_flex_shift[cons, period, t] * self.sample_factor[t] for t in self.s_time)
+                / self._HOURS_PER_YEAR
+            )
+            expr = loadshift_avg_mw == loadshift_avg_target_mw
+            return expr
+
+        self.c_load_flex_shift_sum = pyo.Constraint(self.s_load, self.s_period, rule=rule_load_shift_sum)
 
         def rule_emission_cap_global(model, period):
             global_emission = 0
@@ -430,7 +483,17 @@ class SipModel(pyo.ConcreteModel):
                     if self.parameters["profiles_period_suffix"]:
                         dem_profile_ref = f"{dem_profile_ref}_{period}"
                     profile = self.grid_data.profiles.at[t, dem_profile_ref]
-                    flow_into_node += -dem_avg * profile
+
+                    # shiftable load:
+                    shift_frac = 0
+                    if "load_flex_shift_frac" in self.parameters:
+                        shift_frac = self.parameters["load_flex_shift_frac"][period]
+
+                    flow_into_node += (
+                        -(1 - shift_frac) * dem_avg * profile
+                        - self.v_load_flex_shift[cons, period, t]
+                        - self.v_load_flex_price[cons, period, t]
+                    )
 
             expr = flow_into_node == 0
 
@@ -604,6 +667,15 @@ class SipModel(pyo.ConcreteModel):
                 for t in self.s_time
             )
         for cons in self.s_load:
+            # negative cost for price sensitive load:
+            if "flex_load_price_frac" in self.parameters:
+                price_sense_cap = self.parameters["flex_load_price_cap"][period]
+                opcost -= sum(
+                    self.v_load_flex_price[cons, period, t] * price_sense_cap * self.sample_factor[t]
+                    for t in self.s_time
+                )
+
+            # penalty for load shedding:
             opcost += sum(
                 self.v_load_shed[cons, period, t] * self.load_shed_penalty * self.sample_factor[t] for t in self.s_time
             )
