@@ -670,7 +670,7 @@ class SipModel(pyo.ConcreteModel):
         for cons in self.s_load:
             # negative cost for price sensitive load:
             if self.has_load_flex_price:
-                price_sense_cap = self.parameters["flex_load_price_cap"][period]
+                price_sense_cap = self.parameters["load_flex_price_cap"][period]
                 opcost -= sum(
                     self.v_load_flex_price[cons, period, t] * price_sense_cap * self.sample_factor[t]
                     for t in self.s_time
