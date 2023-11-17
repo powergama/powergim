@@ -13,6 +13,8 @@ def plot_map2(
     include_zero_capacity=False,
     width_col=None,
     node_options=None,
+    include_generators=None,
+    gen_options=None,
     **kwargs,
 ):
     """Plot grid using geopandas (for print)"""
@@ -50,15 +52,12 @@ def plot_map2(
 
     branch = grid_data.branch.copy()
     node = grid_data.node.copy()
-    # generator = grid_data.generator.copy()
+    generator = grid_data.generator.copy()
     # consumer = grid_data.consumer.copy()
     if years is not None:
         branch["capacity"] = branch[[f"capacity_{p}" for p in years]].sum(axis=1)
-        # generator["capacity"] = generator[[f"capacity_{p}" for p in years]].sum(axis=1)
+        generator["capacity"] = generator[[f"capacity_{p}" for p in years]].sum(axis=1)
         node["capacity"] = node[[f"capacity_{p}" for p in years]].sum(axis=1)
-        # node["capacity"] = node[[f"capacity_{p}" for p in years if f"capacity_{p}" in node]].sum(axis=1)
-
-    # node.plot.scatter(ax=ax, x="lon", y="lat", size=10, color="red")
 
     gdf_nodes = geopandas.GeoDataFrame(
         node,
@@ -88,11 +87,23 @@ def plot_map2(
     gdf_edges = geopandas.GeoDataFrame(gdf_edges, geometry=gdf_edges_geometry, crs="EPSG:4326")
     gdf_edges.set_index("index")
 
+    # Use node lat,lon only if generator lat,lon is unspecified (-1):
+    generator = generator.merge(
+        node[["id", "lat", "lon"]], how="left", left_on="node", right_on="id", suffixes=("", "_node")
+    )
+    mask_latlon_given = ~(generator[["lat", "lon"]] == -1).any(axis=1)
+    generator["lat"] = generator["lat"].where(mask_latlon_given, generator["lat_node"])
+    generator["lon"] = generator["lon"].where(mask_latlon_given, generator["lon_node"])
+    gdf_generators = geopandas.GeoDataFrame(
+        generator,
+        geometry=geopandas.points_from_xy(generator["lon"], generator["lat"]),
+        crs="EPSG:4326",
+    )
+
     if not include_zero_capacity:
-        # branch = branch[branch["capacity"] > 0]
-        # node = node[node["capacity"] > 0]
         gdf_edges = gdf_edges[gdf_edges["capacity"] > 0]
         gdf_nodes = gdf_nodes[gdf_nodes["capacity"] > 0]
+        gdf_generators = gdf_generators[gdf_generators["capacity"] > 0]
 
     if width_col is not None:
         kwargs["linewidth"] = (gdf_edges[width_col[0]] / width_col[1]).clip(upper=width_col[2])
@@ -100,6 +111,12 @@ def plot_map2(
     if node_options is None:
         node_options = {}
     gdf_nodes.plot(ax=ax, **node_options)
+
+    if include_generators:
+        gdf_generators = gdf_generators[gdf_generators["type"].isin(include_generators)]
+        if gen_options is None:
+            gen_options = {}
+        gdf_generators.plot(ax=ax, **gen_options)
 
     ax.set_xlim(grid_data.node["lon"].min() - 1, grid_data.node["lon"].max() + 1)
     ax.set_ylim(grid_data.node["lat"].min() - 1, grid_data.node["lat"].max() + 1)

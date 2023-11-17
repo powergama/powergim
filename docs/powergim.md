@@ -255,6 +255,10 @@ parameters:
     CO2_cap: null
     load_shed_penalty: 10000 # very high value of lost load (loadshedding penalty)
     profiles_period_suffix: False
+    load_flex_shift_frac: {2025: 0.05, 2028: 0.08}
+    load_flex_shift_max: {2025: 2, 2028: 2}
+    load_flex_price_frac: {2025: 0, 2028: 0.05}
+    load_flex_price_cap : {2025: 20, 2028: 20}
 ```
 
 Most of the parametes in the  ```nodetype```, ```branchtype``` and ```gentype```
@@ -276,6 +280,11 @@ Parameters specified in the ```parameters``` block are:
 * CO2_cap = cap on CO2 emissions, specified as global cap (float), per area (dict) or none (null)
 * load_shed_penalty = penalty cost for load shedding (demand not supplied) (EUR/MWh)
 * profiles_period_suffix = True/False specifying whether to use different profiles for each operating period, with a `_<period>` suffix to the profile name
+* load_flex_shift_frac = amount of demand that can be shifted, as a fraction of demand_avg per consumer
+* load_flex_shift_max = how many units of shiftable demand may be lumped together in any specific timestep
+* load_flex_price_frac
+* load_flex_price_cap
+
 
 ## Analysis of results
 
