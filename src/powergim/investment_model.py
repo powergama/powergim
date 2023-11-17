@@ -205,6 +205,7 @@ class SipModel(pyo.ConcreteModel):
         # Flexible load (shiftable and price sensitive)
         def bounds_load_flex_shift(model, consumer, period, t):
             ub = 0
+            lb = 0
             if self.has_load_flex_shift:
                 flex_frac = self.parameters["load_flex_shift_frac"][period]
                 flex_onoff = self.parameters["load_flex_shift_max"][period]
@@ -212,8 +213,9 @@ class SipModel(pyo.ConcreteModel):
                 previous_periods = [p for p in self.s_period if p <= period]
                 for p in previous_periods:
                     demand_avg += self.grid_data.consumer.at[consumer, f"demand_{p}"]
+                lb = -demand_avg * flex_frac
                 ub = demand_avg * flex_frac * flex_onoff
-            return (0, ub)
+            return (lb, ub)
 
         def bounds_load_flex_price(model, consumer, period, t):
             ub = 0
@@ -227,7 +229,7 @@ class SipModel(pyo.ConcreteModel):
             return (0, ub)
 
         self.v_load_flex_shift = pyo.Var(
-            self.s_load, self.s_period, self.s_time, domain=pyo.NonNegativeReals, bounds=bounds_load_flex_shift
+            self.s_load, self.s_period, self.s_time, domain=pyo.Reals, bounds=bounds_load_flex_shift
         )
         self.v_load_flex_price = pyo.Var(
             self.s_load, self.s_period, self.s_time, domain=pyo.NonNegativeReals, bounds=bounds_load_flex_price
@@ -374,23 +376,16 @@ class SipModel(pyo.ConcreteModel):
 
         self.c_max_energy = pyo.Constraint(self.s_gen, self.s_period, rule=rule_max_energy)
 
-        # fixed overall average demand for shiftable loads
+        # fixed overall average demand for shiftable loads is zero
         def rule_load_shift_sum(model, cons, period):
             if not self.has_load_flex_shift:
                 return pyo.Constraint.Skip
-
-            shift_frac = self.parameters["load_flex_shift_frac"][period]
-            previous_periods = [p for p in self.s_period if p <= period]
-            load_sum_mw = 0
-            for p in previous_periods:
-                load_sum_mw += self.grid_data.consumer.at[cons, f"demand_{p}"]
-            loadshift_avg_target_mw = load_sum_mw * shift_frac
 
             loadshift_avg_mw = (
                 sum(self.v_load_flex_shift[cons, period, t] * self.sample_factor[t] for t in self.s_time)
                 / self._HOURS_PER_YEAR
             )
-            expr = loadshift_avg_mw == loadshift_avg_target_mw
+            expr = loadshift_avg_mw == 0
             return expr
 
         self.c_load_flex_shift_sum = pyo.Constraint(self.s_load, self.s_period, rule=rule_load_shift_sum)
@@ -485,15 +480,10 @@ class SipModel(pyo.ConcreteModel):
                         dem_profile_ref = f"{dem_profile_ref}_{period}"
                     profile = self.grid_data.profiles.at[t, dem_profile_ref]
 
-                    # shiftable load:
-                    shift_frac = 0
-                    if self.has_load_flex_shift:
-                        shift_frac = self.parameters["load_flex_shift_frac"][period]
-
-                    flow_into_node += (
-                        -(1 - shift_frac) * dem_avg * profile
-                        - self.v_load_flex_shift[cons, period, t]
-                        - self.v_load_flex_price[cons, period, t]
+                    flow_into_node -= (
+                        +dem_avg * profile
+                        + self.v_load_flex_shift[cons, period, t]
+                        + self.v_load_flex_price[cons, period, t]
                     )
 
             expr = flow_into_node == 0
