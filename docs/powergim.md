@@ -73,6 +73,21 @@ their probabilities (P) is shown below:
 
 ![scenario tree](files/twostage_scenarios.png)
 
+### Flexible generation and consumption
+
+Hydropower, and other generation with inflow and storage, is flexible but with a total energy availability (over a year) that is limited by the total inflow (over a year). This is accounted for by a maximum average powre output (capacity factor) and a constraint that limits the average output by this value.
+
+Flexible demand is considered in a similar way.
+_Shiftable_ load can be moved in time, but without changing the average value, as illustrated below.
+
+![flex load1](files/flex_load1.png)
+
+In the model, load flexibility is specified as a certain fraction of the overall consumption. So the SUM consumption consists of a fixed load and a flexible load that can be shifted:
+![flex load1](files/flex_load2.png)
+
+It is also possible to specify price sensitive load, with a given price cap below which the load is activated.
+
+
 ## Running an optimisation
 
 See the [examples](#examples).
