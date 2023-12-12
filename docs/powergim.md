@@ -73,6 +73,21 @@ their probabilities (P) is shown below:
 
 ![scenario tree](files/twostage_scenarios.png)
 
+### Flexible generation and consumption
+
+Hydropower, and other generation with inflow and storage, is flexible but with a total energy availability (over a year) that is limited by the total inflow (over a year). This is accounted for by a maximum average powre output (capacity factor) and a constraint that limits the average output by this value.
+
+Flexible demand is considered in a similar way.
+_Shiftable_ load can be moved in time, but without changing the average value, as illustrated below.
+
+![flex load1](files/flex_load1.png)
+
+In the model, load flexibility is specified as a certain fraction of the overall consumption. So the SUM consumption consists of a fixed load and a flexible load that can be shifted:
+![flex load1](files/flex_load2.png)
+
+It is also possible to specify price sensitive load, with a given price cap below which the load is activated.
+
+
 ## Running an optimisation
 
 See the [examples](#examples).
@@ -255,6 +270,10 @@ parameters:
     CO2_cap: null
     load_shed_penalty: 10000 # very high value of lost load (loadshedding penalty)
     profiles_period_suffix: False
+    load_flex_shift_frac: {2025: 0.05, 2028: 0.08}
+    load_flex_shift_max: {2025: 2, 2028: 2}
+    load_flex_price_frac: {2025: 0, 2028: 0.05}
+    load_flex_price_cap : {2025: 20, 2028: 20}
 ```
 
 Most of the parametes in the  ```nodetype```, ```branchtype``` and ```gentype```
@@ -276,6 +295,11 @@ Parameters specified in the ```parameters``` block are:
 * CO2_cap = cap on CO2 emissions, specified as global cap (float), per area (dict) or none (null)
 * load_shed_penalty = penalty cost for load shedding (demand not supplied) (EUR/MWh)
 * profiles_period_suffix = True/False specifying whether to use different profiles for each operating period, with a `_<period>` suffix to the profile name
+* load_flex_shift_frac = amount of demand that can be shifted, as a fraction of demand_avg per consumer
+* load_flex_shift_max = how many units of shiftable demand may be lumped together in any specific timestep
+* load_flex_price_frac
+* load_flex_price_cap
+
 
 ## Analysis of results
 

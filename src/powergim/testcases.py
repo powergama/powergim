@@ -298,3 +298,17 @@ def create_case_star(investment_years, number_nodes, number_timesteps, base_MW=2
     utils.validate_parameter_data(parameter_data)
 
     return grid_data, parameter_data
+
+
+def create_case_star_loadflex(investment_years, number_nodes, number_timesteps, base_MW=200):
+    grid_data, parameter_data = create_case_star(investment_years, number_nodes, number_timesteps, base_MW)
+
+    # add load flexibility
+    flex_data = {
+        "load_flex_shift_frac": {y: 0.08 for y in investment_years},
+        "load_flex_shift_max": {y: 2 for y in investment_years},
+        "load_flex_price_frac": {y: 0.05 for y in investment_years},
+        "load_flex_price_cap ": {y: 40 for y in investment_years},
+    }
+    parameter_data = {**parameter_data, **flex_data}
+    return grid_data, parameter_data

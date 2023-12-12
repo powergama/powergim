@@ -61,6 +61,9 @@ def plot_map(
     branch["capacity"] = branch[[f"capacity_{p}" for p in years]].sum(axis=1)
     generator["capacity"] = generator[[f"capacity_{p}" for p in years]].sum(axis=1)
     node["capacity"] = node[[f"capacity_{p}" for p in years]].sum(axis=1)
+    branch["expand"] = branch[[f"expand_{p}" for p in years]].sum(axis=1)
+    generator["expand"] = generator[[f"expand_{p}" for p in years]].sum(axis=1)
+    node["expand"] = node[[f"expand_{p}" for p in years]].sum(axis=1)
     consumer["demand_avg"] = consumer[[f"demand_{p}" for p in years]].sum(axis=1)
     if f"flow_{years[0]}" in branch.columns:
         branch["flow"] = branch[[f"flow_{p}" for p in years]].mean(axis=1)
@@ -157,6 +160,9 @@ def plot_map(
     for i, n in node.iterrows():
         if (not include_zero_capacity) and (n["capacity"] == 0):
             pass
+        elif include_zero_capacity and (n["capacity"] + n["expand"] == 0):
+            # skip zero elements unless they are expandable
+            pass
         elif not (n[["lat", "lon"]].isnull().any()):
             data = [n["lat"], n["lon"], "Node={}, area={}".format(n["id"], n["area"])]
             if value_col is not None:
@@ -228,6 +234,9 @@ def plot_map(
         if (not include_zero_capacity) and (n["capacity"] == 0):
             # skip this branch
             pass
+        elif include_zero_capacity and (n["capacity"] + n["expand"] == 0):
+            # skip zero elements unless they are expandable
+            pass
         elif not (n[["lat_x", "lon_x", "lat_y", "lon_y"]].isnull().any()):
             data = [
                 [n["lat_x"], n["lon_x"]],
@@ -298,6 +307,9 @@ def plot_map(
             gentype = n["type"]
             typeind = gentypes.index(gentype)
             if (not include_zero_capacity) and (n["capacity"] == 0):
+                pass
+            elif include_zero_capacity and (n["capacity"] + n["expand"] == 0):
+                # skip zero elements unless they are expandable
                 pass
             elif not (n[["lat", "lon"]].isnull().any()):
                 data = [

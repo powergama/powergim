@@ -83,6 +83,17 @@ def test_create_model():
     assert len(sip.c_emission_cap) == len(sip.s_period) * len(sip.s_area)
 
 
+def test_create_model_with_loadflex():
+    years = [0, 10]
+    number_nodes = 4
+    number_timesteps = 10
+    grid_data, parameter_data = testcases.create_case_star_loadflex(years, number_nodes, number_timesteps, base_MW=2000)
+    # specify global CO2_cap:
+    parameter_data["parameters"]["CO2_cap"] = 1e4
+    sip = powergim.SipModel(grid_data, parameter_data)
+    assert len(sip.c_emission_cap) == len(sip.s_period)
+
+
 if __name__ == "__main__":
     test_case_N5()
     test_case_N4()
