@@ -213,7 +213,14 @@ class SipModel(pyo.ConcreteModel):
                 previous_periods = [p for p in self.s_period if p <= period]
                 for p in previous_periods:
                     demand_avg += self.grid_data.consumer.at[consumer, f"demand_{p}"]
-                lb = -demand_avg * flex_frac
+                ref = self.grid_data.consumer.at[consumer, "demand_ref"]
+                if self.parameters["profiles_period_suffix"]:
+                    ref = f"{ref}_{period}"
+                profile = self.grid_data.profiles.at[t, ref]
+                # need to set a lower bound on flex_demand (x) such that both
+                # 1) x >- demand_avg*flex_frac (max downward flexibility) and
+                # 2) x + demand_avg*profile > 0 (sum demand should not be negative)
+                lb = -demand_avg * min(flex_frac, profile)
                 ub = demand_avg * flex_frac * flex_onoff
             return (lb, ub)
 
