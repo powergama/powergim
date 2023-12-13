@@ -229,24 +229,24 @@ Investment costs and other parameters are provided in an YAML file with the
 following structure:
 ```YAML
 nodetype:
-    ac: { L: 1, S: 50e6}
-    hvdc: { L: 1, S: 1 }
+    ac: { L: 1e-6, S: 50}
+    hvdc: { L: 1e-6, S: 1e-6 }
 branchtype:
     <branchtype1>:
-        B: 5000e3
-        Bdp: 1.15e3
-        Bd: 656e3
-        CL: 1562e3
+        B: 5.000
+        Bdp: 1.15
+        Bd: 0.656
+        CL: 1.562
         CLp: 0
-        CS: 4813e3
+        CS: 4.813
         CSp: 0
         max_cap: 400
         loss_fix: 0
         loss_slope: 5e-5
     <branchtype2>:
-        B: 5000e3
-        Bdp: 0.47e3
-        Bd: 680e3
+        B: 5.000
+        Bdp: 0.47
+        Bd: 0.680
         CL: 0
         CLp: 0
         CS: 0
@@ -256,7 +256,7 @@ branchtype:
         loss_slope: 3e-5
 gentype:
     <gentype1>:
-       Cp: 10
+       Cp: 0.010
        CO2: 0
     <gentype2>:
        Cp: 0
@@ -268,7 +268,7 @@ parameters:
     operation_maintenance_rate: 0.05
     CO2_price: 0
     CO2_cap: null
-    load_shed_penalty: 10000 # very high value of lost load (loadshedding penalty)
+    load_shed_penalty: 3000 # very high value of lost load (loadshedding penalty)
     profiles_period_suffix: False
     load_flex_shift_frac: {2025: 0.05, 2028: 0.08}
     load_flex_shift_max: {2025: 2, 2028: 2}
@@ -323,16 +323,16 @@ Branches, Nodes and generators:
 * *cost_b = B + Bbd ⋅ b ⋅ d + Bd ⋅ d + Σ(Cp ⋅ p + C)*
     * The sum is over the two branch endpoints, that may be on land or at sea.
     * d = branch distance (km)
-    * p = power rating (MW)
-    * B = fixed cost (EUR)
-    * Bdp = cost dependence on both distance and rating (EUR/km/MW)
-    * Bd = cost dependence on distance (EUR/km)
-    * C = fixed endpoint cost (CL=on land, CS=at sea) (EUR)
-    * Cp = endpoint cost dependence on rating (EUR/MW)
+    * p = power rating (GW)
+    * B = fixed cost (MEUR)
+    * Bdp = cost dependence on both distance and rating (MEUR/km/GW)
+    * Bd = cost dependence on distance (MEUR/km)
+    * C = fixed endpoint cost (CL=on land, CS=at sea) (MEUR)
+    * Cp = endpoint cost dependence on rating (MEUR/GW)
 * *cost_n = N*
     * N = fixed cost (NL=on land, NS=at sea)
 * *cost_g = Gp ⋅ capacity*
-    * Gp = generator cost per power rating (EUR/MW)
+    * Gp = generator cost per power rating (MEUR/GW)
 
 *Present value vs future value(s)* - Present value factor (pv) for translating
 future value to present value, and annuity factor (a) for translating
@@ -395,14 +395,17 @@ power out = power in (lossFix + lossSlope*d)
 ### Variables
 These are the optimisation problem variables
 
-* branchNewCapacity = capacity of new branches
-* branchNewCables = number of new cables (integer)
-* newNodes = number of new nodes (integer)
-* genNewCapacity = new generation capacity
-* branchFlow12 = power flow on branch in positive direction
-* branchFlow21 = power flow on branch in negative direction
-* generation = generator output
-* loadShed = load shedding
+* v_branch_new_capacity = capacity of new branches
+* v_branch_new_cables = number of new cables (integer)
+* v_node_new_capacity = new node capacity
+* v_new_nodes = number of new nodes (integer)
+* v_gen_new_capacity = new generation capacity
+* v_branch_flow12 = power flow on branch in positive direction
+* v_branch_flow21 = power flow on branch in negative direction
+* v_generation = generator output
+* v_load_shed = load shedding
+* v_load_flex_shift = load shifting (positive or negative)
+* v_load_flex_price = price sensitive load (zero or positive)
 
 
 ### Constraints
