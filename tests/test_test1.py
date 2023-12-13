@@ -22,7 +22,7 @@ def test_case_N5():
     assert pyo.check_optimal_termination(results)
 
     # print(pyo.value(sip.OBJ))
-    assert pyo.value(sip.OBJ) == pytest.approx(183.2714e9)
+    assert pyo.value(sip.OBJ) == pytest.approx(183.2714e3)
 
     # Optimal variable values
     all_var_values = sip.extract_all_variable_values()
@@ -51,7 +51,7 @@ def test_case_N4():
     assert pyo.check_optimal_termination(results)
 
     # print(pyo.value(sip.OBJ))
-    assert pyo.value(sip.OBJ) == pytest.approx(114.7293e9)
+    assert pyo.value(sip.OBJ) == pytest.approx(114.7293e3)
 
     # Optimal variable values
     all_var_values = sip.extract_all_variable_values()

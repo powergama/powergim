@@ -100,21 +100,21 @@ def create_case(investment_years, number_nodes, number_timesteps, base_MW=200):
     parameter_data = {
         "nodetype": {
             "nodetype1": {
-                "L": 1,
+                "L": 1e-6,
                 "Lp": 0,
-                "S": 50e6,
+                "S": 50,
                 "Sp": 0,
             }
         },
         "branchtype": {
             "branchtype1": {
-                "B": 5000e3,
-                "Bdp": 0.47e3,
-                "Bd": 680e3,
-                "CL": 20280e3,
-                "CLp": 118.28e3,
-                "CS": 129930e3,
-                "CSp": 757.84e3,
+                "B": 5.000,
+                "Bdp": 0.47,
+                "Bd": 0.680,
+                "CL": 20.280,
+                "CLp": 118.28,
+                "CS": 129.930,
+                "CSp": 757.84,
                 "max_cap": 2000,
                 "loss_fix": 0.032,
                 "loss_slope": 3e-5,
@@ -122,11 +122,11 @@ def create_case(investment_years, number_nodes, number_timesteps, base_MW=200):
         },
         "gentype": {
             "gentype0": {
-                "CX": 0,
+                "Cp": 0,
                 "CO2": 0,
             },
             "gentype1": {
-                "CX": 100,
+                "Cp": 0.100,
                 "CO2": 0,
             },
         },
@@ -254,21 +254,21 @@ def create_case_star(investment_years, number_nodes, number_timesteps, base_MW=2
     parameter_data = {
         "nodetype": {
             "nodetype1": {
-                "L": 1,
+                "L": 1e-6,
                 "Lp": 0,
-                "S": 50e6,
+                "S": 50,
                 "Sp": 0,
             }
         },
         "branchtype": {
             "branchtype1": {
-                "B": 5000e3,
-                "Bdp": 0.47e3,
-                "Bd": 680e3,
-                "CL": 20280e3,
-                "CLp": 118.28e3,
-                "CS": 129930e3,
-                "CSp": 757.84e3,
+                "B": 5.000,
+                "Bdp": 0.47,
+                "Bd": 0.680,
+                "CL": 20.280,
+                "CLp": 118.28,
+                "CS": 129.930,
+                "CSp": 757.84,
                 "max_cap": 2000,
                 "loss_fix": 0,  # 0.032,
                 "loss_slope": 0,  # 3e-5,
@@ -276,11 +276,11 @@ def create_case_star(investment_years, number_nodes, number_timesteps, base_MW=2
         },
         "gentype": {
             "gentype0": {
-                "CX": 0,
+                "Cp": 0,
                 "CO2": 0,
             },
             "gentype1": {
-                "CX": 100,
+                "Cp": 0.10,
                 "CO2": 0,
             },
         },

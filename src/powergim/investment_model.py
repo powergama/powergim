@@ -544,7 +544,7 @@ class SipModel(pyo.ConcreteModel):
         """Expression for cost of node, investment cost no discounting"""
         n_cost = 0
         var_num = self.v_new_nodes[node, period]
-        var_cap = self.v_node_new_capacity[node, period]
+        var_cap = self.v_node_new_capacity[node, period] * 1e-3  # MW to GW
         is_offshore = self.grid_data.node.at[node, "offshore"]  # 1 or 0
         nodetype = self.grid_data.node.at[node, "type"]
         nodetype_costs = self.nodetypes[nodetype]
@@ -564,7 +564,7 @@ class SipModel(pyo.ConcreteModel):
         distance = self.grid_data.branch.at[branch, "distance"]
         b_cost += branchtype_costs["B"] * var_num[branch, period]
         b_cost += branchtype_costs["Bd"] * distance * var_num[branch, period]
-        b_cost += branchtype_costs["Bdp"] * distance * var_cap[branch, period]
+        b_cost += branchtype_costs["Bdp"] * distance * var_cap[branch, period] * 1e-3
 
         # endpoint costs (difference onshore/offshore)
         node1 = self.grid_data.branch.at[branch, "node_from"]
@@ -573,10 +573,12 @@ class SipModel(pyo.ConcreteModel):
         is_offshore2 = self.grid_data.node.at[node2, "offshore"]
         for N in [is_offshore1, is_offshore2]:
             b_cost += N * (
-                branchtype_costs["CS"] * var_num[branch, period] + branchtype_costs["CSp"] * var_cap[branch, period]
+                branchtype_costs["CS"] * var_num[branch, period]
+                + branchtype_costs["CSp"] * var_cap[branch, period] * 1e-3
             )
             b_cost += (1 - N) * (
-                branchtype_costs["CL"] * var_num[branch, period] + branchtype_costs["CLp"] * var_cap[branch, period]
+                branchtype_costs["CL"] * var_num[branch, period]
+                + branchtype_costs["CLp"] * var_cap[branch, period] * 1e-3
             )
         scale = self.grid_data.branch.at[branch, "cost_scaling"]
         return scale * b_cost
@@ -588,7 +590,7 @@ class SipModel(pyo.ConcreteModel):
         gentype = self.grid_data.generator.at[gen, "type"]
         gentype_cost = self.gentypes[gentype]
         scale = self.grid_data.generator.at[gen, "cost_scaling"]
-        g_cost += gentype_cost["CX"] * var_cap[gen, period]
+        g_cost += gentype_cost["Cp"] * var_cap[gen, period] * 1e-3
         return scale * g_cost
 
     def npvInvestment(self, period, investment, include_om=True, subtract_residual_value=True):
@@ -692,6 +694,7 @@ class SipModel(pyo.ConcreteModel):
         opcost = opcost * (
             annuityfactor(self.finance_interest_rate, N_next) - annuityfactor(self.finance_interest_rate, N_this)
         )
+        opcost = opcost * 1e-6  # EUR to MEUR
         return opcost
 
     def costOperationSingleGen(self, gen, period):
@@ -725,6 +728,7 @@ class SipModel(pyo.ConcreteModel):
         opcost = opcost * (
             annuityfactor(self.finance_interest_rate, N_next) - annuityfactor(self.finance_interest_rate, N_this)
         )
+        opcost = opcost * 1e-6  # EUR to MEUR
         return opcost
 
     def scenario_creator(self, scenario_name, probability):

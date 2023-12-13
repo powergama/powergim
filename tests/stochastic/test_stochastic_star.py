@@ -12,10 +12,10 @@ def test_stochastic_star_ef():
     main_ef, all_var_values = starcase.solve_ef("cbc", solver_io="nl")
 
     print(f"EF objective: {pyo.value(main_ef.EF_Obj)}")
-    assert pyo.value(main_ef.EF_Obj) == pytest.approx(117.84348e9)
-    assert all_var_values["scen0"]["OBJ"] == pytest.approx(118.38123e9)
-    assert all_var_values["scen0"]["scen0.v_investment_cost"][0] == pytest.approx(16.46419e9)
-    assert all_var_values["scen0"]["scen0.v_investment_cost"][10] == pytest.approx(6.46752e9)
+    assert pyo.value(main_ef.EF_Obj) == pytest.approx(117.84348e3)
+    assert all_var_values["scen0"]["OBJ"] == pytest.approx(118.38123e3)
+    assert all_var_values["scen0"]["scen0.v_investment_cost"][0] == pytest.approx(16.46419e3)
+    assert all_var_values["scen0"]["scen0.v_investment_cost"][10] == pytest.approx(6.46752e3)
 
 
 # TODO: Understand why this test fails (but not glpk, or mpi ones)

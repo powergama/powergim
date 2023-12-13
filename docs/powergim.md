@@ -256,10 +256,10 @@ branchtype:
         loss_slope: 3e-5
 gentype:
     <gentype1>:
-       CX: 10
+       Cp: 10
        CO2: 0
     <gentype2>:
-       CX: 0
+       Cp: 0
        CO2: 0
 parameters:
     investment_years: [2025, 2028]
