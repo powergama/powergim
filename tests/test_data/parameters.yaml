@@ -1,6 +1,6 @@
 nodetype:
-    ac: { L: 1e-6, S: 50, Lp: 0, Sp: 0 }
-    hvdc: { L: 1e-6, S: 1e-6, Lp: 0, Sp: 0 }
+    ac: { L: 1e-6, S: 50, Lp: 0, Sp: 0, max_cap: 1e5 }
+    hvdc: { L: 1e-6, S: 1e-6, Lp: 0, Sp: 0, max_cap: 1e5 }
 branchtype:
     ac:
         B: 5.000
@@ -11,6 +11,7 @@ branchtype:
         CS: 4.813
         CSp: 0
         max_cap: 400
+        max_num: 5
         loss_fix: 0
         loss_slope: 5e-5
     dcmesh:
@@ -22,6 +23,7 @@ branchtype:
         CS: 0
         CSp: 0
         max_cap: 2000
+        max_num: 5
         loss_fix: 0
         loss_slope: 3e-5
     dcdirect:
@@ -33,6 +35,7 @@ branchtype:
         CS: 129.930
         CSp: 757.84
         max_cap: 2000
+        max_num: 5
         loss_fix: 0.032
         loss_slope: 3e-5
     conv:
@@ -44,6 +47,7 @@ branchtype:
         CS: 64.965
         CSp: 378.92
         max_cap: 2000
+        max_num: 5
         loss_fix: 0.016
         loss_slope: 0
     ac_ohl:
@@ -55,15 +59,18 @@ branchtype:
         CS: 0
         CSp: 0
         max_cap: 4000
+        max_num: 5
         loss_fix: 0
         loss_slope: 3e-5
 gentype:
     alt:
         Cp: 0.010
         CO2: 0
+        max_cap: 1e5
     wind:
         Cp: 0
         CO2: 0
+        max_cap: 1e5
 parameters:
     investment_years: [2025, 2028]
     finance_interest_rate: 0.05

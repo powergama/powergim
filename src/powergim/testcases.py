@@ -104,6 +104,7 @@ def create_case(investment_years, number_nodes, number_timesteps, base_MW=200):
                 "Lp": 0,
                 "S": 50,
                 "Sp": 0,
+                "max_cap": 1e5,
             }
         },
         "branchtype": {
@@ -116,6 +117,7 @@ def create_case(investment_years, number_nodes, number_timesteps, base_MW=200):
                 "CS": 129.930,
                 "CSp": 757.84,
                 "max_cap": 2000,
+                "max_num": 5,
                 "loss_fix": 0.032,
                 "loss_slope": 3e-5,
             }
@@ -124,10 +126,12 @@ def create_case(investment_years, number_nodes, number_timesteps, base_MW=200):
             "gentype0": {
                 "Cp": 0,
                 "CO2": 0,
+                "max_cap": 1e5,
             },
             "gentype1": {
                 "Cp": 0.100,
                 "CO2": 0,
+                "max_cap": 1e5,
             },
         },
         "parameters": {
@@ -258,6 +262,7 @@ def create_case_star(investment_years, number_nodes, number_timesteps, base_MW=2
                 "Lp": 0,
                 "S": 50,
                 "Sp": 0,
+                "max_cap": 1e5,
             }
         },
         "branchtype": {
@@ -270,6 +275,7 @@ def create_case_star(investment_years, number_nodes, number_timesteps, base_MW=2
                 "CS": 129.930,
                 "CSp": 757.84,
                 "max_cap": 2000,
+                "max_num": 5,
                 "loss_fix": 0,  # 0.032,
                 "loss_slope": 0,  # 3e-5,
             }
@@ -278,10 +284,12 @@ def create_case_star(investment_years, number_nodes, number_timesteps, base_MW=2
             "gentype0": {
                 "Cp": 0,
                 "CO2": 0,
+                "max_cap": 1e5,
             },
             "gentype1": {
                 "Cp": 0.10,
                 "CO2": 0,
+                "max_cap": 1e5,
             },
         },
         "parameters": {

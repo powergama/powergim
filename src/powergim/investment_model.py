@@ -17,12 +17,6 @@ from .utils import annuityfactor
 class const:
     baseMVA = 100  # MVA
 
-    # Fixme: Get this from input?
-    # (the user may also just change the module constant)
-    MAX_BRANCH_NEW_NUM = 5
-    MAX_GEN_NEW_CAPACITY = 10000
-    MAX_NODE_NEW_CAPACITY = 100000
-
 
 def _slice_to_list(component_slice):
     """expand slice to list of components"""
@@ -106,7 +100,8 @@ class SipModel(pyo.ConcreteModel):
             # default max capacity is given by branch type and max number of cables
             branchtype = self.grid_data.branch.at[branch, "type"]
             cap_branchtype = self.branchtypes[branchtype]["max_cap"]
-            maxcap = const.MAX_BRANCH_NEW_NUM * cap_branchtype
+            maxnum_branchtype = self.branchtypes[branchtype]["max_num"]
+            maxcap = maxnum_branchtype * cap_branchtype
             if self.grid_data.branch.at[branch, "max_newCap"] > 0:
                 maxcap = self.grid_data.branch.at[branch, "max_newCap"]
             return (0, maxcap)
@@ -120,7 +115,9 @@ class SipModel(pyo.ConcreteModel):
 
         # investment: new branch cables (needed for linearisation, see also model.cMaxNumberCables)
         def bounds_branch_new_cables(model, branch, period):
-            return (0, const.MAX_BRANCH_NEW_NUM)
+            branchtype = self.grid_data.branch.at[branch, "type"]
+            maxnum_branchtype = self.branchtypes[branchtype]["max_num"]
+            return (0, maxnum_branchtype)
 
         self.v_branch_new_cables = pyo.Var(
             self.s_branch,
@@ -134,9 +131,8 @@ class SipModel(pyo.ConcreteModel):
         self.v_new_nodes = pyo.Var(self.s_node, self.s_period, within=pyo.Binary)
 
         def bounds_node_new_capacity(model, node, period):
-            maxcap = const.MAX_NODE_NEW_CAPACITY
-            # nodetype = self.grid_data.node.loc[node, "type"]
-            # maxcap = self.branchtypes[nodetype]["max_cap"]
+            nodetype = self.grid_data.node.loc[node, "type"]
+            maxcap = self.nodetypes[nodetype]["max_cap"]
             return (0, maxcap)
 
         self.v_node_new_capacity = pyo.Var(
@@ -148,7 +144,8 @@ class SipModel(pyo.ConcreteModel):
 
         # investment: generation capacity
         def bounds_gen_new_capacity(model, gen, period):
-            maxcap = const.MAX_GEN_NEW_CAPACITY
+            gentype = self.grid_data.generator.at[gen, "type"]
+            maxcap = self.gentypes[gentype]["max_cap"]  # max sum
             if self.grid_data.generator.at[gen, "p_maxNew"] > 0:
                 maxcap = self.grid_data.generator.at[gen, "p_maxNew"]
             # this does not work here, as it in some cases gives ub=0=lb -> using constraints instead
@@ -300,7 +297,9 @@ class SipModel(pyo.ConcreteModel):
 
         # number of new cables is limited
         def rule_max_new_cables(model, branch, period):
-            max_num = const.MAX_BRANCH_NEW_NUM * self.grid_data.branch.at[branch, f"expand_{period}"]
+            branchtype = self.grid_data.branch.at[branch, "type"]
+            maxnum_branchtype = self.branchtypes[branchtype]["max_num"]
+            max_num = maxnum_branchtype * self.grid_data.branch.at[branch, f"expand_{period}"]
             expr = self.v_branch_new_cables[branch, period] <= max_num
             return expr
 
@@ -319,7 +318,8 @@ class SipModel(pyo.ConcreteModel):
 
         # No new node capacity without new nodes
         def rule_new_nodes(model, node, period):
-            max_node_cap = const.MAX_NODE_NEW_CAPACITY
+            nodetype = self.grid_data.node.at[node, "type"]
+            max_node_cap = self.nodetypes[nodetype]["max_cap"]  # max (node num is binary, not integer)
             expr = self.v_node_new_capacity[node, period] <= max_node_cap * self.v_new_nodes[node, period]
             return expr
 
@@ -327,7 +327,8 @@ class SipModel(pyo.ConcreteModel):
 
         # Limit new generator capacity
         def rule_gen_new_capacity(model, gen, period):
-            maxcap = const.MAX_GEN_NEW_CAPACITY
+            gentype = self.grid_data.generator.at[gen, "type"]
+            maxcap = self.gentypes[gentype]["max_cap"]  # max sum (generators have no unit costs)
             if self.grid_data.generator.at[gen, "p_maxNew"] > 0:
                 maxcap = self.grid_data.generator.at[gen, "p_maxNew"]
             max_value = maxcap * self.grid_data.generator.at[gen, f"expand_{period}"]
@@ -556,7 +557,10 @@ class SipModel(pyo.ConcreteModel):
     def costBranch(self, branch, period):
         """Expression for cost of branch, investment cost no discounting"""
         b_cost = 0
-
+        # HGS 14.dec 2023: This simplifies expression, but makes no significant difference for coeff range.
+        #        if self.grid_data.branch.at[branch,f"expand_{period}"]==0:
+        #            # if branch capacity is not expandable, exclue from objective since it is unnecessary
+        #            return b_cost
         var_num = self.v_branch_new_cables
         var_cap = self.v_branch_new_capacity
         branchtype = self.grid_data.branch.at[branch, "type"]
