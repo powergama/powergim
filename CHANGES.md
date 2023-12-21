@@ -1,5 +1,8 @@
 # Changes
 
+- Change units for cost data input. Costs in Million (MEUR) and power in GW
+- Add options for load flexibility (shiftable and price sensitive)
+
 ## v0.5.0
 - Change input data format for generator fuel costs
 

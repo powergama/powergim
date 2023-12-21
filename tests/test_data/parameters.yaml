@@ -1,69 +1,76 @@
 nodetype:
-    ac: { L: 1, S: 50e6, Lp: 0, Sp: 0 }
-    hvdc: { L: 1, S: 1, Lp: 0, Sp: 0 }
+    ac: { L: 1e-6, S: 50, Lp: 0, Sp: 0, max_cap: 1e5 }
+    hvdc: { L: 1e-6, S: 1e-6, Lp: 0, Sp: 0, max_cap: 1e5 }
 branchtype:
     ac:
-        B: 5000e3
-        Bdp: 1.15e3
-        Bd: 656e3
-        CL: 1562e3
+        B: 5.000
+        Bdp: 1.15
+        Bd: 0.656
+        CL: 1.562
         CLp: 0
-        CS: 4813e3
+        CS: 4.813
         CSp: 0
         max_cap: 400
+        max_num: 5
         loss_fix: 0
         loss_slope: 5e-5
     dcmesh:
-        B: 5000e3
-        Bdp: 0.47e3
-        Bd: 680e3
+        B: 5.000
+        Bdp: 0.47
+        Bd: 0.680
         CL: 0
         CLp: 0
         CS: 0
         CSp: 0
         max_cap: 2000
+        max_num: 5
         loss_fix: 0
         loss_slope: 3e-5
     dcdirect:
-        B: 5000e3
-        Bdp: 0.47e3
-        Bd: 680e3
-        CL: 20280e3
-        CLp: 118.28e3
-        CS: 129930e3
-        CSp: 757.84e3
+        B: 5.000
+        Bdp: 0.47
+        Bd: 0.680
+        CL: 20.280
+        CLp: 118.28
+        CS: 129.930
+        CSp: 757.84
         max_cap: 2000
+        max_num: 5
         loss_fix: 0.032
         loss_slope: 3e-5
     conv:
         B: 0
         Bdp: 0
         Bd: 0
-        CL: 10140e3
-        CLp: 59.14e3
-        CS: 64965e3
-        CSp: 378.92e3
+        CL: 10.140
+        CLp: 59.14
+        CS: 64.965
+        CSp: 378.92
         max_cap: 2000
+        max_num: 5
         loss_fix: 0.016
         loss_slope: 0
     ac_ohl:
         B: 0
-        Bdp: 0.394e3
-        Bd: 1187e3
-        CL: 1562e3
+        Bdp: 0.394
+        Bd: 1.187
+        CL: 1.562
         CLp: 0
         CS: 0
         CSp: 0
         max_cap: 4000
+        max_num: 5
         loss_fix: 0
         loss_slope: 3e-5
 gentype:
     alt:
-        CX: 10
+        Cp: 0.010
         CO2: 0
+        max_cap: 1e5
     wind:
-        CX: 0
+        Cp: 0
         CO2: 0
+        max_cap: 1e5
 parameters:
     investment_years: [2025, 2028]
     finance_interest_rate: 0.05

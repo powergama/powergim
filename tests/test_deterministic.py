@@ -47,9 +47,9 @@ def test_deterministic():
     # Check results are as expected
     print(f"Objective = {pyo.value(sip.OBJ)}")
     # print(all_var_values.keys())
-    assert pyo.value(sip.OBJ) == pytest.approx(15189.51e9)
-    assert all_var_values["v_investment_cost"][2025] == pytest.approx(18.54166e9)
-    assert all_var_values["v_investment_cost"][2028] == pytest.approx(27.54888e9)
+    assert pyo.value(sip.OBJ) == pytest.approx(15189.51e3)
+    assert all_var_values["v_investment_cost"][2025] == pytest.approx(18.54166e3)
+    assert all_var_values["v_investment_cost"][2028] == pytest.approx(27.54888e3)
 
     expected_branch_new_capacity = pd.read_csv(
         TEST_DATA_ROOT_PATH / "expected_branch_new_capacity.csv", index_col=["s_branch", "s_period"]
