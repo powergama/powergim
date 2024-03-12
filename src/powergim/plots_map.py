@@ -44,7 +44,7 @@ def plot_map(
         radius (degrees) of circle on which overlapping nodes are
         spread (use eg 0.04)
     include_zero_capacity : bool
-        include branches and generators even if they have zero capacity
+        include branches and generators even if they have zero capacity (but are expandable)
     add_folium_node : bool
         include folium layer control.
     kwargs : arguments passed on to folium.Map(...)
@@ -300,7 +300,10 @@ def plot_map(
     for thenode, genindices in groups.groups.items():
         locationsN = []
         locationsG = []
-        marker_cluster = folium.plugins.MarkerCluster(icon_create_function=gencluster_icon_create_function)
+        options = dict(maxClusterRadius=1)  # only cluster if lat/lon are the same.
+        marker_cluster = folium.plugins.MarkerCluster(
+            icon_create_function=gencluster_icon_create_function, options=options
+        )
         marker_cluster.add_to(feature_group_Generators)
         for genind in genindices:
             n = generator.loc[genind]
