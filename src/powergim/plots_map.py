@@ -65,8 +65,9 @@ def plot_map(
     generator["expand"] = generator[[f"expand_{p}" for p in years]].sum(axis=1)
     node["expand"] = node[[f"expand_{p}" for p in years]].sum(axis=1)
     consumer["demand_avg"] = consumer[[f"demand_{p}" for p in years]].sum(axis=1)
-    if f"flow_{years[0]}" in branch.columns:
-        branch["flow"] = branch[[f"flow_{p}" for p in years]].mean(axis=1)
+    if f"flow_{years[-1]}" in branch.columns:
+        # Use flow from the last period:
+        branch["flow"] = branch[f"flow_{years[-1]}"]
         branch["utilisation"] = branch["flow"].abs() / branch["capacity"]
 
     if spread_nodes_r is not None:
@@ -131,6 +132,16 @@ def plot_map(
                                           {"color":colour} );
                 polyline.bindPopup(row[2]);
                 return polyline;
+            }"""
+    callbackFlowArrow = """function (row,colour) {
+               if (colour=='') {
+                   colour=row[3]
+               }
+               var marker = L.circleMarker(new L.LatLng(row[0],row[1]),
+                                           {"radius":row[4],
+                                            "color":colour} );
+                      marker.bindPopup(row[2]);
+                      return marker;
             }"""
 
     # print("Nodes...")
@@ -230,6 +241,7 @@ def plot_map(
     else:
         value_col = None
     locationsB = []
+    locationsB_flow_direction = []
     for i, n in branch.iterrows():
         if (not include_zero_capacity) and (n["capacity"] == 0):
             # skip this branch
@@ -244,7 +256,30 @@ def plot_map(
                 f"Branch={i} ({n['node_from']}-{n['node_to']}), type = {n['type']}, capacity={n['capacity']:g}",
             ]
             if "flow" in n:
-                data[2] = f"{data[2]}, flow={n['flow']:g}"
+                str_flows = "<br>".join(
+                    f"flow12_{y}={n[f'flow12_{y}']:g}, flow21_{y}={n[f'flow21_{y}']:g}" for y in years
+                )
+                # data[2] = f"{data[2]}, flow={n['flow']:g}"
+                data[2] = f"{data[2]},<br>{str_flows} <br>flow={n[f'flow']:g} <br>utilisation={n[f'utilisation']:g}"
+
+                # flow direction marker:
+                # if f"flow12_{years[-1]}" in n:
+                if n[f"flow12_{years[-1]}"] + n[f"flow21_{years[-1]}"] == 0:
+                    d = 0.5
+                else:
+                    d = min(
+                        0.9, max(0.1, n[f"flow12_{years[-1]}"] / (n[f"flow12_{years[-1]}"] + n[f"flow21_{years[-1]}"]))
+                    )
+                (flow_lat, flow_lon) = _pointBetween((n["lat_x"], n["lon_x"]), (n["lat_y"], n["lon_y"]), weight=d)
+                radius = 6  # node radius=3
+                data2 = [
+                    flow_lat,
+                    flow_lon,
+                    f"flow12_{years[-1]}: {n[f'flow12_{years[-1]}']:8.2f}<br>flow21_{years[-1]}: {n[f'flow21_{years[-1]}']:8.2f}",
+                    colour,
+                    radius,
+                ]
+                locationsB_flow_direction.append(data2)
             if value_col is not None:
                 colHex = cm_branch(n[value_col])
                 data.append(colHex)
@@ -254,10 +289,16 @@ def plot_map(
             locationsB.append(data)
         else:
             print("Missing lat/lon for node index={}".format(i))
+
     feature_group_Branches = folium.FeatureGroup(name="Branches").add_to(m)
     FeatureCollection(locationsB, callback=callbackBranch, addto=feature_group_Branches, colour=colour).add_to(
         feature_group_Branches
     )
+    if f"flow_{years[-1]}" in branch.columns:
+        feature_group_Branches_flowdirection = folium.FeatureGroup(name="flow direction").add_to(feature_group_Branches)
+        FeatureCollection(
+            locationsB_flow_direction, callback=callbackFlowArrow, addto=feature_group_Branches_flowdirection, colour=""
+        ).add_to(feature_group_Branches_flowdirection)
 
     # print("Consumers...")
     locationsN = []
@@ -322,13 +363,18 @@ def plot_map(
                 ]
                 col = cm_stepG(typeind)
                 data.append(col)
-                locationsN.append(data)
                 dataG = [
                     [n["lat"], n["lon"]],
                     [n["lat_node"], n["lon_node"]],
                     "{}<br>Generator {}: {}, pmax={:g}".format(gentype, genind, n["desc"], n["capacity"]),
                 ]
+                if f"output_{years[-1]}" in n:
+                    str_output = "<br>".join(f"output_{y}={n[f'output_{y}']:g}" for y in years)
+                    data[2] = f"{data[2]},<br>{str_output}"
+                    dataG[2] = f"{dataG[2]},<br>{str_output}"
+                locationsN.append(data)
                 locationsG.append(dataG)
+
             else:
                 print("Missing lat/lon for node index={}".format(i))
 
@@ -408,3 +454,59 @@ class FeatureCollection(folium.map.FeatureGroup):
             })();
             {% endmacro %}"""
         )
+
+
+def _pointBetween(nodeA, nodeB, weight):
+    """computes coords on the line between two points
+
+     (lat,lon) = pointBetween(self,lat1,lon1,lat2,lon2,d)
+
+    Parameters
+    ----------
+        nodeA: dublet (lat,lon)
+            latitude/longitude of nodeA (degrees)
+        nodeB: dublet (lat,lon)
+            latitude/longitude of nodeB (degrees)
+        weight: double
+            weight=0 is node A, 0.5 is halfway between, and 1 is node B
+
+    Returns
+    -------
+        (lat,lon): dublet
+            coordinates of the point inbetween nodeA and nodeB (degrees)
+
+
+     ref: http://www.movable-type.co.uk/scripts/latlong.html
+    """
+    lat1 = nodeA[0]
+    lon1 = nodeA[1]
+    lat2 = nodeB[0]
+    lon2 = nodeB[1]
+    if (lat1 == lat2) and (lon1 == lon2):
+        lat = lat1
+        lon = lon1
+    else:
+        # transform to radians
+        lat1 = lat1 * math.pi / 180
+        lat2 = lat2 * math.pi / 180
+        lon1 = lon1 * math.pi / 180
+        lon2 = lon2 * math.pi / 180
+
+        # initial bearing
+        y = math.sin(lon2 - lon1) * math.cos(lat2)
+        x = math.cos(lat1) * math.sin(lat2) - math.sin(lat1) * math.cos(lat2) * math.cos(lon2 - lon1)
+        bearing = math.atan2(y, x)
+
+        # angular distance from A to B
+        d_tot = math.acos(math.sin(lat1) * math.sin(lat2) + math.cos(lat1) * math.cos(lat2) * math.cos(lon2 - lon1))
+        d = d_tot * weight
+
+        lat = math.asin(math.sin(lat1) * math.cos(d) + math.cos(lat1) * math.sin(d) * math.cos(bearing))
+        lon = lon1 + math.atan2(
+            math.sin(bearing) * math.sin(d) * math.cos(lat1), math.cos(d) - math.sin(lat1) * math.sin(lat)
+        )
+
+        # tansform to degrees
+        lat = lat * 180 / math.pi
+        lon = lon * 180 / math.pi
+    return (lat, lon)
