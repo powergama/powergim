@@ -779,10 +779,10 @@ class SipModel(pyo.ConcreteModel):
         all_obj = self.component_objects(ctype=pyo.Var)
         for myvar in all_obj:
             # extract the variable index names in the right order
-            if myvar._implicit_subsets is None:
-                index_names = None
-            else:
-                index_names = [index_set.name for index_set in myvar._implicit_subsets]
+            # if myvar.index_set().subsets() is None:
+            #    index_names = None
+            # else:
+            #    index_names = [index_set.name for index_set in myvar.index_set().subsets()]
             var_values = myvar.get_values()
             if not var_values:
                 # empty dictionary, so no variables to store
@@ -790,8 +790,14 @@ class SipModel(pyo.ConcreteModel):
                 continue
             # This creates a pandas.Series:
             df = pd.DataFrame.from_dict(var_values, orient="index", columns=["value"])["value"]
-            if index_names is not None:
+            index_names = [index_set.name for index_set in myvar.index_set().subsets()]
+            if len(index_names) > 1:
                 df.index = pd.MultiIndex.from_tuples(df.index, names=index_names)
+            else:
+                df.index.name = index_names[0]
+            # if index_names is not None:
+            #    print(myvar.name, index_names)
+            #    df.index = pd.MultiIndex.from_tuples(df.index, names=index_names)
 
             # ignore NA values
             df = df.dropna()
@@ -816,13 +822,24 @@ class SipModel(pyo.ConcreteModel):
         for y in years:
             nodes[f"capacity_{y}"] = nodes[f"capacity_{y}"] + new_node_cap[y]
             branches[f"capacity_{y}"] = branches[f"capacity_{y}"] + new_branch_cap[y]
+            # mean absolute flow:
             branches[f"flow_{y}"] = (
                 (
                     all_var_values["v_branch_flow12"].unstack("s_period")
-                    - all_var_values["v_branch_flow21"].unstack("s_period")
+                    + all_var_values["v_branch_flow21"].unstack("s_period")
                 )[y]
                 .unstack("s_time")
                 .mean(axis=1)
+            )
+            # mean directional flow:
+            branches[f"flow12_{y}"] = (
+                all_var_values["v_branch_flow12"].unstack("s_period")[y].unstack("s_time").mean(axis=1)
+            )
+            branches[f"flow21_{y}"] = (
+                all_var_values["v_branch_flow21"].unstack("s_period")[y].unstack("s_time").mean(axis=1)
+            )
+            generators[f"output_{y}"] = (
+                all_var_values["v_generation"].unstack("s_period")[y].unstack("s_time").mean(axis=1)
             )
         grid_res = powergim.grid_data.GridData(years, nodes, branches, generators, consumers)
         return grid_res
