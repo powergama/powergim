@@ -6,3 +6,4 @@ from .results_plots import grid_data_result_mh, get_mh_optimal_solution_per_pgim
 from .evpi import calc_evpi
 from .decomposition import MultiHorizonPgim,BendersDecomp,DantzigWolfeDecomp
 from .utils_spi import extract_all_opt_variable_values,TimeseriesBuilder,ReferenceModelCreator,ParamsExtractor,CaseMapVisualizer
+from .bd import run_case_bd
