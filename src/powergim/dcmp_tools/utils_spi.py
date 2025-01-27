@@ -70,8 +70,8 @@ class TimeseriesBuilder:
     def __init__(self, 
                  PGIM_INPUT_FILES_PATH:Path,
                  data_year={'res_ts':'2009', 'load_ts':'2020'},
-                 ninja_token='488b608083ae3857422102791393e618cc4075b5',
-                 entsoe_key='b0ed9514-b57e-417f-90fd-d4a377299d78',
+                 ninja_token=None,
+                 entsoe_key=None,
                  custom_ts_data_path=None
                  ):
         
