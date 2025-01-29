@@ -7,7 +7,7 @@ VIZUALIZE RESULTS FOR THE DIFFERENT MODELS (PGIM, MH, BD)
 """
 #%%
 import powergim
-from powergim.plots_map2 import plot_map2
+# from powergim.plots_map2 import plot_map2
 from pathlib import Path
 from .utils_spi import  CaseMapVisualizer, ReferenceModelCreator
 import json
