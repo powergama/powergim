@@ -14,7 +14,7 @@ INPUT_OPTIONS = {'PATH_INPUT': Path(__file__).parents[1] / "examples"/ "inputs"/
                  'BENDERS_SINGLE_CUT': False,
                  'MH_USE_BIN_EXPANS': False,
                  'MH_USE_FIXED_CAP': False,
-                 'LP_SOLVER': 'glpk', # normally 'gurobi', set to 'glpk' for testing
+                 'LP_SOLVER': 'appsi_highs', # normally 'gurobi', set to 'appsi_highs' for testing
                  'DO_CALC_VSS_EVPI': True,
                  'DO_CNVRG_PLOT': False,
                  'DO_VIZ': False}
