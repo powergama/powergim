@@ -1,7 +1,7 @@
 import pyomo.environ as pyo
 from pyomo.opt import TerminationCondition
-import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
+# import matplotlib.pyplot as plt
+# import matplotlib.ticker as ticker
 import powergim as pgim
 from .vss import calc_vss
 from .results_plots import create_interactive_maps_results,create_geopandas_figures_results

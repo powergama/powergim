@@ -12,9 +12,8 @@ from pathlib import Path
 from .utils_spi import  CaseMapVisualizer, ReferenceModelCreator
 import json
 import cloudpickle
-import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
-# from .mh_plot_map import grid_data_result_mh
+# import matplotlib.pyplot as plt
+# import matplotlib.colors as mcolors
 import pandas as pd
 from .decomposition import MultiHorizonPgim
 
