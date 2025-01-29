@@ -87,10 +87,10 @@ def do_mh(input_options:dict,
     mh_ref.create_multi_horizon_problem(USE_BIN_EXPANS=input_options['MH_USE_BIN_EXPANS'],USE_FIXED_CAP_LINES=input_options['MH_USE_FIXED_CAP'])
     
     #-----------------------------SOLVING MULTI-HORIZON PROBLEM-----------------------------
-    solver = pyo.SolverFactory('gurobi')
+    solver = pyo.SolverFactory('glpk') # normally 'gurobi', set to 'glpk' for testing
     # Set Gurobi solver parameters
-    solver.options['TimeLimit'] = 60*60*3
-    solver.options['MIPGap'] = 0.00001
+    # solver.options['TimeLimit'] = 60*60*3
+    # solver.options['MIPGap'] = 0.00001
 
     results = solver.solve(mh_ref.non_decomposed_model,tee=True,keepfiles=False,symbolic_solver_labels=True)
     
@@ -118,10 +118,10 @@ def solve_pgim_ref(input_options:dict,
     #-----------------------------SOLVING PGIM MODEL-----------------------------
     if not input_options['IS_STOCHASTIC']:
 
-        solver = pyo.SolverFactory('gurobi')
+        solver = pyo.SolverFactory('glpk') # normally 'gurobi', set to 'glpk' for testing
         # Set Gurobi solver parameters
-        solver.options['TimeLimit'] = 60*60*3
-        solver.options['MIPGap'] = 0.00001
+        # solver.options['TimeLimit'] = 60*60*3
+        # solver.options['MIPGap'] = 0.00001
         
         results = solver.solve(pgim_ref.ref_pgim_model,tee=True,keepfiles=False,symbolic_solver_labels=True)
         
@@ -262,9 +262,9 @@ def solve_pgim_ref(input_options:dict,
         my_pgim_stochastic_model_ef = mpisppy.utils.sputils.create_EF(mh_ref.scenario_names,scenario_creator=my_mpisppy_scenario_creator)
 
         # Solve the EF
-        solver = pyo.SolverFactory("gurobi")
-        solver.options['TimeLimit'] = 60*60*3 # seconds
-        solver.options['MIPGap'] = 0.00001
+        solver = pyo.SolverFactory("glpk") # normally 'gurobi', set to 'glpk' for testing
+        # solver.options['TimeLimit'] = 60*60*3 # seconds
+        # solver.options['MIPGap'] = 0.00001
 
         solver.solve(my_pgim_stochastic_model_ef,tee=True,symbolic_solver_labels=True)
 
