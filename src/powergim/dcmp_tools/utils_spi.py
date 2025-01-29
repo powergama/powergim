@@ -9,9 +9,9 @@ Utility functions/classes definitions:
 @author: spyridonc
 """
 from pathlib import Path
-import folium
-import folium.plugins
-from folium import plugins
+# import folium
+# import folium.plugins
+# from folium import plugins
 import numpy as np
 import webbrowser
 import requests
