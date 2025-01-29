@@ -18,7 +18,7 @@ import requests
 import json
 import time
 import pandas as pd
-from entsoe import EntsoePandasClient
+# from entsoe import EntsoePandasClient
 import pyomo.environ as pyo
 import os
 from itertools import product
