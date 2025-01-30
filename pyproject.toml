@@ -14,7 +14,7 @@ requires-python = ">=3.10"
 dependencies = [
   "numpy >=1.23.0",
   "pandas >=1.5.0",
-  "Pyomo >=6.4.2,<=6.6.2",
+  "Pyomo >=6.4.2",
   "mpi-sppy >=0.11.1",
   "mpi4py >=3.1.1",
   "scipy >=1.9.1",
