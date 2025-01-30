@@ -15,7 +15,6 @@ import copy
 import datetime as dtime
 from datetime import datetime, timedelta
 import time
-import math
 import json
 import os
 import cloudpickle
@@ -60,7 +59,8 @@ def pgim_ref_init(input_options:dict):
    
 #%%
 def do_mh(input_options:dict,
-          pgim_ref:ReferenceModelCreator
+          pgim_ref:ReferenceModelCreator,
+          mip_solver:str = 'glpk' # TODO: make automatic checks for admissible values: 'gurobi', 'glpk'
           ):
     """Formulates the multi-horizon version of the refernce `pgim` model and solves it.
 
@@ -87,7 +87,7 @@ def do_mh(input_options:dict,
     mh_ref.create_multi_horizon_problem(USE_BIN_EXPANS=input_options['MH_USE_BIN_EXPANS'],USE_FIXED_CAP_LINES=input_options['MH_USE_FIXED_CAP'])
     
     #-----------------------------SOLVING MULTI-HORIZON PROBLEM-----------------------------
-    solver = pyo.SolverFactory('glpk') # normally 'gurobi', set to 'glpk' for testing
+    solver = pyo.SolverFactory(mip_solver) 
     # Set Gurobi solver parameters
     # solver.options['TimeLimit'] = 60*60*3
     # solver.options['MIPGap'] = 0.00001
@@ -102,7 +102,8 @@ def do_mh(input_options:dict,
 #%%
 def solve_pgim_ref(input_options:dict,
                    pgim_ref:ReferenceModelCreator,
-                   mh_ref:MultiHorizonPgim
+                   mh_ref:MultiHorizonPgim,
+                   mip_solver:str = 'glpk' # TODO: make automatic checks for admissible values: 'gurobi', 'glpk'
                    ):
     """Solves the `pgim` referennce model.
 
@@ -118,10 +119,11 @@ def solve_pgim_ref(input_options:dict,
     #-----------------------------SOLVING PGIM MODEL-----------------------------
     if not input_options['IS_STOCHASTIC']:
 
-        solver = pyo.SolverFactory('glpk') # normally 'gurobi', set to 'glpk' for testing
+        solver = pyo.SolverFactory(mip_solver)
         # Set Gurobi solver parameters
-        # solver.options['TimeLimit'] = 60*60*3
-        # solver.options['MIPGap'] = 0.00001
+        if mip_solver == 'gurobi':
+            solver.options['TimeLimit'] = 60*60*3
+            solver.options['MIPGap'] = 0.00001
         
         results = solver.solve(pgim_ref.ref_pgim_model,tee=True,keepfiles=False,symbolic_solver_labels=True)
         
@@ -262,9 +264,10 @@ def solve_pgim_ref(input_options:dict,
         my_pgim_stochastic_model_ef = mpisppy.utils.sputils.create_EF(mh_ref.scenario_names,scenario_creator=my_mpisppy_scenario_creator)
 
         # Solve the EF
-        solver = pyo.SolverFactory("glpk") # normally 'gurobi', set to 'glpk' for testing
-        # solver.options['TimeLimit'] = 60*60*3 # seconds
-        # solver.options['MIPGap'] = 0.00001
+        solver = pyo.SolverFactory(mip_solver)
+        if mip_solver == 'gurobi':
+            solver.options['TimeLimit'] = 60*60*3 # seconds
+            solver.options['MIPGap'] = 0.00001
 
         solver.solve(my_pgim_stochastic_model_ef,tee=True,symbolic_solver_labels=True)
 

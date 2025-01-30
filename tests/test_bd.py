@@ -2,6 +2,7 @@ import pytest
 from powergim.dcmp_tools import run_case_bd
 from datetime import datetime
 from pathlib import Path
+import pyomo.environ as pyo
 import math
 
 INPUT_OPTIONS = {'PATH_INPUT': Path(__file__).parents[1] / "examples"/ "inputs"/"CASE_BASELINE",
@@ -20,6 +21,7 @@ INPUT_OPTIONS = {'PATH_INPUT': Path(__file__).parents[1] / "examples"/ "inputs"/
                  'DO_VIZ': False}
 
 @pytest.mark.parametrize("stochastic_case",[False,True]) # tests both determinsitic and stochastic cases.
+@pytest.mark.skipif(not pyo.SolverFactory("glpk").available(), reason="Skipping test because GLPK is not available.")
 def test_run_case_bd(capsys,stochastic_case):
     
     test_input_options = INPUT_OPTIONS.copy()
