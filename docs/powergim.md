@@ -12,7 +12,8 @@ Contents:
     * [Parameters](#parameters)
 * [Analysis of results](#analysis-of-results)
 * [More about optimisation model](#more-about-the-powergim-optimisation-model)
-
+* Extensions:
+  * [Decomposition module](../src/powergim/dcmp_tools/README.md) (DCMP)
 
 ## Modelling documentation
 A separate (draft) document provides more details about the modelling framework and

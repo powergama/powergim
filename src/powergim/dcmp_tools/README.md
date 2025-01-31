@@ -2,7 +2,7 @@
 
 ---
 
-This subpackage provides additional utilities and unctionalities for solving `powergim` instances using decomposition (_dcmp_).
+This subpackage provides additional utilities and functionalities for solving `powergim` instances using decomposition (_dcmp_).
 
 ## Contents
 
