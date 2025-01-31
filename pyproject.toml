@@ -1,49 +1,42 @@
-[tool.poetry]
+[project]
 name = "powergim"
-version = "1.0.0"
+version = "1.1.0"
 description = "Power Grid Investment Module (PowerGIM)"
-authors = ["Harald G Svendsen <harald.svendsen@sintef.no>"]
-license = "MIT License (http://opensource.org/licenses/MIT)"
+authors = [
+  {name="Harald G Svendsen", email="harald.svendsen@sintef.no"}, 
+  {name="Martin Kristiansen"},
+  {name="Spyridon Chapaloglou"},
+  ]
+license = { text = "MIT" }
 readme = "README.md"
-homepage = "https://github.com/powergama/powergim"
-repository = "https://github.com/powergama/powergim"
-classifiers=[
-    "Development Status :: 4 - Beta",
-    "Topic :: Scientific/Engineering",
-    "Operating System :: Microsoft :: Windows",
-    "Operating System :: MacOS",
-    "Operating System :: POSIX :: Linux",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Natural Language :: English",
-    "License :: OSI Approved :: MIT License",
+
+requires-python = ">=3.10"
+dependencies = [
+  "numpy >=1.23.0",
+  "pandas >=1.5.0",
+  "Pyomo >=6.4.2",
+  "mpi-sppy >=0.11.1",
+  "mpi4py >=3.1.1",
+  "scipy >=1.9.1",
+  "ipywidgets >=8",
+  "pydantic >=1.10.0",
+  "jupyterlab >=3.4.7",
+  "scikit-learn >=1.1.2",
+  "openpyxl >=3.0.10",
+  "geopandas >=0.12.1",
+  "cloudpickle >=2.2.0",
+  "networkx >=3.0",
+   "highspy >=1.9.0",
+   "ruamel-yaml (>=0.18.10,<0.19.0)",
 ]
 
-[tool.poetry.dependencies]
-python = ">=3.10,<3.12"
-numpy = "^1.23.0"
-pandas = "^1.5.0"
-"ruamel.yaml" = "^0.17.21"
-Pyomo = "^6.4.2"
-mpi-sppy = "^0.11.1"
-mpi4py = "^3.1.1"
-scipy = "^1.9.1"
-ipywidgets = "^8"
-pydantic = "^1.10.0"
-jupyterlab = "^3.4.7"
-scikit-learn = "^1.1.2"
-matplotlib = {version = "^3.7.1", optional = true}
-plotly = {version = "^5.13.1", optional = true}
-seaborn = {version = "^0.12.2", optional = true}
-branca = {version = "^0.6", optional = true}
-folium = {version = "^0.14", optional = true}
-jinja2 = {version = "^3.1", optional = true}
-openpyxl = "^3.0.10"
-geopandas = "^0.12.1"
-cloudpickle = "^2.2.0"
-networkx = "^3.0"
+[project.optional-dependencies]
+plotting = ["matplotlib","seaborn", "plotly", "folium", "branca", "jinja2"]
 
-[tool.poetry.dev-dependencies]
+[project.urls]
+repository = "https://github.com/powergama/powergim"
+
+[tool.poetry.group.dev.dependencies]
 pytest = "^7"
 mypy = ">=0.96"
 pylint = "^2"
@@ -53,9 +46,6 @@ bandit = "^1.7.4"
 flake8 = "^5.0.4"
 setuptools = "^65.6.3"
 pre-commit = "^2.20.0"
-
-[tool.poetry.extras]
-plotting = ["matplotlib","seaborn", "plotly", "folium", "branca", "jinja2"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

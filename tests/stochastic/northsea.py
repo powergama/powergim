@@ -87,7 +87,7 @@ def solve_ph(solver_name):
 
     # Solve via progressive hedging (PH)
     options = {
-        "solvername": solver_name,
+        "solver_name": solver_name,
         "PHIterLimit": 5,
         "defaultPHrho": 10,
         "convthresh": 1e-7,

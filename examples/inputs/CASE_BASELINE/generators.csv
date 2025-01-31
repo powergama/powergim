@@ -1,0 +1,184 @@
+﻿desc,type,node,existing_2030,capacity_2035,capacity_2040,capacity_2050,expand_2035,expand_2040,expand_2050,pmin,allow_curtailment,fuelcost_2035,fuelcost_2040,fuelcost_2050,fuelcost_ref,pavg,inflow_fac,inflow_ref,cost_scaling,p_maxNew,lat,lon,comment
+BE_gas,gas,BE_main,8730.6,11874.1,3143.5,7661.96446,0,0,0,0,1,30,39,49,const,0,1,const,1,0,,,mainland
+BE_hydro,hydro,BE_main,1372.201996,1373.601997,1.400001525,0,0,0,0,0,1,25,25,25,const,0.6,1,const,1,0,,,mainland
+BE_oil,oil,BE_main,158,158,0,-18,0,0,0,0,1,57,67,78,const,0,1,const,1,0,,,mainland
+BE_nonres_other,nonres_other,BE_main,819.243568,730.5726469,-88.6709211,1.14E-13,0,0,0,0,1,35,51,68,const,0,1,const,1,0,,,mainland
+BE_res_other,res_other,BE_main,903.6,903.6,0,0,0,0,0,0,1,74,61,50,const,0,1,const,1,0,,,mainland
+BE_solar,solar,BE_main,17063,24733.955,7670.955,10900.52,0,0,0,0,1,0,0,0,const,0,1,solar_BE_main,1,0,,,mainland
+BE_windon,windon,BE_main,5247.92,7053.465,1805.545,1580.99,0,0,0,0,1,0,0,0,const,0,1,windon_BE_main,1,0,,,mainland
+DE_coal,coal,DE_main,9030.9,9030.9,0,0,0,0,0,0,1,35,50,66,const,0,1,const,1,0,,,mainland
+DE_gas,gas,DE_main,35057.227,50137.817,15080.59,4070.7,0,0,0,0,1,30,39,49,const,0,1,const,1,0,,,mainland
+DE_hydro,hydro,DE_main,15054.53992,15189.53992,135,0,0,0,0,0,1,25,25,25,const,0.6,1,const,1,0,,,mainland
+DE_oil,oil,DE_main,850.93,744.07,-106.86,-493.4,0,0,0,0,1,57,67,78,const,0,1,const,1,0,,,mainland
+DE_nonres_other,nonres_other,DE_main,8698.580078,8631.790039,-66.790039,0,0,0,0,0,1,35,51,68,const,0,1,const,1,0,,,mainland
+DE_res_other,res_other,DE_main,7570.4,8113.8,543.4,0,0,0,0,0,1,74,61,50,const,0,1,const,1,0,,,mainland
+DE_solar,solar,DE_main,123439.82,188236.18,64796.36,53416.45,0,0,0,0,1,0,0,0,const,0,1,solar_DE_main,1,0,,,mainland
+DE_windon,windon,DE_main,84671.72,105914.68,21242.96,24417.02,0,0,0,0,1,0,0,0,const,0,1,windon_DE_main,1,0,,,mainland
+DK_gas,gas,DK_main,1324.11,3366.095,2041.985,773.341662,0,0,0,0,1,30,39,49,const,0,1,const,1,0,,,mainland
+DK_oil,oil,DK_main,811.39,804.39,-7,-525.97,0,0,0,0,1,57,67,78,const,0,1,const,1,0,,,mainland
+DK_nonres_other,nonres_other,DK_main,60.94136901,53.86669324,-7.074675775,0,0,0,0,0,1,35,51,68,const,0,1,const,1,0,,,mainland
+DK_res_other,res_other,DK_main,2506.274191,2114.589191,-391.685,-921.23,0,0,0,0,1,74,61,50,const,0,1,const,1,0,,,mainland
+DK_solar,solar,DK_main,17187.89,24238.365,7050.475,13384.79,0,0,0,0,1,0,0,0,const,0,1,solar_DK_main,1,0,,,mainland
+DK_windon,windon,DK_main,6057.92,7047.9,989.98,2779.34,0,0,0,0,1,0,0,0,const,0,1,windon_DK_main,1,0,,,mainland
+NL_gas,gas,NL_main,13961.3,28595.8,14634.5,3430.07681,0,0,0,0,1,30,39,49,const,0,1,const,1,0,,,mainland
+NL_hydro,hydro,NL_main,37.70000076,37.70000076,0,0,0,0,0,0,1,25,25,25,const,0.6,1,const,1,0,,,mainland
+NL_nuclear,nuclear,NL_main,486,486,0,0,0,0,0,0,1,1.7,1.7,1.7,const,0,1,const,1,0,,,mainland
+NL_nonres_other,nonres_other,NL_main,1796.824014,1357.158515,-439.6654992,0,0,0,0,0,1,35,51,68,const,0,1,const,1,0,,,mainland
+NL_res_other,res_other,NL_main,3900,2250,-1650,0,0,0,0,0,1,74,61,50,const,0,1,const,1,0,,,mainland
+NL_solar,solar,NL_main,50418.19,63666.275,13248.085,42555.06,0,0,0,0,1,0,0,0,const,0,1,solar_NL_main,1,0,,,mainland
+NL_windon,windon,NL_main,9478.07,12539.53,3061.46,4399.25,0,0,0,0,1,0,0,0,const,0,1,windon_NL_main,1,0,,,mainland
+SE_gas,gas,SE_main,110.789,5030.289,4919.5,-6493.11052,0,0,0,0,1,30,39,49,const,0,1,const,1,0,,,mainland
+SE_hydro,hydro,SE_main,16447.1001,16447.1001,0,0,0,0,0,0,1,25,25,25,const,0.6,1,const,1,0,,,mainland
+SE_nuclear,nuclear,SE_main,3687,3687,0,0,0,0,0,0,1,1.7,1.7,1.7,const,0,1,const,1,0,,,mainland
+SE_res_other,res_other,SE_main,4754.76,4754.76,0,0,0,0,0,0,1,74,61,50,const,0,1,const,1,0,,,mainland
+SE_solar,solar,SE_main,11813.45,16058.445,4244.995,9933.63,0,0,0,0,1,0,0,0,const,0,1,solar_SE_main,1,0,,,mainland
+SE_windon,windon,SE_main,23333.12,29708.15,6375.03,6947.82,0,0,0,0,1,0,0,0,const,0,1,windon_SE_main,1,0,,,mainland
+UK_gas,gas,UK_main,22930.87,37170.37,14239.5,15983.15085,0,0,0,0,1,30,39,49,const,0,1,const,1,0,,,mainland
+UK_hydro,hydro,UK_main,4839.110107,4937.255005,98.14489746,0,0,0,0,0,1,25,25,25,const,0.6,1,const,1,0,,,mainland
+UK_nuclear,nuclear,UK_main,4460,4460,0,1110,0,0,0,0,1,1.7,1.7,1.7,const,0,1,const,1,0,,,mainland
+UK_oil,oil,UK_main,70.8,70.8,0,0,0,0,0,0,1,57,67,78,const,0,1,const,1,0,,,mainland
+UK_nonres_other,nonres_other,UK_main,3599.665107,3292.297181,-307.3679263,0,0,0,0,0,1,35,51,68,const,0,1,const,1,0,,,mainland
+UK_res_other,res_other,UK_main,6344.55,8029.025,1684.475,0,0,0,0,0,1,74,61,50,const,0,1,const,1,0,,,mainland
+UK_solar,solar,UK_main,41678.51,63798.235,22119.725,31468.25,0,0,0,0,1,0,0,0,const,0,1,solar_UK_main,1,0,,,mainland
+UK_windon,windon,UK_main,24179,30404.375,6225.375,24356.94,0,0,0,0,1,0,0,0,const,0,1,windon_UK_main,1,0,,,mainland
+NO_OSTLAND_hydro,hydro,NO_OSTLAND,2820.738307,2814.819669,-5.918637974,0,0,0,0,0,1,25,25,25,const,0.6,1,const,1,0,,,mainland
+NO_OSTLAND_nonres_other,nonres_other,NO_OSTLAND,265,265,0,0,0,0,0,0,1,35,51,68,const,0,1,const,1,0,,,mainland
+NO_OSTLAND_solar,solar,NO_OSTLAND,1454.48505,2446.179402,793.3554817,396.6777409,0,0,0,0,1,0,0,0,const,0,1,solar_NO_OSTLAND,1,0,,,mainland
+NO_OSTLAND_windon,windon,NO_OSTLAND,372.9798588,408.166638,49.26149079,24.6307454,0,0,0,0,1,0,0,0,const,0,1,windon_NO_OSTLAND,1,0,,,mainland
+NO_OSTLAND_gas,gas,NO_OSTLAND,0,37.1183153,37.1183153,0,0,0,0,0,1,30,39,49,const,0,1,const,1,0,,,mainland
+NO_SOROST_hydro,hydro,NO_SOROST,28.16378109,28.1046862,-0.059094892,0,0,0,0,0,1,25,25,25,const,0.6,1,const,1,0,,,mainland
+NO_SOROST_solar,solar,NO_SOROST,270.4318937,454.8172757,147.5083056,73.75415282,0,0,0,0,1,0,0,0,const,0,1,solar_NO_SOROST,1,0,,,mainland
+NO_HALLINGDAL_hydro,hydro,NO_HALLINGDAL,3106.590672,3100.072242,-6.518430114,0,0,0,0,0,1,25,25,25,const,0.6,1,const,1,0,,,mainland
+NO_HALLINGDAL_solar,solar,NO_HALLINGDAL,665.1162791,1118.604651,362.7906977,181.3953488,0,0,0,0,1,0,0,0,const,0,1,solar_NO_HALLINGDAL,1,0,,,mainland
+NO_HALLINGDAL_windon,windon,NO_HALLINGDAL,28.15335809,30.80933527,3.71836805,1.859184025,0,0,0,0,1,0,0,0,const,0,1,windon_NO_HALLINGDAL,1,0,,,mainland
+NO_TELEMARK_hydro,hydro,NO_TELEMARK,2152.772431,2148.255358,-4.517072934,0,0,0,0,0,1,25,25,25,const,0.6,1,const,1,0,,,mainland
+NO_TELEMARK_solar,solar,NO_TELEMARK,270.4318937,454.8172757,147.5083056,73.75415282,0,0,0,0,1,0,0,0,const,0,1,solar_NO_TELEMARK,1,0,,,mainland
+NO_SORLAND_hydro,hydro,NO_SORLAND,4966.811144,4956.389491,-10.42165343,0,0,0,0,0,1,25,25,25,const,0.6,1,const,1,0,,,mainland
+NO_SORLAND_solar,solar,NO_SORLAND,394.6843854,663.7873754,215.282392,107.641196,0,0,0,0,1,0,0,0,const,0,1,solar_NO_SORLAND,1,0,,,mainland
+NO_SORLAND_windon,windon,NO_SORLAND,382.2600398,418.3223077,50.48717507,25.24358754,0,0,0,0,1,0,0,0,const,0,1,windon_NO_SORLAND,1,0,,,mainland
+NO_VESTSYD_hydro,hydro,NO_VESTSYD,4059.007096,4050.49025,-8.516845919,0,0,0,0,0,1,25,25,25,const,0.6,1,const,1,0,,,mainland
+NO_VESTSYD_solar,solar,NO_VESTSYD,423.9202658,712.9568106,231.2292359,115.6146179,0,0,0,0,1,0,0,0,const,0,1,solar_NO_VESTSYD,1,0,,,mainland
+NO_VESTSYD_windon,windon,NO_VESTSYD,949.7587487,1039.358631,125.4398347,62.71991737,0,0,0,0,1,0,0,0,const,0,1,windon_NO_VESTSYD,1,0,,,mainland
+NO_VESTMIDT_hydro,hydro,NO_VESTMIDT,6418.183449,6404.716441,-13.46700763,0,0,0,0,0,1,25,25,25,const,0.6,1,const,1,0,,,mainland
+NO_VESTMIDT_solar,solar,NO_VESTMIDT,540.8637874,909.6345515,295.0166113,147.5083056,0,0,0,0,1,0,0,0,const,0,1,solar_NO_VESTMIDT,1,0,,,mainland
+NO_VESTMIDT_windon,windon,NO_VESTMIDT,516.1448983,564.8378132,68.17008091,34.08504045,0,0,0,0,1,0,0,0,const,0,1,windon_NO_VESTMIDT,1,0,,,mainland
+NO_NORGEMIDT_hydro,hydro,NO_NORGEMIDT,4777.993654,4767.968188,-10.02546554,0,0,0,0,0,1,25,25,25,const,0.6,1,const,1,0,,,mainland
+NO_NORGEMIDT_solar,solar,NO_NORGEMIDT,350.8305648,590.0332226,191.3621262,95.68106312,0,0,0,0,1,0,0,0,const,0,1,solar_NO_NORGEMIDT,1,0,,,mainland
+NO_NORGEMIDT_windon,windon,NO_NORGEMIDT,1841.933453,2015.70076,243.2742296,121.6371148,0,0,0,0,1,0,0,0,const,0,1,windon_NO_NORGEMIDT,1,0,,,mainland
+NO_HELGELAND_hydro,hydro,NO_HELGELAND,2334.426088,2329.527859,-4.898229254,0,0,0,0,0,1,25,25,25,const,0.6,1,const,1,0,,,mainland
+NO_HELGELAND_solar,solar,NO_HELGELAND,14.6179402,24.58471761,7.973421927,3.986710963,0,0,0,0,1,0,0,0,const,0,1,solar_NO_HELGELAND,1,0,,,mainland
+NO_HELGELAND_windon,windon,NO_HELGELAND,606.3399159,663.5417948,80.0826304,40.0413152,0,0,0,0,1,0,0,0,const,0,1,windon_NO_HELGELAND,1,0,,,mainland
+NO_TROMS_hydro,hydro,NO_TROMS,2304.705744,2299.869876,-4.835868291,0,0,0,0,0,1,25,25,25,const,0.6,1,const,1,0,,,mainland
+NO_TROMS_solar,solar,NO_TROMS,7.3089701,12.2923588,3.986710963,1.993355482,0,0,0,0,1,0,0,0,const,0,1,solar_NO_TROMS,1,0,,,mainland
+NO_TROMS_windon,windon,NO_TROMS,301.2148636,329.6313602,39.7830952,19.8915476,0,0,0,0,1,0,0,0,const,0,1,windon_NO_TROMS,1,0,,,mainland
+NO_FINNMARK_hydro,hydro,NO_FINNMARK,391.6076362,390.7859422,-0.82169403,0,0,0,0,0,1,25,25,25,const,0.6,1,const,1,0,,,mainland
+NO_FINNMARK_solar,solar,NO_FINNMARK,7.3089701,12.2923588,3.986710963,1.993355482,0,0,0,0,1,0,0,0,const,0,1,solar_NO_FINNMARK,1,0,,,mainland
+NO_FINNMARK_windon,windon,NO_FINNMARK,301.2148636,329.6313602,39.7830952,19.8915476,0,0,0,0,1,0,0,0,const,0,1,windon_NO_FINNMARK,1,0,,,mainland
+BE,windoff,BE0_0,4000,5000,1000,1000,0,0,0,0,1,0,0,0,const,0,1,windoff_BE,1,0,,,offshorewind
+DE,windoff,DE_L0,2000,2000,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_DE_LU,1,0,54.4027904,6.098272522,offshorewind
+DE,windoff,DE_L0,3300,3300,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_DE_LU,1,0,54.32682454,6.205172974,offshorewind
+DE,windoff,DE_L1,2800,2800,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_DE_LU,1,0,53.98348145,6.640846408,offshorewind
+DE,windoff,DE_L1,3200,3200,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_DE_LU,1,0,54.04457377,6.9364114,offshorewind
+DE,windoff,DE_L3,1900,1900,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_DE_LU,1,0,54.44244534,7.807016289,offshorewind
+DE,windoff,DE_L4,600,600,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_DE_LU,1,0,55.16841046,7.026667726,offshorewind
+DE,windoff,DE_dog,0,0,2000,2000,0,0,0,0,1,0,0,0,const,0,1,windoff_DE_LU,1,0,,,offshorewind
+DE,windoff,DE1,0,2000,2000,0,0,0,0,0,1,0,0,0,const,0,1,windoff_DE_LU,1,0,55.1857,5.5202,offshorewind
+DE,windoff,DE1,0,2000,2000,0,0,0,0,0,1,0,0,0,const,0,1,windoff_DE_LU,1,0,54.9592,5.1467,offshorewind
+DE,windoff,DE4,8600,8600,2000,0,0,0,0,0,1,0,0,0,const,0,1,windoff_DE_LU,1,0,,,offshorewind
+DE,windoff,DE5,0,2000,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_DE_LU,1,0,,,offshorewind
+DE,windoff,DE_L2_dc,3600,7600,2000,0,0,0,0,0,1,0,0,0,const,0,1,windoff_DE_LU,1,0,54.69075694,6.153616262,offshorewind
+DE,windoff,DE_L0,4000,4000,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_DE_LU,1,0,54.05059606,6.193929243,offshorewind
+DK,windoff,DK_east,2400,2400,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_DK_1,1,0,54.95274135,12.71917853,offshorewind
+DK,windoff,DK_east,2400,2400,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_DK_1,1,0,54.89541552,14.68985602,offshorewind
+DK,windoff,DK_hub,0,3000,4000,2000,0,0,0,0,1,0,0,0,const,0,1,windoff_DK_1,1,0,,,offshorewind
+DK,windoff,DK_L6,900,900,500,0,0,0,0,0,1,0,0,0,const,0,1,windoff_DK_1,1,0,56.37442456,6.891342572,offshorewind
+DK,windoff,DK_L0,1000,1000,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_DK_1,1,0,55.59370633,7.694128643,offshorewind
+DK,windoff,DK_L11,1400,1400,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_DK_1,1,0,56.781615,10.75060965,offshorewind
+DK,windoff,DK_L4,1800,1800,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_DK_1,1,0,56.1722313,7.538568201,offshorewind
+DK,windoff,DK_L6,460,460,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_DK_1,1,0,56.62229498,8.054614185,offshorewind
+DK,windoff,DK_west,900,900,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_DK_1,1,0,57.39261082,9.245659067,offshorewind
+DK,windoff,DK_L13,940,940,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_DK_1,1,0,56.45557533,11.82961502,offshorewind
+DK,windoff,DK_L11,300,300,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_DK_1,1,0,,,offshorewind
+NL_wind1_gemini,windoff,NL_L3,600,600,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_NL_2,1,0,54.03641636,5.96299549,offshorewind
+NL_wind5_hollandsse,windoff,NL_L2,5000,5600,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_NL_1,1,0,52.45,4.15,offshorewind
+NL_wind10_borssele,windoff,NL_L0,3800,3800,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_NL_1,1,0,51.70052493,2.995974049,offshorewind
+NL_wind7_tennet2,windoff,NL_L1_dc,0,8000,2000,4000,0,0,0,0,1,0,0,0,const,0,1,windoff_NL_1,1,0,53.1855,3.2902,offshorewind
+NL_wind11_tennet2,windoff,NL7,2600,6000,0,4000,0,0,0,0,1,0,0,0,const,0,1,windoff_NL_1,1,0,,,offshorewind
+NL_wind2_tennet2,windoff,NL1,2000,4000,2000,1000,0,0,0,0,1,0,0,0,const,0,1,windoff_NL_2,1,0,,,offshorewind
+NL_wind3,windoff,NL4,0,0,3000,6000,0,0,0,0,1,0,0,0,const,0,1,windoff_NL_2,1,0,,,offshorewind
+NL_wind4,windoff,NL5,0,0,4000,6000,0,0,0,0,1,0,0,0,const,0,1,windoff_NL_2,1,0,,,offshorewind
+Nordavind B.2050,windoff,NO_FINNMARK,0,0,0,1500,0,0,0,0,1,0,0,0,const,0,1,windon_NO_FINNMARK,1,0,71.77702737,27.75296304,offshorewind
+Nordavind D.2035,windoff,NO_FINNMARK,0,1500,0,0,0,0,0,0,1,0,0,0,const,0,1,windon_NO_FINNMARK,1,0,71.44972828,18.80136939,offshorewind
+Nordvest A.1,windoff,NO_marka,0,0,0,1500,0,0,0,0,1,0,0,0,const,0,1,windoff_NO_NordvestA,1,0,66.1,9.7,offshorewind
+Nordvest A.2,windoff,NO_marka,0,0,0,1500,0,0,0,0,1,0,0,0,const,0,1,windoff_NO_NordvestA,1,0,66.3,9.7,offshorewind
+Nordvest C.1,windoff,NO_NordvestC.1,0,1500,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_NO_NordvestC,1,0,63.5,6.6,offshorewind
+Nordvest C.2,windoff,NO_NordvestC.2,0,0,1500,0,0,0,0,0,1,0,0,0,const,0,1,windoff_NO_NordvestC,1,0,63.9,6.7,offshorewind
+Vestavind A,windoff,NO_VestavindA,0,0,1500,0,0,0,0,0,1,0,0,0,const,0,1,windoff_NO_VestavindA,1,0,61.98188847,3.705499849,offshorewind
+Vestavind B,windoff,NO_VestavindB,0,1500,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_NO_VestavindB,1,0,61.05563737,3.617045878,offshorewind
+Vestavind E.1,windoff,NO_VestavindE.1,0,0,1500,0,0,0,0,0,1,0,0,0,const,0,1,windoff_NO_VestavindE,1,0,59.1,3.85,offshorewind
+Vestavind E.2,windoff,NO_VestavindE.2,0,0,0,1500,0,0,0,0,1,0,0,0,const,0,1,windoff_NO_VestavindE,1,0,58.9,3.85,offshorewind
+Vestavind F.0,windoff,NO_haugaland,1500,1500,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_NO_VestavindF,1,0,59.45,4.5,offshorewind
+Vestavind F.1,windoff,NO_VestavindF,0,1500,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_NO_VestavindF,1,0,59.3,4.5,offshorewind
+Sørvest B.1,windoff,NO_SørvestB.1,0,1500,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_NO_SoervestB,1,0,57.4,3.36,offshorewind
+Sørvest B.2,windoff,NO_SørvestB.2,0,0,1500,0,0,0,0,0,1,0,0,0,const,0,1,windoff_NO_SoervestB,1,0,57.25,3.36,offshorewind
+Sørvest C.1,windoff,NO_SørvestC.1,0,0,1500,0,0,0,0,0,1,0,0,0,const,0,1,windoff_NO_SoervestC,1,0,57.1,3.95,offshorewind
+Sørvest C.2,windoff,NO_SørvestC.2,0,0,0,1500,0,0,0,0,1,0,0,0,const,0,1,windoff_NO_SoervestC,1,0,56.95,3.9,offshorewind
+Sørvest F.0,windoff,NO_kvinesdal_dc,1500,1500,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_NO_SoervestF,1,0,56.81703138,5.2,offshorewind
+Sørvest F.1,windoff,NO_SørvestF.1,0,1500,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_NO_SoervestF,1,0,56.84,4.872,offshorewind
+Sørvest F.2,windoff,NO_SørvestF.2,0,0,1500,0,0,0,0,0,1,0,0,0,const,0,1,windoff_NO_SoervestF,1,0,56.93,4.72,offshorewind
+Sørvest F.3,windoff,NO_SørvestF.3,0,0,0,1500,0,0,0,0,1,0,0,0,const,0,1,windoff_NO_SoervestF,1,0,56.65,4.7,offshorewind
+VÃ¤stvind,windoff,SE_L1,0,0,0,1000,0,0,0,0,1,0,0,0,const,0,1,windoff_SE_3,1,0,57.78,11.3,offshorewind
+Mareld,windoff,SE_N,0,0,0,2000,0,0,0,0,1,0,0,0,const,0,1,windoff_SE_3,1,0,58.16,10.58,offshorewind
+SE,windoff,SE_N,0,1000,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_SE_3,1,0,,,offshorewind
+Kattegatt Syd,windoff,SE_S,0,0,0,1000,0,0,0,0,1,0,0,0,const,0,1,windoff_SE_3,1,0,56.8,12,offshorewind
+SE,windoff,SE_S,0,0,2000,0,0,0,0,0,1,0,0,0,const,0,1,windoff_SE_3,1,0,,,offshorewind
+UK,windoff,UK_L10,1000,1000,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_sor,1,0,51.52798026,1.565024748,offshorewind
+UK,windoff,UK_L10,1200,1200,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_sor,1,0,51.88844422,1.985165858,offshorewind
+R4 Project 3 (Outer Dowsing),windoff,UK_L8,0,0,0,2000,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_sor,1,0,53.56846887,1.284692152,offshorewind
+UK,windoff,UK_L8,500,500,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_sor,1,0,53.72502342,0.222292715,offshorewind
+UK,windoff,UK_L8,3000,3000,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_sor,1,0,53.89795859,1.859500462,offshorewind
+UK,windoff,UK_L8,500,500,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_sor,1,0,53.17179846,0.464461559,offshorewind
+UK12_O,windoff,UK_L8,2000,2000,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_sor,1,0,53.28899434,1.05208029,offshorewind
+UK,windoff,UK_L9,2000,2000,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_sor,1,0,52.44889801,2.676992736,offshorewind
+R4 Irish Sea,windoff,UK_main,0,0,0,4000,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_sor,1,0,53.72084626,-3.922956832,offshorewind
+UK,windoff,UK12,2500,2500,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_sor,1,0,,,offshorewind
+East Anglia North Tranche One East  (Norfolk Vanguard East),windoff,UK17,0,0,0,4000,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_sor,1,0,52.82868329,2.925052315,offshorewind
+UK,windoff,UK17,2000,4000,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_sor,1,0,,,offshorewind
+North Falls,windoff,UK2,0,0,0,1000,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_sor,1,0,51.75418843,1.900752116,offshorewind
+UK,windoff,UK2,0,1000,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_sor,1,0,,,offshorewind
+DoggerbankA,windoff,UK_L7,1200,1200,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_mid,1,0,54.76967,1.908917,offshorewind
+DoggerbankB,windoff,UK_L7,1200,1200,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_mid,1,0,54.97737,1.679725,offshorewind
+UK,windoff,UK_L6,500,500,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_mid,1,0,54.88804445,-1.245936228,offshorewind
+UK_36,windoff,UK5,0,1000,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_mid,1,0,55.03989336,2.822688852,offshorewind
+R4 Project 1 (Dogger Bank South West),windoff,UK5,0,0,0,1800,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_mid,1,0,54.62498478,1.478738308,offshorewind
+UK,windoff,UK5,2000,4000,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_mid,1,0,,,offshorewind
+Marram,windoff,UK_L2,0,0,0,3000,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_scot,1,0,58.16203781,-0.622607007,offshorewind
+Ayre Offshore Wind Farm,windoff,UK4,0,0,0,1000,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_scot,1,0,58.8619326,-2.200573246,offshorewind
+Stromar,windoff,UK4,0,0,0,1000,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_scot,1,0,58.51438072,-2.145614763,offshorewind
+Magnora TBC,windoff,UK_L0,0,0,0,2000,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_scot,1,0,58.79601522,-6.361776069,offshorewind
+Northland Mhairi TBC,windoff,UK_L0,0,0,0,3000,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_scot,1,0,58.86306738,-5.537115232,offshorewind
+UK,windoff,UK_L0,1000,1000,2000,0,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_scot,1,0,58.85295482,-4.107659776,offshorewind
+UK,windoff,UK_L0,0,0,2000,0,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_scot,1,0,58.85855979,-5.541294948,offshorewind
+West of Orkney Wind Farm,windoff,UK_L0,0,0,0,2000,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_scot,1,0,58.91536416,-4.193018404,offshorewind
+UK,windoff,UK_L2,2500,2500,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_scot,1,0,58.20523722,-2.755477517,offshorewind
+UK,windoff,UK_L2,1000,1000,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_scot,1,0,58.1286235,-2.938916404,offshorewind
+Caledonia Offshore Wind Farm,windoff,UK_L2,0,0,0,1000,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_scot,1,0,58.19692755,-2.486427587,offshorewind
+UK,windoff,UK_L2,0,0,2000,0,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_scot,1,0,57.41865461,-0.569746067,offshorewind
+UK,windoff,UK_L3,500,500,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_scot,1,0,56.26801754,-2.24945389,offshorewind
+UK,windoff,UK_L3,1500,1500,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_scot,1,0,56.94338465,-1.855991377,offshorewind
+UK,windoff,UK_L3,1000,1000,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_scot,1,0,56.39191457,-2.23217215,offshorewind
+Berwick Bank,windoff,UK_L4,0,0,0,2000,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_scot,1,0,56.29163283,-1.468486476,offshorewind
+SeaGreen Charlie Wind Farm,windoff,UK_L4,0,0,0,2000,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_scot,1,0,56.29170591,-1.466824812,offshorewind
+UK,windoff,UK_L4,1400,1400,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_scot,1,0,56.28042922,-1.49546784,offshorewind
+MachairWind,windoff,UK_scotland,0,0,0,2000,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_scot,1,0,56.01413752,-6.673811948,offshorewind
+Marr Bank Wind Farm,windoff,UK_L3,0,0,0,2000,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_scot,1,0,56.34467041,-1.794018007,offshorewind
+UK,windoff,UK_L3,2500,4500,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_scot,1,0,56.55839784,-1.793786614,offshorewind
+Shetland Offshore Wind,windoff,UK19,0,0,0,2000,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_scot,1,0,60.47063494,-0.028451122,offshorewind
+Morven,windoff,UK22,0,0,0,2000,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_scot,1,0,56.65773182,-0.874508245,offshorewind
+UK,windoff,UK22,0,5000,0,0,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_scot,1,0,,,offshorewind
+Bowdun Offshore Wind Farm,windoff,UK_L3,0,0,0,2000,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_scot,1,0,56.97488752,-1.345901924,offshorewind
+UK,windoff,UK_L3,0,0,2000,0,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_scot,1,0,56.98254193,-1.392692227,offshorewind
+Bellrock,windoff,UK22,0,0,0,1200,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_scot,1,0,56.84573779,0.035527072,offshorewind
+Campion,windoff,UK22,0,0,0,2000,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_scot,1,0,57.30600006,0.114127588,offshorewind
+UK,windoff,UK22,0,0,3000,0,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_scot,1,0,57.12943659,0.043269802,offshorewind
+UK,windoff,UK4,0,0,2000,0,0,0,0,0,1,0,0,0,const,0,1,windoff_GB_scot,1,0,,,offshorewind
